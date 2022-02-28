@@ -13,6 +13,26 @@ type ProductRequest = {
 
 export class ProductsService {
 
+    async count(pageSize:number):(Promise<ResponseData>) {
+        const count = await getRepository(Products).count();
+        return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
+            pageSize: pageSize,
+            totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
+    }
+
+    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await  getRepository(Products).find({
+            relations:["productType"],
+            skip: pageNumber * pageSize,
+            take: pageSize,
+            order: {
+                name: "ASC"
+            }
+        });
+
+        return new ResponseData(StatusCodes.OK, "", list);
+    }
+
     async create({name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
         const repository = getRepository(Products);
         const productTypeRepository = getRepository(ProductTypes);
@@ -34,26 +54,6 @@ export class ProductsService {
         await repository.save(product);
 
         return new ResponseData(StatusCodes.CREATED, "", product);
-    }
-
-    async count(pageSize:number):(Promise<ResponseData>) {
-        const count = await getRepository(Products).count();
-        return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
-            pageSize: pageSize,
-            totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
-    }
-
-    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await  getRepository(Products).find({
-            relations:["productType"],
-            skip: pageNumber * pageSize,
-            take: pageSize,
-            order: {
-                name: "ASC"
-            }
-        });
-
-        return new ResponseData(StatusCodes.OK, "", list);
     }
 
     async get(id:number):(Promise<ResponseData>) {

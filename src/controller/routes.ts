@@ -1,8 +1,8 @@
 import {Router} from "express";
 import {ProductTypesController} from "./ProductTypesController";
 import {ProductsController} from "./ProductsController";
-import {Products} from "../entity/Products";
 import {ProductPriceController} from "./ProductPriceController";
+import {UsersController} from "./UsersController";
 
 const routes = Router();
 
@@ -40,6 +40,24 @@ routes.get("/api/productPrices/product/:productId", productPriceController.listB
 
 routes.delete("/api/productPrices/:id", productPriceController.delete);
 routes.delete("/api/productPrices/product/:productId", productPriceController.deleteByProduct);
+
+
+// Users
+const usersController = new UsersController();
+
+routes.post("/api/users", usersController.create);
+routes.get("/api/users", usersController.list);
+routes.get("/api/users/count", usersController.count);
+
+routes.get("/api/users/userType/:userType", usersController.listByUserType);
+
+routes.get("/api/users/:id", usersController.get);
+routes.get("/api/users/email/:email", usersController.getByEmail);
+routes.delete("/api/users/:id", usersController.delete);
+
+routes.put("/api/users/:id", usersController.update);
+routes.post("/api/users/password", usersController.updatePassword);
+routes.post("/api/users/login", usersController.login);
 
 
 export { routes };
