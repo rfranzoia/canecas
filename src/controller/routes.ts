@@ -2,6 +2,7 @@ import {Router} from "express";
 import {ProductTypesController} from "./ProductTypesController";
 import {ProductsController} from "./ProductsController";
 import {Products} from "../entity/Products";
+import {ProductPriceController} from "./ProductPriceController";
 
 const routes = Router();
 
@@ -27,5 +28,18 @@ routes.get("/api/products/count", productsController.count);
 routes.get("/api/products/:id", productsController.get);
 routes.delete("/api/products/:id", productsController.delete);
 routes.put("/api/products/:id", productsController.update);
+
+// productPrices
+const productPriceController = new ProductPriceController();
+
+routes.post("/api/productPrices/add", productPriceController.createAll);
+routes.post("/api/productPrices", productPriceController.create);
+
+routes.get("/api/productPrices", productPriceController.list);
+routes.get("/api/productPrices/product/:productId", productPriceController.listByProduct);
+
+routes.delete("/api/productPrices/:id", productPriceController.delete);
+routes.delete("/api/productPrices/product/:productId", productPriceController.deleteByProduct);
+
 
 export { routes };
