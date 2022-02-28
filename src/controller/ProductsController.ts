@@ -29,4 +29,26 @@ export class ProductsController {
         const result = await service.list(Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
         response.status(result.statusCode).send(result);
     }
+
+    async get(request: Request, response: Response) {
+        const service = new ProductsService();
+        const {id} = request.params;
+        const result = await service.get(Number(id));
+        response.status(result.statusCode).send(result);
+    }
+
+    async delete(request: Request, response: Response) {
+        const service = new ProductsService();
+        const {id} = request.params;
+        const result = await service.delete(Number(id));
+        response.status(result.statusCode).send(result);
+    }
+
+    async update(request: Request, response: Response) {
+        const service = new ProductsService();
+        const {id} = request.params;
+        const {name, description, product_type_id, image} = request.body;
+        const result = await service.update(Number(id), {name, description, product_type_id, image});
+        response.status(result.statusCode).send(result);
+    }
 }

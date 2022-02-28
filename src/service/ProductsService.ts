@@ -36,14 +36,14 @@ export class ProductsService {
         return new ResponseData(StatusCodes.CREATED, "", product);
     }
 
-    async count(pageSize:number) {
+    async count(pageSize:number):(Promise<ResponseData>) {
         const count = await getRepository(Products).count();
         return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
             pageSize: pageSize,
             totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
     }
 
-    async list(pageNumber:number, pageSize:number) {
+    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
         const list = await  getRepository(Products).find({
             relations:["productType"],
             skip: pageNumber * pageSize,
@@ -54,5 +54,43 @@ export class ProductsService {
         });
 
         return new ResponseData(StatusCodes.OK, "", list);
+    }
+
+    async get(id:number):(Promise<ResponseData>) {
+        const product = await  getRepository(Products)
+            .findOne({
+                relations:["productType"],
+                where: {id: id}
+        });
+        return new ResponseData(StatusCodes.OK, "", product);
+    }
+
+    async delete(id: number):(Promise<ResponseData>) {
+        const product = await getRepository(Products).findOne(id);
+        if (!product) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
+        }
+        await getRepository(Products).delete({id});
+        return new ResponseData(StatusCodes.OK, "Produto removido com Sucesso!", product);
+    }
+
+    async update(id: number, {name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
+        const product = await getRepository(Products).findOne(id);
+        if (!product) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
+        }
+        if (await getRepository(Products).findOne({name})) {
+            return new ResponseData(StatusCodes.BAD_REQUEST, "Já existe um produto com o nome informado!!");
+        }
+
+        product.name = name? name: product.name;
+        product.description = description? description: product.description;
+        product.product_type_id = product_type_id? product_type_id: product.product_type_id;
+        product.image = image? image: product.image;
+
+        await getRepository(Products).save(product);
+
+        return new ResponseData(StatusCodes.OK, "Produto atualizado com Sucesso!", product);
+
     }
 }

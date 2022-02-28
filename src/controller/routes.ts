@@ -24,4 +24,8 @@ routes.post("/api/products", productsController.create);
 routes.get("/api/products", productsController.list);
 routes.get("/api/products/count", productsController.count);
 
+routes.get("/api/products/:id", productsController.get);
+routes.delete("/api/products/:id", productsController.delete);
+routes.put("/api/products/:id", productsController.update);
+
 export { routes };
