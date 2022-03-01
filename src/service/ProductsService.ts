@@ -13,15 +13,17 @@ type ProductRequest = {
 
 export class ProductsService {
 
+    repository = getRepository(Products);
+    
     async count(pageSize:number):(Promise<ResponseData>) {
-        const count = await getRepository(Products).count();
+        const count = await this.repository.count();
         return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
             pageSize: pageSize,
             totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
     }
 
     async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await  getRepository(Products).find({
+        const list = await  this.repository.find({
             relations:["productType"],
             skip: pageNumber * pageSize,
             take: pageSize,
@@ -34,7 +36,7 @@ export class ProductsService {
     }
 
     async create({name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
-        const repository = getRepository(Products);
+        const repository = this.repository;
         const productTypeRepository = getRepository(ProductTypes);
 
         if (await repository.findOne({name})) {
@@ -57,7 +59,7 @@ export class ProductsService {
     }
 
     async get(id:number):(Promise<ResponseData>) {
-        const product = await  getRepository(Products)
+        const product = await  this.repository
             .findOne({
                 relations:["productType"],
                 where: {id: id}
@@ -66,20 +68,20 @@ export class ProductsService {
     }
 
     async delete(id: number):(Promise<ResponseData>) {
-        const product = await getRepository(Products).findOne(id);
+        const product = await this.repository.findOne(id);
         if (!product) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
         }
-        await getRepository(Products).delete({id});
+        await this.repository.delete({id});
         return new ResponseData(StatusCodes.OK, "Produto removido com Sucesso!", product);
     }
 
     async update(id: number, {name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
-        const product = await getRepository(Products).findOne(id);
+        const product = await this.repository.findOne(id);
         if (!product) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
         }
-        if (await getRepository(Products).findOne({name})) {
+        if (await this.repository.findOne({name})) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "Já existe um produto com o nome informado!!");
         }
 
@@ -88,7 +90,7 @@ export class ProductsService {
         product.product_type_id = product_type_id? product_type_id: product.product_type_id;
         product.image = image? image: product.image;
 
-        await getRepository(Products).save(product);
+        await this.repository.save(product);
 
         return new ResponseData(StatusCodes.OK, "Produto atualizado com Sucesso!", product);
 

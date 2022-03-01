@@ -12,8 +12,10 @@ export type ProductPriceRequest = {
 
 export class ProductPricesService {
 
+    repository = getRepository(ProductPrices);
+
     async list(pageNumber: number, pageSize: number): Promise<ResponseData> {
-        const list = await  getRepository(ProductPrices).find({
+        const list = await this.repository.find({
             relations:["product"],
             skip: pageNumber * pageSize,
             take: pageSize,
@@ -27,7 +29,7 @@ export class ProductPricesService {
     }
 
     async listByProduct(product_id: number): Promise<ResponseData> {
-        const list = await getRepository(ProductPrices).find({
+        const list = await this.repository.find({
             relations:["product"],
             where: {
                 product_id: product_id
@@ -41,20 +43,20 @@ export class ProductPricesService {
     }
 
     async delete(id: number): Promise<ResponseData> {
-        const productPrice = await getRepository(ProductPrices).findOne(id);
+        const productPrice = await this.repository.findOne(id);
         if (!productPrice) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Preço de Produto com Id informado não existe!");
         }
-        await getRepository(ProductPrices).delete({id});
+        await this.repository.delete({id});
         return new ResponseData(StatusCodes.OK, "Preço de Produto removido com Sucesso!", productPrice);
     }
 
     async deleteByProduct(productId: number): Promise<ResponseData> {
-        const prices = await getRepository(ProductPrices).find({ product_id: productId});
+        const prices = await this.repository.find({ product_id: productId});
         if (!prices) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Não existem preços cadastrados para o Produto informado!");
         }
-        await getRepository(ProductPrices).delete({
+        await this.repository.delete({
             product_id: productId
         });
         return new ResponseData(StatusCodes.OK, "Os Preços do Produto informado foram removido com Sucesso!", prices);
@@ -62,21 +64,19 @@ export class ProductPricesService {
 
     // TODO: include additional validation (check if valid price for product already exists)
     async create({product_id, price, validFrom, validTo}: ProductPriceRequest): Promise<ResponseData> {
-        const repository = getRepository(ProductPrices);
         const ppr = {
             product_id: Number(product_id),
             price: Number(price),
             validFrom: new Date(validFrom),
             validTo: new Date(validTo)
         }
-        const productPrice = await repository.create(ppr);
-        await getRepository(ProductPrices).save(productPrice);
+        const productPrice = await this.repository.create(ppr);
+        await this.repository.save(productPrice);
         return new ResponseData(StatusCodes.OK, "Prices added", productPrice);
     }
 
     // TODO: include additional validation (check if valid price for product already exists)
     async createAll(data: ProductPriceRequest[]): Promise<ResponseData> {
-        const repository = getRepository(ProductPrices);
         let prices: ProductPrices[] = [];
 
         for (let i = 0; i < data.length; i++) {
@@ -86,9 +86,9 @@ export class ProductPricesService {
                 validFrom: new Date(data[i].validFrom),
                 validTo: new Date(data[i].validTo)
             }
-            const productPrice = await repository.create(ppr);
+            const productPrice = await this.repository.create(ppr);
             if (productPrice) {
-                await getRepository(ProductPrices).save(productPrice);
+                await this.repository.save(productPrice);
                 prices.push(productPrice);
             }
         }

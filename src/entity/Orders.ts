@@ -1,5 +1,6 @@
-import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from "typeorm";
 import { v4 as uuid } from 'uuid';
+import {Users} from "./Users";
 
 @Entity("orders")
 export class Orders {
@@ -7,11 +8,12 @@ export class Orders {
     @PrimaryGeneratedColumn()
     id: uuid;
 
-    @Column({
-        name: "user_id",
-        type: "bigint"
-    })
-    user: number;
+    @ManyToOne(() => Users)
+    @JoinColumn({name:"user_id"})
+    user: Users;
+
+    @Column()
+    user_id: number;
 
     @Column({
         name: "order_date",

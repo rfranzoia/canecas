@@ -33,9 +33,9 @@ export class OrdersService {
         return new ResponseData(StatusCodes.OK, "", order);
     }
 
-    async create(user: number):(Promise<ResponseData>) {
+    async create(user_id: number):(Promise<ResponseData>) {
         const order = await getRepository(Orders).create({
-            user
+            user_id
         });
         await getRepository(Orders).save(order);
         return new ResponseData(StatusCodes.CREATED, "", order);
