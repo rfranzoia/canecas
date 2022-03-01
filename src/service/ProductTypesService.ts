@@ -6,7 +6,14 @@ import {StatusCodes} from "http-status-codes";
 export class ProductTypesService {
 
     repository = getRepository(ProductTypes);
-    
+
+    async count(pageSize:number) {
+        const count = await this.repository.count();
+        return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
+            pageSize: pageSize,
+            totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
+    }
+
     async list(pageNumber:number, pageSize:number) {
         const list = await this.repository
             .createQueryBuilder("pt")
@@ -16,13 +23,6 @@ export class ProductTypesService {
             .getMany();
 
         return new ResponseData(StatusCodes.OK, "", list);
-    }
-
-    async count(pageSize:number) {
-        const count = await this.repository.count();
-        return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
-            pageSize: pageSize,
-            totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
     }
 
     async get(id: number):(Promise<ResponseData>) {
