@@ -40,12 +40,23 @@ export class OrdersService {
         return new ResponseData(StatusCodes.OK, "", o);
     }
 
-    async create(user_id: number):(Promise<ResponseData>) {
+    async create(user_id: number, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
         const order = await this.repository.create({
             user_id
         });
-        await this.repository.save(order);
-        return new ResponseData(StatusCodes.CREATED, "", order);
+        await this.repository.save(order)
+        for (let i = 0; i < orderItems.length; i++) {
+            const orderItem = await getRepository(OrderItems).create({
+                order_id: order.id,
+                product_id: orderItems[i].product_id,
+                quantity: orderItems[i].quantity,
+                price: orderItems[i].price,
+                discount: orderItems[i].discount
+            });
+            await getRepository(OrderItems).save(orderItem);
+        }
+        const o = await this.repository.findOne(order.id);
+        return new ResponseData(StatusCodes.CREATED, "", await this.getCompleteOrder(o));
     }
 
     async delete(id: uuid):(Promise<ResponseData>) {
@@ -80,11 +91,11 @@ export class OrdersService {
             }
         });
 
-        let items: OrdemItem[] = [];
+        let items: OrderItem[] = [];
         for (let i = 0; i < orderItems.length; i++) {
             const oi = orderItems[i];
             const product = await getRepository(Products).findOne(oi.product_id);
-            items.push(new OrdemItem(oi.id,
+            items.push(new OrderItem(oi.id,
                 product,
                 oi.quantity,
                 oi.price,
@@ -92,6 +103,13 @@ export class OrdersService {
         }
         return new Order(order.id, order.orderDate, order.orderStatus, items);
     }
+}
+
+type OrderItemRequest = {
+    product_id: number;
+    quantity: number;
+    price: number;
+    discount: number;
 }
 
 class OrderHistory {
@@ -110,7 +128,7 @@ class OrderHistory {
     }
 }
 
-class OrdemItem {
+class OrderItem {
     id: number;
     product: Products;
     quantity: number;
@@ -132,10 +150,10 @@ class Order {
     user: Users;
     orderDate: Date;
     orderStatus: string;
-    items: OrdemItem[];
+    items: OrderItem[];
     history: OrderHistory[];
 
-    constructor(id: uuid, orderDate: Date, orderStatus: string, items: OrdemItem[]) {
+    constructor(id: uuid, orderDate: Date, orderStatus: string, items: OrderItem[]) {
         this.id = id;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;

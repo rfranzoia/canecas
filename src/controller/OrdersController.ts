@@ -33,8 +33,8 @@ export class OrdersController {
     }
 
     async create(request: Request, response: Response) {
-        const { user } = request.body;
-        const result = await OrdersController.getService().create(user);
+        const { user_id, orderItems } = request.body;
+        const result = await OrdersController.getService().create(user_id, orderItems);
         response.status(result.statusCode).send(result);
     }
 
