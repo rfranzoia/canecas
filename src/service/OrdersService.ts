@@ -64,21 +64,29 @@ export class OrdersService {
             });
             await this.repository.save(order)
         }
-        for (let i = 0; i < orderItems.length; i++) {
-            const orderItem = await getRepository(OrderItems).create({
-                order_id: order.id,
-                product_id: orderItems[i].product_id,
-                quantity: orderItems[i].quantity,
-                price: orderItems[i].price,
-                discount: orderItems[i].discount
-            });
-            await getRepository(OrderItems).save(orderItem);
-        }
-        const o = await this.repository.findOne(order.id);
+        const o = await this.createItemsAndGetOrder(orderItems, order);
         return new ResponseData(StatusCodes.CREATED, "", await this.getCompleteOrder(o));
     }
 
-    async delete(id: uuid):(Promise<ResponseData>) {
+    async addRemoveOrderItems(order_id: uuid, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
+        const order = await this.repository.findOne(order_id);
+        if (!order) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado com o ID informado!");
+
+        } else if (order.orderStatus !== "0") {
+            return new ResponseData(StatusCodes.BAD_REQUEST, "O Pedido informado não pode ser modificado!");
+        }
+
+        // delete all existing items
+        await getRepository(OrderItems).delete({
+            order_id: order.id
+        });
+
+        const o = await this.createItemsAndGetOrder(orderItems, order);
+        return new ResponseData(StatusCodes.OK, "", await this.getCompleteOrder(o));
+    }
+
+    async deleteOrderAndItems(id: uuid):(Promise<ResponseData>) {
         const order = await this.repository.findOne({id});
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
@@ -95,7 +103,7 @@ export class OrdersService {
         return new ResponseData(StatusCodes.OK, "Pedido removido com sucesso!", order);
     }
 
-    async updateStatus(id: uuid, orderStatus: string, changeReason: string):(Promise<ResponseData>) {
+    async updateOrderStatus(id: uuid, orderStatus: string, changeReason: string):(Promise<ResponseData>) {
         const order = await this.repository.findOne({id});
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
@@ -121,6 +129,22 @@ export class OrdersService {
         });
         await getRepository(OrdersHistory).save(history);
         return new ResponseData(StatusCodes.OK, "Situação do Pedido atualizada com sucesso!", order);
+    }
+
+    // add items to an provided order
+    private async createItemsAndGetOrder(orderItems: OrderItemRequest[], order: Orders) {
+        for (let i = 0; i < orderItems.length; i++) {
+            const orderItem = await getRepository(OrderItems).create({
+                order_id: order.id,
+                product_id: orderItems[i].product_id,
+                quantity: orderItems[i].quantity,
+                price: orderItems[i].price,
+                discount: orderItems[i].discount
+            });
+            await getRepository(OrderItems).save(orderItem);
+        }
+        const o = await this.repository.findOne(order.id);
+        return o;
     }
 
     // retrieves an order with all items and history

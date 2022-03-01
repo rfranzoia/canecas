@@ -45,16 +45,23 @@ export class OrdersController {
         response.status(result.statusCode).send(result);
     }
 
+    async addRemoveOrderItems(request: Request, response: Response) {
+        const { id } = request.params;
+        const { orderItems } = request.body;
+        const result = await OrdersController.getService().addRemoveOrderItems(id, orderItems);
+        response.status(result.statusCode).send(result);
+    }
+
     async delete(request: Request, response: Response) {
         const { id } = request.params;
-        const result = await OrdersController.getService().delete(id);
+        const result = await OrdersController.getService().deleteOrderAndItems(id);
         response.status(result.statusCode).send(result);
     }
 
     async updateStatus(request: Request, response: Response) {
         const { id } = request.params;
         const { orderStatus, changeReason } = request.body;
-        const result = await OrdersController.getService().updateStatus(id, orderStatus, changeReason);
+        const result = await OrdersController.getService().updateOrderStatus(id, orderStatus, changeReason);
         response.status(result.statusCode).send(result);
     }
 }
