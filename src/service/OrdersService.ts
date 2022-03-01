@@ -101,6 +101,11 @@ export class OrdersService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
         }
 
+        // OrderStatus always "move" forward, never backwards
+        if (Number(order.orderStatus) > Number(orderStatus)) {
+            return new ResponseData(StatusCodes.BAD_REQUEST, "O novo status de pedido informado não é válido!");
+        }
+
         // save status before change to new one
         const previous = order.orderStatus;
 
@@ -119,7 +124,6 @@ export class OrdersService {
     }
 
     // retrieves an order with all items and history
-    // TODO: add history to the complete order
     private async getCompleteOrder(order: Orders) {
         const orderItems = await getRepository(OrderItems).find({
             where: {
@@ -132,10 +136,11 @@ export class OrdersService {
             const oi = orderItems[i];
             const product = await getRepository(Products).findOne(oi.product_id);
             items.push(new OrderItemDTO(
+                Number(oi.id),
                 product,
-                oi.quantity,
-                oi.price,
-                oi.discount));
+                Number(oi.quantity),
+                Number(oi.price),
+                Number(oi.discount)));
         }
 
         const orderHistory = await getRepository(OrdersHistory).find({
@@ -177,12 +182,14 @@ class OrderHistoryDTO {
 }
 
 class OrderItemDTO {
+    id: number;
     product: Products;
     quantity: number;
     price: number;
     discount: number;
 
-    constructor(product: Products, quantity: number, price: number, discount: number) {
+    constructor(id: number, product: Products, quantity: number, price: number, discount: number) {
+        this.id = id;
         this.product = product;
         this.quantity = quantity;
         this.price = price;
