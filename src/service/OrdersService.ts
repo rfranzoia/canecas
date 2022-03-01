@@ -3,6 +3,9 @@ import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {Orders} from "../entity/Orders";
 import { v4 as uuid } from 'uuid';
+import {Users} from "../entity/Users";
+import {Products} from "../entity/Products";
+import {OrderItems} from "../entity/OrderItems";
 
 export class OrdersService {
 
@@ -32,7 +35,9 @@ export class OrdersService {
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
         }
-        return new ResponseData(StatusCodes.OK, "", order);
+
+        const o = await this.getCompleteOrder(order);
+        return new ResponseData(StatusCodes.OK, "", o);
     }
 
     async create(user_id: number):(Promise<ResponseData>) {
@@ -64,5 +69,76 @@ export class OrdersService {
         order.orderStatus = orderStatus;
         await this.repository.save(order);
         return new ResponseData(StatusCodes.OK, "Pedido atualizado com sucesso!", order);
+    }
+
+    // retrieves an order with all items and history
+    // TODO: add history to the complete order
+    private async getCompleteOrder(order: Orders) {
+        const orderItems = await getRepository(OrderItems).find({
+            where: {
+                order_id: order.id
+            }
+        });
+
+        let items: OrdemItem[] = [];
+        for (let i = 0; i < orderItems.length; i++) {
+            const oi = orderItems[i];
+            const product = await getRepository(Products).findOne(oi.product_id);
+            items.push(new OrdemItem(oi.id,
+                product,
+                oi.quantity,
+                oi.price,
+                oi.discount));
+        }
+        return new Order(order.id, order.orderDate, order.orderStatus, items);
+    }
+}
+
+class OrderHistory {
+    id: number;
+    changeDate: Date;
+    previousStatus: string;
+    currentStatus: string;
+    changeReason: string;
+
+    constructor(id: number, changeDate: Date, previousStatus: string, currentStatus: string, changeReason: string) {
+        this.id = id;
+        this.changeDate = changeDate;
+        this.previousStatus = previousStatus;
+        this.currentStatus = currentStatus;
+        this.changeReason = changeReason;
+    }
+}
+
+class OrdemItem {
+    id: number;
+    product: Products;
+    quantity: number;
+    price: number;
+    discount: number;
+
+    constructor(id: number, product: Products, quantity: number, price: number, discount: number) {
+        this.id = id;
+        this.product = product;
+        this.quantity = quantity;
+        this.price = price;
+        this.discount = discount;
+    }
+
+}
+
+class Order {
+    id: uuid;
+    user: Users;
+    orderDate: Date;
+    orderStatus: string;
+    items: OrdemItem[];
+    history: OrderHistory[];
+
+    constructor(id: uuid, orderDate: Date, orderStatus: string, items: OrdemItem[]) {
+        this.id = id;
+        this.orderDate = orderDate;
+        this.orderStatus = orderStatus;
+        this.items = items;
     }
 }
