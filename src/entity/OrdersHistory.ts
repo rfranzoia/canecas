@@ -4,7 +4,7 @@ import {Orders} from "./Orders";
 import {Products} from "./Products";
 
 @Entity("order_history")
-export class OrderHistory {
+export class OrdersHistory {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -35,6 +35,10 @@ export class OrderHistory {
     })
     currentStatus: string;
 
-    @Column()
+    @Column({
+        name: "change_reason",
+        type: "varchar",
+        length: 300
+    })
     changeReason: string;
 }

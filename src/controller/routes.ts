@@ -64,10 +64,10 @@ routes.post("/api/users/login", usersController.login);
 const ordersController = new OrdersController();
 
 routes.get("/api/orders", ordersController.list);
+routes.get("/api/orders/user/:user_id/status/:order_status", ordersController.listByUserAndStatus);
 routes.get("/api/orders/count", ordersController.count);
 routes.post("/api/orders", ordersController.create);
 routes.get("/api/orders/:id", ordersController.get);
-
-
+routes.put("/api/orders/:id", ordersController.updateStatus);
 
 export { routes };

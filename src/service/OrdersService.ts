@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import {Users} from "../entity/Users";
 import {Products} from "../entity/Products";
 import {OrderItems} from "../entity/OrderItems";
+import {OrdersHistory} from "../entity/OrdersHistory";
 
 export class OrdersService {
 
@@ -30,6 +31,21 @@ export class OrdersService {
         return new ResponseData(StatusCodes.OK, "", list);
     }
 
+    async listByUserAndStatus(user_id: number, orderStatus: string, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await this.repository.find({
+            skip: pageNumber * pageSize,
+            take: pageSize,
+            where: {
+                user_id: user_id,
+                orderStatus: orderStatus
+            },
+            order: {
+                orderDate: "DESC"
+            }
+        });
+        return new ResponseData(StatusCodes.OK, "", list);
+    }
+
     async get(id: uuid):(Promise<ResponseData>) {
         const order = await this.repository.findOne({id});
         if (!order) {
@@ -41,10 +57,13 @@ export class OrdersService {
     }
 
     async create(user_id: number, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
-        const order = await this.repository.create({
-            user_id
-        });
-        await this.repository.save(order)
+        let order = await this.repository.findOne({user_id: user_id, orderStatus: "0"});
+        if (!order) {
+            order = await this.repository.create({
+                user_id
+            });
+            await this.repository.save(order)
+        }
         for (let i = 0; i < orderItems.length; i++) {
             const orderItem = await getRepository(OrderItems).create({
                 order_id: order.id,
@@ -67,19 +86,36 @@ export class OrdersService {
         } else if (order.orderStatus !== "0") {
             return new ResponseData(StatusCodes.BAD_REQUEST, "O Pedido informado não pode ser excluido!");
         }
+        // delete all items first
+        await getRepository(OrderItems).delete({
+            order_id: id
+        });
+        // now delete de order
         await this.repository.delete({id});
         return new ResponseData(StatusCodes.OK, "Pedido removido com sucesso!", order);
     }
 
-    // TODO: insert history data after update
-    async updateStatus(id: uuid, orderStatus: string):(Promise<ResponseData>) {
+    async updateStatus(id: uuid, orderStatus: string, changeReason: string):(Promise<ResponseData>) {
         const order = await this.repository.findOne({id});
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
         }
+
+        // save status before change to new one
+        const previous = order.orderStatus;
+
         order.orderStatus = orderStatus;
         await this.repository.save(order);
-        return new ResponseData(StatusCodes.OK, "Pedido atualizado com sucesso!", order);
+
+        // add the change to the OrdersHistory
+        const history = await getRepository(OrdersHistory).create({
+            order_id: order.id,
+            previousStatus: previous,
+            currentStatus: order.orderStatus,
+            changeReason: changeReason
+        });
+        await getRepository(OrdersHistory).save(history);
+        return new ResponseData(StatusCodes.OK, "Situação do Pedido atualizada com sucesso!", order);
     }
 
     // retrieves an order with all items and history
@@ -91,17 +127,31 @@ export class OrdersService {
             }
         });
 
-        let items: OrderItem[] = [];
+        let items: OrderItemDTO[] = [];
         for (let i = 0; i < orderItems.length; i++) {
             const oi = orderItems[i];
             const product = await getRepository(Products).findOne(oi.product_id);
-            items.push(new OrderItem(oi.id,
+            items.push(new OrderItemDTO(
                 product,
                 oi.quantity,
                 oi.price,
                 oi.discount));
         }
-        return new Order(order.id, order.orderDate, order.orderStatus, items);
+
+        const orderHistory = await getRepository(OrdersHistory).find({
+            where: {
+                order_id: order.id
+            },
+            order: {
+                changeDate: "DESC"
+            }
+        });
+        let history: OrderHistoryDTO[] = [];
+        for (let i = 0; i < orderHistory.length; i++) {
+            const oh = orderHistory[i];
+            history.push(new OrderHistoryDTO(oh.changeDate, oh.previousStatus, oh.currentStatus, oh.changeReason))
+        }
+        return new OrderDTO(order.id, order.orderDate, order.orderStatus, items, history);
     }
 }
 
@@ -112,15 +162,13 @@ type OrderItemRequest = {
     discount: number;
 }
 
-class OrderHistory {
-    id: number;
+class OrderHistoryDTO {
     changeDate: Date;
     previousStatus: string;
     currentStatus: string;
     changeReason: string;
 
-    constructor(id: number, changeDate: Date, previousStatus: string, currentStatus: string, changeReason: string) {
-        this.id = id;
+    constructor(changeDate: Date, previousStatus: string, currentStatus: string, changeReason: string) {
         this.changeDate = changeDate;
         this.previousStatus = previousStatus;
         this.currentStatus = currentStatus;
@@ -128,15 +176,13 @@ class OrderHistory {
     }
 }
 
-class OrderItem {
-    id: number;
+class OrderItemDTO {
     product: Products;
     quantity: number;
     price: number;
     discount: number;
 
-    constructor(id: number, product: Products, quantity: number, price: number, discount: number) {
-        this.id = id;
+    constructor(product: Products, quantity: number, price: number, discount: number) {
         this.product = product;
         this.quantity = quantity;
         this.price = price;
@@ -145,18 +191,19 @@ class OrderItem {
 
 }
 
-class Order {
+class OrderDTO {
     id: uuid;
     user: Users;
     orderDate: Date;
     orderStatus: string;
-    items: OrderItem[];
-    history: OrderHistory[];
+    items: OrderItemDTO[];
+    history: OrderHistoryDTO[];
 
-    constructor(id: uuid, orderDate: Date, orderStatus: string, items: OrderItem[]) {
+    constructor(id: uuid, orderDate: Date, orderStatus: string, items: OrderItemDTO[], history: OrderHistoryDTO[]) {
         this.id = id;
         this.orderDate = orderDate;
         this.orderStatus = orderStatus;
         this.items = items;
+        this.history = history;
     }
 }

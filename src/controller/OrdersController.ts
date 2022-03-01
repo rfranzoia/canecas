@@ -26,6 +26,13 @@ export class OrdersController {
         response.status(result.statusCode).send(result);
     }
 
+    async listByUserAndStatus(request: Request, response: Response) {
+        const {pageNumber, pageSize} = request.query;
+        const {user_id, order_status} = request.params;
+        const result = await OrdersController.getService().listByUserAndStatus(Number(user_id), order_status, Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        response.status(result.statusCode).send(result);
+    }
+
     async get(request: Request, response: Response) {
         const { id } = request.params;
         const result = await OrdersController.getService().get(id);
@@ -41,6 +48,13 @@ export class OrdersController {
     async delete(request: Request, response: Response) {
         const { id } = request.params;
         const result = await OrdersController.getService().delete(id);
+        response.status(result.statusCode).send(result);
+    }
+
+    async updateStatus(request: Request, response: Response) {
+        const { id } = request.params;
+        const { orderStatus, changeReason } = request.body;
+        const result = await OrdersController.getService().updateStatus(id, orderStatus, changeReason);
         response.status(result.statusCode).send(result);
     }
 }
