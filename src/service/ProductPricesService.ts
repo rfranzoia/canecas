@@ -2,7 +2,6 @@ import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {getRepository} from "typeorm";
 import {ProductPrices} from "../entity/ProductPrices";
-import {Products} from "../entity/Products";
 
 export type ProductPriceRequest = {
     product_id: number;

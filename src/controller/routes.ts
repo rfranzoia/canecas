@@ -3,6 +3,7 @@ import {ProductTypesController} from "./ProductTypesController";
 import {ProductsController} from "./ProductsController";
 import {ProductPriceController} from "./ProductPriceController";
 import {UsersController} from "./UsersController";
+import {OrdersController} from "./OrdersController";
 
 const routes = Router();
 
@@ -58,6 +59,15 @@ routes.delete("/api/users/:id", usersController.delete);
 routes.put("/api/users/:id", usersController.update);
 routes.post("/api/users/password", usersController.updatePassword);
 routes.post("/api/users/login", usersController.login);
+
+// Orders & Items
+const ordersController = new OrdersController();
+
+routes.get("/api/orders", ordersController.list);
+routes.get("/api/orders/count", ordersController.count);
+routes.post("/api/orders", ordersController.create);
+routes.get("/api/orders/:id", ordersController.get);
+
 
 
 export { routes };
