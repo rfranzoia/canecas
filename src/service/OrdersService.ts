@@ -36,6 +36,7 @@ export class OrdersService {
 
     async listByUserAndStatus(user_id: number, orderStatus: string, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
         const list = await this.repository.find({
+            relations: ["user"],
             skip: pageNumber * pageSize,
             take: pageSize,
             where: {
