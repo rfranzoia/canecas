@@ -1,4 +1,4 @@
-import {ResponseData} from "../controller/ResponseData";
+import {ResponseData} from "../dto/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {getRepository} from "typeorm";
 import {ProductPrices} from "../entity/ProductPrices";

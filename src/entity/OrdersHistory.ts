@@ -1,7 +1,6 @@
 import {Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn} from "typeorm";
 import { v4 as uuid } from 'uuid';
 import {Orders} from "./Orders";
-import {Products} from "./Products";
 
 @Entity("order_history")
 export class OrdersHistory {

@@ -1,5 +1,5 @@
 import {Between, getRepository, MoreThanOrEqual} from "typeorm";
-import {ResponseData} from "../controller/ResponseData";
+import {ResponseData} from "../dto/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {Orders} from "../entity/Orders";
 import { v4 as uuid } from 'uuid';

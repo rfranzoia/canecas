@@ -1,5 +1,5 @@
 import {getRepository} from "typeorm";
-import {ResponseData} from "../controller/ResponseData";
+import {ResponseData} from "../dto/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {Users} from "../entity/Users";
 import {UserDTO} from "../dto/UserDTO";

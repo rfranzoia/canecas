@@ -1,9 +1,9 @@
 import {Router} from "express";
-import {ProductTypesController} from "./ProductTypesController";
-import {ProductsController} from "./ProductsController";
-import {ProductPriceController} from "./ProductPriceController";
-import {UsersController} from "./UsersController";
-import {OrdersController} from "./OrdersController";
+import {ProductTypesController} from "./controller/ProductTypesController";
+import {ProductsController} from "./controller/ProductsController";
+import {ProductPriceController} from "./controller/ProductPriceController";
+import {UsersController} from "./controller/UsersController";
+import {OrdersController} from "./controller/OrdersController";
 
 const routes = Router();
 
