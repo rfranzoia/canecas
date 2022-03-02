@@ -94,7 +94,10 @@ export class ProductsService {
     }
 
     async update(id: number, {name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
-        const product = await this.repository.findOne(id);
+        const product = await this.repository.findOne({
+            relations:["productType"],
+            where: {id: id}
+        });
         if (!product) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
         }
