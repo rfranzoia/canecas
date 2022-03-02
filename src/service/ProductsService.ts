@@ -36,6 +36,31 @@ export class ProductsService {
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToListDTO(list));
     }
 
+    async listByType(productTypeId: number, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await  this.repository.find({
+            relations:["productType"],
+            skip: pageNumber * pageSize,
+            take: pageSize,
+            where: {
+                product_type_id: productTypeId
+            },
+            order: {
+                name: "ASC"
+            }
+        });
+
+        return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToListDTO(list));
+    }
+
+    async get(id:number):(Promise<ResponseData>) {
+        const product = await  this.repository
+            .findOne({
+                relations:["productType"],
+                where: {id: id}
+            });
+        return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToDTO(product));
+    }
+
     async create({name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
         const repository = this.repository;
         const productTypeRepository = getRepository(ProductTypes);
@@ -57,15 +82,6 @@ export class ProductsService {
         await repository.save(product);
 
         return new ResponseData(StatusCodes.CREATED, "", ProductDTO.mapToDTO(product));
-    }
-
-    async get(id:number):(Promise<ResponseData>) {
-        const product = await  this.repository
-            .findOne({
-                relations:["productType"],
-                where: {id: id}
-        });
-        return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToDTO(product));
     }
 
     async delete(id: number):(Promise<ResponseData>) {

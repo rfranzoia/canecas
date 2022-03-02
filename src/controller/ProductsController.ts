@@ -36,6 +36,13 @@ export class ProductsController {
         response.status(result.statusCode).send(result);
     }
 
+    async listByType(request: Request, response: Response) {
+        const {pageNumber, pageSize} = request.query;
+        const { product_type_id } = request.params;
+        const result = await ProductsController.getService().listByType(Number(product_type_id), Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        response.status(result.statusCode).send(result);
+    }
+
     async get(request: Request, response: Response) {
         const {id} = request.params;
         const result = await ProductsController.getService().get(Number(id));

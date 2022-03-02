@@ -26,6 +26,13 @@ export class OrdersController {
         response.status(result.statusCode).send(result);
     }
 
+    async listByDateRange(request: Request, response: Response) {
+        const {pageNumber, pageSize} = request.query;
+        const {start_date, end_date} = request.params;
+        const result = await OrdersController.getService().listByDateRange(new Date(start_date), new Date(end_date), Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        response.status(result.statusCode).send(result);
+    }
+
     async listByUserAndStatus(request: Request, response: Response) {
         const {pageNumber, pageSize} = request.query;
         const {user_id, order_status} = request.params;

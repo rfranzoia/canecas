@@ -1,4 +1,4 @@
-import {getRepository, MoreThanOrEqual} from "typeorm";
+import {Between, getRepository, MoreThanOrEqual} from "typeorm";
 import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {Orders} from "../entity/Orders";
@@ -25,6 +25,22 @@ export class OrdersService {
             relations: ["user"],
             skip: pageNumber * pageSize,
             take: pageSize,
+            order: {
+                orderDate: "DESC",
+                orderStatus: "DESC"
+            }
+        });
+        return new ResponseData(StatusCodes.OK, "",  await Promise.all(list.map(async (order) => this.getCompleteOrder(order))));
+    }
+
+    async listByDateRange(startDate: Date, endDate: Date, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await this.repository.find({
+            relations: ["user"],
+            skip: pageNumber * pageSize,
+            take: pageSize,
+            where: {
+                orderDate: Between(startDate, endDate)
+            },
             order: {
                 orderDate: "DESC",
                 orderStatus: "DESC"
