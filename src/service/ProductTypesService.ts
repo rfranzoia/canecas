@@ -2,6 +2,7 @@ import {ProductTypes} from "../entity/ProductTypes";
 import {getRepository} from "typeorm";
 import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
+import {ProductTypeDTO} from "../dto/ProductTypeDTO";
 
 export class ProductTypesService {
 
@@ -22,7 +23,7 @@ export class ProductTypesService {
             .take(pageSize)
             .getMany();
 
-        return new ResponseData(StatusCodes.OK, "", list);
+        return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToListDTO(list));
     }
 
     async get(id: number):(Promise<ResponseData>) {
@@ -33,7 +34,7 @@ export class ProductTypesService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Tipo de Produto não existe!");
         }
 
-        return new ResponseData(StatusCodes.OK, "", productType);
+        return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToDTO(productType));
     }
 
     async create(description:string):(Promise<ResponseData>){
@@ -49,7 +50,7 @@ export class ProductTypesService {
 
         await repository.save(productType);
 
-        return new ResponseData(StatusCodes.CREATED, "", productType);
+        return new ResponseData(StatusCodes.CREATED, "", ProductTypeDTO.mapToDTO(productType));
     }
 
     async delete(id: number):(Promise<ResponseData>) {
@@ -62,7 +63,7 @@ export class ProductTypesService {
 
         await repository.delete({id});
 
-        return new ResponseData(StatusCodes.OK, "Tipo de Produto removido com Sucesso!", productType);
+        return new ResponseData(StatusCodes.OK, "Tipo de Produto removido com Sucesso!", ProductTypeDTO.mapToDTO(productType));
     }
 
     async update(id: number, description: string):(Promise<ResponseData>) {
@@ -80,7 +81,7 @@ export class ProductTypesService {
         productType.description = description ? description : productType.description;
         await repository.save(productType)
 
-        return new ResponseData(StatusCodes.OK, "Tipo de Produto atualizado com Sucesso!", productType);
+        return new ResponseData(StatusCodes.OK, "Tipo de Produto atualizado com Sucesso!", ProductTypeDTO.mapToDTO(productType));
     }
 
 }

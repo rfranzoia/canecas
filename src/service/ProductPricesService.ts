@@ -2,6 +2,7 @@ import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {getRepository} from "typeorm";
 import {ProductPrices} from "../entity/ProductPrices";
+import {ProductPriceDTO} from "../dto/ProductPriceDTO";
 
 export type ProductPriceRequest = {
     product_id: number;
@@ -25,7 +26,7 @@ export class ProductPricesService {
                 validFrom: "ASC"
             }
         });
-        return new ResponseData(StatusCodes.OK, "", list);
+        return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
     async listByProduct(product_id: number): Promise<ResponseData> {
@@ -39,7 +40,7 @@ export class ProductPricesService {
                 validFrom: "ASC"
             }
         })
-        return new ResponseData(StatusCodes.OK, "", list);
+        return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
     async delete(id: number): Promise<ResponseData> {
@@ -48,7 +49,7 @@ export class ProductPricesService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Preço de Produto com Id informado não existe!");
         }
         await this.repository.delete({id});
-        return new ResponseData(StatusCodes.OK, "Preço de Produto removido com Sucesso!", productPrice);
+        return new ResponseData(StatusCodes.OK, "Preço de Produto removido com Sucesso!", ProductPriceDTO.mapToDTO(productPrice));
     }
 
     async deleteByProduct(productId: number): Promise<ResponseData> {
@@ -59,7 +60,7 @@ export class ProductPricesService {
         await this.repository.delete({
             product_id: productId
         });
-        return new ResponseData(StatusCodes.OK, "Os Preços do Produto informado foram removido com Sucesso!", prices);
+        return new ResponseData(StatusCodes.OK, "Os Preços do Produto informado foram removido com Sucesso!", ProductPriceDTO.mapToListDTO(prices));
     }
 
     // TODO: include additional validation (check if valid price for product already exists)
@@ -72,7 +73,7 @@ export class ProductPricesService {
         }
         const productPrice = await this.repository.create(ppr);
         await this.repository.save(productPrice);
-        return new ResponseData(StatusCodes.OK, "Prices added", productPrice);
+        return new ResponseData(StatusCodes.OK, "Prices added", ProductPriceDTO.mapToDTO(productPrice));
     }
 
     // TODO: include additional validation (check if valid price for product already exists)
@@ -92,6 +93,6 @@ export class ProductPricesService {
                 prices.push(productPrice);
             }
         }
-        return new ResponseData(StatusCodes.OK, "Prices added", prices);
+        return new ResponseData(StatusCodes.OK, "Prices added", ProductPriceDTO.mapToListDTO(prices));
     }
 }

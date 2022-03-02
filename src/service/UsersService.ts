@@ -2,6 +2,7 @@ import {getRepository} from "typeorm";
 import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {Users} from "../entity/Users";
+import {UserDTO} from "../dto/UserDTO";
 
 export class UsersService {
 
@@ -25,12 +26,7 @@ export class UsersService {
                 name: "ASC"
             }
         });
-        const users = list.map(user => new User(user.userType,
-            user.name,
-            user.email,
-            user.phone,
-            user.address));
-        return new ResponseData(StatusCodes.OK, "", users);
+        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
     }
 
     async listByUserType(userType: string): Promise<ResponseData> {
@@ -42,12 +38,7 @@ export class UsersService {
                 userType: userType
             }
         });
-        const users = list.map(user => new User(user.userType,
-            user.name,
-            user.email,
-            user.phone,
-            user.address));
-        return new ResponseData(StatusCodes.OK, "", users);
+        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
     }
 
     async create({userType, name, email, phone, address}: UsersCreateRequest): (Promise<ResponseData>) {
@@ -64,7 +55,7 @@ export class UsersService {
         });
 
         await this.repository.save(user);
-        return new ResponseData(StatusCodes.OK, "", user);
+        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
     }
 
     async get(id: number): (Promise<ResponseData>) {
@@ -72,12 +63,7 @@ export class UsersService {
         if (!user) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o ID informado!");
         }
-        const u = new User(user.userType,
-            user.name,
-            user.email,
-            user.phone,
-            user.address);
-        return new ResponseData(StatusCodes.OK, "", u);
+        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
     }
 
     async getByEmail(email: string): (Promise<ResponseData>) {
@@ -85,12 +71,7 @@ export class UsersService {
         if (!user) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o Email informado!");
         }
-        const u = new User(user.userType,
-            user.name,
-            user.email,
-            user.phone,
-            user.address);
-        return new ResponseData(StatusCodes.OK, "", u);
+        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
     }
 
     async delete(id: number): (Promise<ResponseData>) {
@@ -114,13 +95,7 @@ export class UsersService {
 
         await this.repository.save(user);
 
-        const u = new User(user.userType,
-            user.name,
-            user.email,
-            user.phone,
-            user.address);
-
-        return new ResponseData(StatusCodes.OK, "Usuário atualizado com sucesso!", u);
+        return new ResponseData(StatusCodes.OK, "Usuário atualizado com sucesso!", UserDTO.mapToDTO(user));
     }
 
     async updatePassword(email: string, password: string): (Promise<ResponseData>) {
@@ -142,12 +117,7 @@ export class UsersService {
         }
 
         if (this.decode(user.password) === this.decode(password)) {
-            const u = new User(user.userType,
-                user.name,
-                user.email,
-                user.phone,
-                user.address);
-            return new ResponseData(StatusCodes.OK, "Logged In!!!", u);
+            return new ResponseData(StatusCodes.OK, "Logged In!!!", UserDTO.mapToDTO(user));
         }
 
         return new ResponseData(StatusCodes.BAD_REQUEST, "Email e/ou Password incorreto(s)!");
@@ -167,20 +137,4 @@ export type UsersUpdateRequest = {
     name: string,
     phone: string,
     address: string
-}
-
-class User {
-    userType: string;
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-
-    constructor(userType, name, email, phone, address) {
-        this.userType = userType;
-        this.name = name;
-        this.email = email;
-        this.phone = phone;
-        this.address = address;
-    }
 }

@@ -1,12 +1,13 @@
-import {getRepository} from "typeorm";
+import {getRepository, MoreThanOrEqual} from "typeorm";
 import {ResponseData} from "../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
 import {Orders} from "../entity/Orders";
 import { v4 as uuid } from 'uuid';
-import {Users} from "../entity/Users";
-import {Products} from "../entity/Products";
 import {OrderItems} from "../entity/OrderItems";
 import {OrdersHistory} from "../entity/OrdersHistory";
+import {OrderHistoryDTO} from "../dto/OrderHistoryDTO";
+import {OrderDTO} from "../dto/OrderDTO";
+import {OrderItemDTO} from "../dto/OrderItemDTO";
 
 export class OrdersService {
 
@@ -21,6 +22,7 @@ export class OrdersService {
 
     async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
         const list = await this.repository.find({
+            relations: ["user"],
             skip: pageNumber * pageSize,
             take: pageSize,
             order: {
@@ -28,8 +30,9 @@ export class OrdersService {
                 orderStatus: "DESC"
             }
         });
-        return new ResponseData(StatusCodes.OK, "", list);
+        return new ResponseData(StatusCodes.OK, "",  await Promise.all(list.map(async (order) => this.getCompleteOrder(order))));
     }
+
 
     async listByUserAndStatus(user_id: number, orderStatus: string, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
         const list = await this.repository.find({
@@ -37,35 +40,45 @@ export class OrdersService {
             take: pageSize,
             where: {
                 user_id: user_id,
-                orderStatus: orderStatus
+                orderStatus: orderStatus?
+                                orderStatus:
+                                MoreThanOrEqual("0")
             },
             order: {
                 orderDate: "DESC"
             }
         });
-        return new ResponseData(StatusCodes.OK, "", list);
+        return new ResponseData(StatusCodes.OK, "", await Promise.all(list.map(async (order) => this.getCompleteOrder(order))));
     }
 
     async get(id: uuid):(Promise<ResponseData>) {
-        const order = await this.repository.findOne({id});
+        const order = await this.repository.findOne({
+            relations: ["user"],
+            where: {
+                id: id
+            }
+        });
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
         }
 
-        const o = await this.getCompleteOrder(order);
-        return new ResponseData(StatusCodes.OK, "", o);
+        return new ResponseData(StatusCodes.OK, "", await this.getCompleteOrder(order));
     }
 
     async create(user_id: number, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
-        let order = await this.repository.findOne({user_id: user_id, orderStatus: "0"});
+        let order = await this.repository.findOne({
+            relations: ["user"],
+            where: {
+                user_id: user_id,
+                orderStatus:"0"
+            }});
         if (!order) {
             order = await this.repository.create({
                 user_id
             });
             await this.repository.save(order)
         }
-        const o = await this.createItemsAndGetOrder(orderItems, order);
-        return new ResponseData(StatusCodes.CREATED, "", await this.getCompleteOrder(o));
+        return new ResponseData(StatusCodes.CREATED, "", await this.createItemsAndGetOrder(orderItems, order));
     }
 
     async addRemoveOrderItems(order_id: uuid, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
@@ -82,8 +95,7 @@ export class OrdersService {
             order_id: order.id
         });
 
-        const o = await this.createItemsAndGetOrder(orderItems, order);
-        return new ResponseData(StatusCodes.OK, "", await this.getCompleteOrder(o));
+        return new ResponseData(StatusCodes.OK, "", await this.createItemsAndGetOrder(orderItems, order));
     }
 
     async deleteOrderAndItems(id: uuid):(Promise<ResponseData>) {
@@ -98,6 +110,9 @@ export class OrdersService {
         await getRepository(OrderItems).delete({
             order_id: id
         });
+
+        // delete should not be necessary since first history entry is created only after first status update
+
         // now delete de order
         await this.repository.delete({id});
         return new ResponseData(StatusCodes.OK, "Pedido removido com sucesso!", order);
@@ -117,6 +132,8 @@ export class OrdersService {
         // save status before change to new one
         const previous = order.orderStatus;
 
+        // upon order confirmation, i.e., moving from status 0 to 1, update the order date accordingly
+        order.orderDate = previous === "0"? new Date(): order.orderDate;
         order.orderStatus = orderStatus;
         await this.repository.save(order);
 
@@ -132,7 +149,7 @@ export class OrdersService {
     }
 
     // add items to an provided order
-    private async createItemsAndGetOrder(orderItems: OrderItemRequest[], order: Orders) {
+    private async createItemsAndGetOrder(orderItems: OrderItemRequest[], order: Orders): Promise<OrderDTO> {
         for (let i = 0; i < orderItems.length; i++) {
             const orderItem = await getRepository(OrderItems).create({
                 order_id: order.id,
@@ -143,30 +160,22 @@ export class OrdersService {
             });
             await getRepository(OrderItems).save(orderItem);
         }
-        const o = await this.repository.findOne(order.id);
-        return o;
+        return await this.getCompleteOrder(await this.repository.findOne({
+            relations: ["user"],
+            where: {
+                id: order.id
+            }
+        }));
     }
 
     // retrieves an order with all items and history
-    private async getCompleteOrder(order: Orders) {
+    private async getCompleteOrder(order: Orders): Promise<OrderDTO> {
         const orderItems = await getRepository(OrderItems).find({
+            relations: ["product", "product.productType"],
             where: {
                 order_id: order.id
             }
         });
-
-        let items: OrderItemDTO[] = [];
-        for (let i = 0; i < orderItems.length; i++) {
-            const oi = orderItems[i];
-            const product = await getRepository(Products).findOne(oi.product_id);
-            items.push(new OrderItemDTO(
-                Number(oi.id),
-                product,
-                Number(oi.quantity),
-                Number(oi.price),
-                Number(oi.discount)));
-        }
-
         const orderHistory = await getRepository(OrdersHistory).find({
             where: {
                 order_id: order.id
@@ -175,12 +184,8 @@ export class OrdersService {
                 changeDate: "DESC"
             }
         });
-        let history: OrderHistoryDTO[] = [];
-        for (let i = 0; i < orderHistory.length; i++) {
-            const oh = orderHistory[i];
-            history.push(new OrderHistoryDTO(oh.changeDate, oh.previousStatus, oh.currentStatus, oh.changeReason))
-        }
-        return new OrderDTO(order.id, order.orderDate, order.orderStatus, items, history);
+
+        return OrderDTO.mapToDTO(order,OrderItemDTO.mapToListDTO(orderItems), OrderHistoryDTO.mapToListDTO(orderHistory));
     }
 }
 
@@ -189,52 +194,4 @@ type OrderItemRequest = {
     quantity: number;
     price: number;
     discount: number;
-}
-
-class OrderHistoryDTO {
-    changeDate: Date;
-    previousStatus: string;
-    currentStatus: string;
-    changeReason: string;
-
-    constructor(changeDate: Date, previousStatus: string, currentStatus: string, changeReason: string) {
-        this.changeDate = changeDate;
-        this.previousStatus = previousStatus;
-        this.currentStatus = currentStatus;
-        this.changeReason = changeReason;
-    }
-}
-
-class OrderItemDTO {
-    id: number;
-    product: Products;
-    quantity: number;
-    price: number;
-    discount: number;
-
-    constructor(id: number, product: Products, quantity: number, price: number, discount: number) {
-        this.id = id;
-        this.product = product;
-        this.quantity = quantity;
-        this.price = price;
-        this.discount = discount;
-    }
-
-}
-
-class OrderDTO {
-    id: uuid;
-    user: Users;
-    orderDate: Date;
-    orderStatus: string;
-    items: OrderItemDTO[];
-    history: OrderHistoryDTO[];
-
-    constructor(id: uuid, orderDate: Date, orderStatus: string, items: OrderItemDTO[], history: OrderHistoryDTO[]) {
-        this.id = id;
-        this.orderDate = orderDate;
-        this.orderStatus = orderStatus;
-        this.items = items;
-        this.history = history;
-    }
 }

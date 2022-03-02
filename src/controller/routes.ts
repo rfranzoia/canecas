@@ -65,6 +65,7 @@ const ordersController = new OrdersController();
 
 routes.get("/api/orders", ordersController.list);
 routes.get("/api/orders/user/:user_id/status/:order_status", ordersController.listByUserAndStatus);
+routes.get("/api/orders/user/:user_id", ordersController.listByUserAndStatus);
 routes.get("/api/orders/count", ordersController.count);
 routes.post("/api/orders", ordersController.create);
 routes.post("/api/orders/:id", ordersController.addRemoveOrderItems);
