@@ -55,8 +55,8 @@ export class ProductTypesController {
 
     async update(request: Request, response: Response) {
         const { id } = request.params;
-        const { description } = request.body;
-        const result = await ProductTypesController.getService().update(Number(id), description);
+        const { description, image } = request.body;
+        const result = await ProductTypesController.getService().update(Number(id), {description, image});
         response.status(result.statusCode).send(result);
     }
 

@@ -51,8 +51,8 @@ export class ProductPricesRepository {
         return await this.repository.createQueryBuilder("pp")
                             .innerJoinAndSelect("pp.product", "p", condition, { id: productTypeId })
                             .innerJoinAndSelect("p.productType", "pt")
+                            //.distinctOn(["pt.id"])
                             .orderBy({"pt.id": "ASC", "pp.price": "ASC"})
-                            .distinctOn(["pt.id"])
                             .take(pageSize)
                             .skip(pageSize * pageNumber)
                             .getMany();

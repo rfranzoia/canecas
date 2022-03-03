@@ -36,21 +36,25 @@ export class ProductTypesRepository {
 
     async findByDescription(description: string): Promise<ProductTypes> {
         return await this.repository.findOne({
-            relations: ["productTypes"],
             where: { description: description }});
     }
 
     async findProductTypesWithMinPrices(pageNumber:number, pageSize:number): Promise<ProductTypeWithPrice[]> {
         const prices = await ProductPricesRepository.getInstance().findDistinctProductTypePrices(0, pageNumber, pageSize);
-        return prices.map(pp => {
-            const twp: ProductTypeWithPrice = {
-                id: pp.product.productType.id,
-                description: pp.product.productType.description,
-                price: pp.price,
-                image: pp.product.productType.image
+        const ss = new Set<Number>();
+        const productTypesWithPrice = [];
+        for (let i = 0; i < prices.length; i++) {
+            if (!ss.has(prices[i].product.productType.id)) {
+                ss.add(prices[i].product.productType.id);
+                productTypesWithPrice.push({
+                    id: prices[i].product.productType.id,
+                    description: prices[i].product.productType.description,
+                    price: prices[i].price,
+                    image: prices[i].product.productType.image
+                })
             }
-            return twp;
-        });
+        }
+        return productTypesWithPrice;
     }
 
     async find(pageNumber: number, pageSize: number): Promise<ProductTypes[]> {

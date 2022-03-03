@@ -2,12 +2,14 @@ import {ProductDTO} from "./ProductDTO";
 import {ProductPrices} from "../entity/ProductPrices";
 
 export class ProductPriceDTO {
+    id: number;
     product: ProductDTO;
     price: number;
     validFrom: Date;
     validTo: Date
 
-    constructor(product: ProductDTO, price: number, validFrom: Date, validTo: Date) {
+    constructor(id: number, product: ProductDTO, price: number, validFrom: Date, validTo: Date) {
+        this.id = id;
         this.product = product;
         this.price = price;
         this.validFrom = validFrom;
@@ -15,7 +17,7 @@ export class ProductPriceDTO {
     }
 
     static mapToDTO(productPrice: ProductPrices): ProductPriceDTO {
-        return new ProductPriceDTO(productPrice.product, productPrice.price, productPrice.validFrom, productPrice.validTo);
+        return new ProductPriceDTO(productPrice.id, productPrice.product, productPrice.price, productPrice.validFrom, productPrice.validTo);
     }
 
     static mapToListDTO(productPrices: ProductPrices[]): ProductPriceDTO[] {
