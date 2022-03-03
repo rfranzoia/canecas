@@ -10,8 +10,9 @@ const routes = Router();
 // ProductTypes
 const productTypesController = new ProductTypesController();
 
-routes.post("/api/productTypes", productTypesController.create);
 routes.get("/api/productTypes", productTypesController.list);
+routes.get("/api/productTypes/prices", productTypesController.listProductTypesWithMinPricesAvailable);
+routes.post("/api/productTypes", productTypesController.create);
 routes.get("/api/productTypes/count", productTypesController.count);
 
 routes.get("/api/productTypes/:id", productTypesController.get);
@@ -40,6 +41,7 @@ routes.post("/api/productPrices", productPriceController.create);
 
 routes.get("/api/productPrices", productPriceController.list);
 routes.get("/api/productPrices/product/:productId", productPriceController.listByProduct);
+routes.get("/api/productPrices/productType/:productTypeId", productPriceController.listDistinctProductTypePrices);
 
 routes.delete("/api/productPrices/:id", productPriceController.delete);
 routes.delete("/api/productPrices/product/:productId", productPriceController.deleteByProduct);

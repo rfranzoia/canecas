@@ -9,4 +9,7 @@ export class ProductTypes {
     @Column()
     description: string;
 
+    @Column()
+    image: string;
+
 }

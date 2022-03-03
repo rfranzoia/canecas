@@ -1,13 +1,15 @@
 import {Users} from "../entity/Users";
 
 export class UserDTO {
+    id: number;
     userType: string;
     name: string;
     email: string;
     phone: string;
     address: string;
 
-    constructor(userType: string, name: string, email: string, phone: string, address: string) {
+    constructor(id: number, userType: string, name: string, email: string, phone: string, address: string) {
+        this.id = id;
         this.userType = userType;
         this.name = name;
         this.email = email;
@@ -16,7 +18,7 @@ export class UserDTO {
     }
 
     static mapToDTO(user: Users): UserDTO {
-        return new UserDTO(user.userType, user.name, user.email, user.phone, user.address);
+        return new UserDTO(user.id, user.userType, user.name, user.email, user.phone, user.address);
     }
 
     static mapToListDTO(users: Users[]): UserDTO[] {

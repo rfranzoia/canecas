@@ -1,8 +1,6 @@
 import {Request, Response} from "express";
 import {ProductPricesService} from "../service/ProductPricesService";
 
-const DEFAULT_PAGE_SIZE = 15;
-
 export class ProductPriceController {
 
     static service: ProductPricesService;
@@ -16,13 +14,21 @@ export class ProductPriceController {
 
     async list(request: Request, response: Response) {
         const {pageNumber, pageSize} = request.query;
-        const result = await ProductPriceController.getService().list(Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await ProductPriceController.getService().list(Number(pageNumber), Number(pageSize));
         response.status(result.statusCode).send(result);
     }
 
     async listByProduct(request: Request, response: Response) {
         const {productId} = request.params;
-        const result = await ProductPriceController.getService().listByProduct(Number(productId));
+        const {pageNumber, pageSize} = request.query;
+        const result = await ProductPriceController.getService().listByProduct(Number(productId), Number(pageNumber), Number(pageSize));
+        response.status(result.statusCode).send(result);
+    }
+
+    async listDistinctProductTypePrices(request: Request, response: Response) {
+        const {productTypeId} = request.params;
+        const {pageNumber, pageSize} = request.query;
+        const result = await ProductPriceController.getService().listDistinctProductTypePrices(Number(productTypeId), Number(pageNumber), Number(pageSize));
         response.status(result.statusCode).send(result);
     }
 

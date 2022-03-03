@@ -1,8 +1,8 @@
 import {ResponseData} from "../dto/ResponseData";
 import {StatusCodes} from "http-status-codes";
-import {getRepository} from "typeorm";
 import {ProductPrices} from "../entity/ProductPrices";
 import {ProductPriceDTO} from "../dto/ProductPriceDTO";
+import {ProductPricesRepository} from "../repository/ProductPricesRepository";
 
 export type ProductPriceRequest = {
     product_id: number;
@@ -11,56 +11,27 @@ export type ProductPriceRequest = {
     validTo: Date;
 }
 
+const DEFAULT_PAGE_SIZE = 15;
+
 export class ProductPricesService {
 
-    repository = getRepository(ProductPrices);
+    async count(pageSize:number):(Promise<ResponseData>) {
+        return new ResponseData(StatusCodes.OK, "", ProductPricesRepository.getInstance().count(pageSize));
+    }
 
-    async list(pageNumber: number, pageSize: number): Promise<ResponseData> {
-        const list = await this.repository.find({
-            relations:["product"],
-            skip: pageNumber * pageSize,
-            take: pageSize,
-            order: {
-                product_id: "ASC",
-                id: "ASC",
-                validFrom: "ASC"
-            }
-        });
+    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await ProductPricesRepository.getInstance().find(pageNumber || 0, pageSize || DEFAULT_PAGE_SIZE);
         return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
-    async listByProduct(product_id: number): Promise<ResponseData> {
-        const list = await this.repository.find({
-            relations:["product"],
-            where: {
-                product_id: product_id
-            },
-            order: {
-                id: "ASC",
-                validFrom: "ASC"
-            }
-        })
+    async listByProduct(product_id: number, pageNumber:number, pageSize:number): Promise<ResponseData> {
+        const list = await ProductPricesRepository.getInstance().findByProduct(product_id, pageNumber || 0, pageSize || DEFAULT_PAGE_SIZE);
         return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
-    async delete(id: number): Promise<ResponseData> {
-        const productPrice = await this.repository.findOne(id);
-        if (!productPrice) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Preço de Produto com Id informado não existe!");
-        }
-        await this.repository.delete({id});
-        return new ResponseData(StatusCodes.OK, "Preço de Produto removido com Sucesso!", ProductPriceDTO.mapToDTO(productPrice));
-    }
-
-    async deleteByProduct(productId: number): Promise<ResponseData> {
-        const prices = await this.repository.find({ product_id: productId});
-        if (!prices) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Não existem preços cadastrados para o Produto informado!");
-        }
-        await this.repository.delete({
-            product_id: productId
-        });
-        return new ResponseData(StatusCodes.OK, "Os Preços do Produto informado foram removido com Sucesso!", ProductPriceDTO.mapToListDTO(prices));
+    async listDistinctProductTypePrices(product_type_id: number, pageNumber:number, pageSize:number): Promise<ResponseData> {
+        const list = await ProductPricesRepository.getInstance().findDistinctProductTypePrices(product_type_id, pageNumber || 0, pageSize || DEFAULT_PAGE_SIZE);
+        return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
     // TODO: include additional validation (check if valid price for product already exists)
@@ -71,8 +42,7 @@ export class ProductPricesService {
             validFrom: new Date(validFrom),
             validTo: new Date(validTo)
         }
-        const productPrice = await this.repository.create(ppr);
-        await this.repository.save(productPrice);
+        const productPrice = await ProductPricesRepository.getInstance().findById((await ProductPricesRepository.getInstance().create(ppr)).id);
         return new ResponseData(StatusCodes.OK, "Prices added", ProductPriceDTO.mapToDTO(productPrice));
     }
 
@@ -87,12 +57,29 @@ export class ProductPricesService {
                 validFrom: new Date(data[i].validFrom),
                 validTo: new Date(data[i].validTo)
             }
-            const productPrice = await this.repository.create(ppr);
+            const productPrice = await this.create(ppr);
             if (productPrice) {
-                await this.repository.save(productPrice);
-                prices.push(productPrice);
+                prices.push(productPrice.data);
             }
         }
         return new ResponseData(StatusCodes.OK, "Prices added", ProductPriceDTO.mapToListDTO(prices));
+    }
+
+    async delete(id: number): Promise<ResponseData> {
+        const productPrice = await ProductPricesRepository.getInstance().findById(id);
+        if (!productPrice) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Preço de Produto com Id informado não existe!");
+        }
+        await ProductPricesRepository.getInstance().delete(id);
+        return new ResponseData(StatusCodes.OK, "Preço de Produto removido com Sucesso!", ProductPriceDTO.mapToDTO(productPrice));
+    }
+
+    async deleteByProduct(productId: number): Promise<ResponseData> {
+        const prices = await ProductPricesRepository.getInstance().findByProduct(productId, 0, DEFAULT_PAGE_SIZE);
+        if (!prices) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Não existem preços cadastrados para o Produto informado!");
+        }
+        await ProductPricesRepository.getInstance().deleteByProduct(productId);
+        return new ResponseData(StatusCodes.OK, "Os Preços do Produto informado foram removido com Sucesso!", ProductPriceDTO.mapToListDTO(prices));
     }
 }
