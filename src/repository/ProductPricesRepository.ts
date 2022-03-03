@@ -48,16 +48,14 @@ export class ProductPricesRepository {
 
     async findDistinctProductTypePrices(productTypeId: number, pageNumber?: number, pageSize?: number): Promise<ProductPrices[]> {
         const condition = (productTypeId > 0)?"p.product_type_id = :id": "";
-        const data = await this.repository.createQueryBuilder("pp")
-            .innerJoinAndSelect("pp.product", "p", condition, { id: productTypeId })
-            .innerJoinAndSelect("p.productType", "pt")
-            .orderBy({"pt.id": "ASC", "pp.price": "ASC"})
-            .distinctOn(["pt.id"])
-            .take(pageSize)
-            .skip(pageSize * pageNumber)
-            .getMany();
-        console.log(data);
-        return data;
+        return await this.repository.createQueryBuilder("pp")
+                            .innerJoinAndSelect("pp.product", "p", condition, { id: productTypeId })
+                            .innerJoinAndSelect("p.productType", "pt")
+                            .orderBy({"pt.id": "ASC", "pp.price": "ASC"})
+                            .distinctOn(["pt.id"])
+                            .take(pageSize)
+                            .skip(pageSize * pageNumber)
+                            .getMany();
     }
 
     async create({product_id, price, validFrom, validTo}: ProductPriceRequest): Promise<ProductPrices> {
