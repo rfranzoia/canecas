@@ -6,12 +6,8 @@ export class Users {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({
-        name: "user_type",
-        type: "character",
-        length: 1
-    })
-    userType: string;
+    @Column()
+    role: string;
 
     @Column()
     name: string;

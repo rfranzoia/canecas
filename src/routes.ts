@@ -2,8 +2,8 @@ import {Router} from "express";
 import {ProductTypesController} from "./controller/ProductTypesController";
 import {ProductsController} from "./controller/ProductsController";
 import {ProductPriceController} from "./controller/ProductPriceController";
-import {UsersController} from "./controller/UsersController";
 import {OrdersController} from "./controller/OrdersController";
+import {UsersController} from "./controller/UsersController";
 
 const routes = Router();
 
@@ -52,7 +52,7 @@ const usersController = new UsersController();
 
 routes.get("/api/users", usersController.list);
 routes.get("/api/users/count", usersController.count);
-routes.get("/api/users/userType/:userType", usersController.listByUserType);
+routes.get("/api/users/role/:role", usersController.listByUserRole);
 routes.get("/api/users/:id", usersController.get);
 routes.get("/api/users/email/:email", usersController.getByEmail);
 

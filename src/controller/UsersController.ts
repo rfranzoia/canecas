@@ -26,9 +26,10 @@ export class UsersController {
         response.status(result.statusCode).send(result);
     }
 
-    async listByUserType(request: Request, response: Response) {
-        const {userType} = request.params;
-        const result = await UsersController.getService().listByUserType(userType);
+    async listByUserRole(request: Request, response: Response) {
+        const {pageNumber, pageSize} = request.query;
+        const {role} = request.params;
+        const result = await UsersController.getService().listByRole(role, Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
         response.status(result.statusCode).send(result);
     }
 
@@ -45,8 +46,8 @@ export class UsersController {
     }
 
     async create(request: Request, response: Response) {
-        const {userType, name, email, phone, address} = request.body;
-        const result = await UsersController.getService().create({userType, name, email, phone,address});
+        const {role, name, email, password, phone, address} = request.body;
+        const result = await UsersController.getService().create({role, name, email, password, phone,address});
         response.status(result.statusCode).send(result);
     }
 
@@ -64,14 +65,14 @@ export class UsersController {
     }
 
     async updatePassword(request: Request, response: Response) {
-        const {email, password} = request.body;
-        const result = await UsersController.getService().updatePassword(email, password);
+        const {email, old_password, new_password} = request.body;
+        const result = await UsersController.getService().updatePassword(email, old_password, new_password);
         response.status(result.statusCode).send(result);
     }
 
     async login(request: Request, response: Response) {
         const {email, password} = request.body;
-        const result = await UsersController.getService().login(email, password);
+        const result = await UsersController.getService().authenticate(email, password);
         response.status(result.statusCode).send(result);
     }
 }

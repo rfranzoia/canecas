@@ -1,140 +1,134 @@
-import {getRepository} from "typeorm";
 import {ResponseData} from "../dto/ResponseData";
 import {StatusCodes} from "http-status-codes";
-import {Users} from "../entity/Users";
 import {UserDTO} from "../dto/UserDTO";
+import {UserRepository} from "../repository/UserRepository";
+import bcrypt from "bcrypt";
+
+export type UserCreateRequest = {
+    role: string;
+    name: string;
+    email: string;
+    password: string;
+    phone: string;
+    address: string;
+}
+
+export type UserUpdateRequest = {
+    name: string;
+    phone: string;
+    address: string;
+}
 
 export class UsersService {
 
-    repository = getRepository(Users);
-
-    decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
-    encode = (str: string):string => Buffer.from(str, 'binary').toString('base64');
-
-    async count(pageSize:number): (Promise<ResponseData>) {
-        const count = await this.repository.count();
-        return new ResponseData(StatusCodes.OK, "", { totalNumberOfRecords: count,
-            pageSize: pageSize,
-            totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)});
+    async count(pageSize:number):(Promise<ResponseData>) {
+        return new ResponseData(StatusCodes.OK, "", UserRepository.getInstance().count(pageSize));
     }
 
-    async list(pageNumber:number, pageSize:number): (Promise<ResponseData>) {
-        const list = await this.repository.find({
-            skip: pageNumber * pageSize,
-            take: pageSize,
-            order: {
-                name: "ASC"
-            }
-        });
+    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await UserRepository.getInstance().find(pageNumber, pageSize);
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
     }
 
-    async listByUserType(userType: string): Promise<ResponseData> {
-        const list = await this.repository.find({
-            order: {
-                name: "ASC"
-            },
-            where: {
-                userType: userType
-            }
-        });
+    async listByRole(role: string, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
+        const list = await UserRepository.getInstance().findByRole(role, pageNumber, pageSize);
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
     }
 
-    async create({userType, name, email, phone, address}: UsersCreateRequest): (Promise<ResponseData>) {
-        if (await this.repository.findOne({email})) {
-            return new ResponseData(StatusCodes.BAD_REQUEST, "Email Já cadastrado!");
-        }
-
-        const user = await this.repository.create({
-            userType,
-            name,
-            email,
-            phone,
-            address
-        });
-
-        await this.repository.save(user);
+    async get(id:number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(id);
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
     }
 
-    async get(id: number): (Promise<ResponseData>) {
-        const user = await this.repository.findOne(id);
-        if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o ID informado!");
-        }
+    async getByEmail(email:string):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findByEmail(email);
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
     }
 
-    async getByEmail(email: string): (Promise<ResponseData>) {
-        const user = await this.repository.findOne({email: email});
-        if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o Email informado!");
+    async create({role, name, email, password, phone, address}: UserCreateRequest):(Promise<ResponseData>) {
+        if (await UserRepository.getInstance().findByEmail(email)) {
+            return new ResponseData(StatusCodes.BAD_REQUEST, "Email informado já está cadastrado");
         }
-        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
+
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const ucr: UserCreateRequest = {
+                role: role,
+                name: name,
+                email: email,
+                password: hashedPassword,
+                phone: phone,
+                address: address
+            }
+
+            const user = await UserRepository.getInstance()
+                                    .findById((await UserRepository.getInstance()
+                                        .create(ucr)).id);
+
+            return new ResponseData(StatusCodes.CREATED, "", UserDTO.mapToDTO(user));
+        } catch (e) {
+            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao criar o Usuário", e);
+        }
+
     }
 
-    async delete(id: number): (Promise<ResponseData>) {
-        const user = await this.repository.findOne(id);
+    async delete(id: number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(id);
         if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o ID informado!");
+            return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
         }
-        await this.repository.delete({id});
-        return new ResponseData(StatusCodes.OK, "Usuário removido com sucesso!", user);
+        await UserRepository.getInstance().delete(id);
+        return new ResponseData(StatusCodes.OK, "Usuário removido com Sucesso!", UserDTO.mapToDTO(user));
     }
 
-    async update(id: number, {name, phone, address}: UsersUpdateRequest): (Promise<ResponseData>) {
-        const user = await this.repository.findOne(id);
+    async update(id: number, {name, phone, address}: UserUpdateRequest):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(id);
         if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o ID informado!");
+            return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
         }
+        return new ResponseData(StatusCodes.OK, "usuário atualizado com Sucesso!",
+                            UserDTO.mapToDTO(await UserRepository.getInstance()
+                                                            .update(id, {name, phone, address})));
 
-        user.name = name? name: user.name;
-        user.phone = phone? phone: user.phone;
-        user.address = address? address: user.address;
-
-        await this.repository.save(user);
-
-        return new ResponseData(StatusCodes.OK, "Usuário atualizado com sucesso!", UserDTO.mapToDTO(user));
     }
 
-    async updatePassword(email: string, password: string): (Promise<ResponseData>) {
-        const user = await this.repository.findOne({email: email});
+    async updatePassword(email: string, old_password: string, new_password: string): Promise<ResponseData> {
+        const user = await UserRepository.getInstance().findByEmail(email);
         if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Não existe um usuário com o Email informado!");
+            return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }
 
-        user.password = password? this.encode(password): user.password;
-        await this.repository.save(user);
+        try {
+            if (!await bcrypt.compare(old_password.trim(), user.password.trim())) {
+                return new ResponseData(StatusCodes.UNAUTHORIZED, "Senha atual inválida");
+            }
 
-        return new ResponseData(StatusCodes.OK, "Password atualizada com sucesso!");
+            const hashedPassword = await bcrypt.hash(new_password, 10);
+            return new ResponseData(StatusCodes.OK, "Senha atualizada",
+                            UserDTO.mapToDTO(await UserRepository.getInstance()
+                                                        .updatePassword(user.id, hashedPassword)));
+
+        } catch (e) {
+            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao atualizar a senha", e);
+        }
     }
 
-    async login(email: string, password: string): (Promise<ResponseData>) {
-        const user = await this.repository.findOne({email: email});
+    async authenticate(email: string, password: string): Promise<ResponseData> {
+        const user = await UserRepository.getInstance().findByEmail(email);
         if (!user) {
-            return new ResponseData(StatusCodes.BAD_REQUEST, "Email e/ou Password incorreto(s)!");
+            return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+
         }
 
-        if (this.decode(user.password) === this.decode(password)) {
-            return new ResponseData(StatusCodes.OK, "Logged In!!!", UserDTO.mapToDTO(user));
-        }
+        try {
+            if (!await bcrypt.compare(password, user.password)) {
+                return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+            }
 
-        return new ResponseData(StatusCodes.BAD_REQUEST, "Email e/ou Password incorreto(s)!");
+            return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
+        } catch (e) {
+            return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+        }
     }
-
-}
-
-export type UsersCreateRequest = {
-    userType: string,
-    name: string,
-    email: string,
-    phone: string,
-    address: string
-}
-
-export type UsersUpdateRequest = {
-    name: string,
-    phone: string,
-    address: string
 }
