@@ -73,7 +73,10 @@ export class UsersService {
 
     }
 
-    async delete(id: number):(Promise<ResponseData>) {
+    async delete(id: number, authUser: UserDTO):(Promise<ResponseData>) {
+        if (authUser.role !== "ADMIN") {
+            return new ResponseData(StatusCodes.UNAUTHORIZED, "Você não está autorizado a excluir usuários");
+        }
         const user = await UserRepository.getInstance().findById(id);
         if (!user) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
@@ -93,15 +96,17 @@ export class UsersService {
 
     }
 
-    async updatePassword(email: string, old_password: string, new_password: string): Promise<ResponseData> {
+    async updatePassword(email: string, old_password: string, new_password: string, authUser: UserDTO): Promise<ResponseData> {
         const user = await UserRepository.getInstance().findByEmail(email);
         if (!user) {
             return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }
-
+        if (authUser.email !== user.email && authUser.role !== "ADMIN") {
+            return new ResponseData(StatusCodes.UNAUTHORIZED, "Você não está autorizado a alterar senhas de outro(s) usuário(s)");
+        }
         try {
             if (!await bcrypt.compare(old_password.trim(), user.password.trim())) {
-                return new ResponseData(StatusCodes.UNAUTHORIZED, "Senha atual inválida");
+                return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
             }
 
             const hashedPassword = await bcrypt.hash(new_password, 10);

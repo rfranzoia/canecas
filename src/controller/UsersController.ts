@@ -1,5 +1,7 @@
 import {Request, Response} from "express";
 import {UsersService} from "../service/UsersService";
+import {StatusCodes} from "http-status-codes";
+import {ResponseData} from "../dto/ResponseData";
 
 const DEFAULT_PAGE_SIZE = 15;
 
@@ -52,8 +54,9 @@ export class UsersController {
     }
 
     async delete(request: Request, response: Response) {
+        const authUser = request["user"];
         const {id} = request.params;
-        const result = await UsersController.getService().delete(Number(id));
+        const result = await UsersController.getService().delete(Number(id), authUser);
         response.status(result.statusCode).send(result);
     }
 
@@ -65,8 +68,9 @@ export class UsersController {
     }
 
     async updatePassword(request: Request, response: Response) {
+        const authUser = request["user"];
         const {email, old_password, new_password} = request.body;
-        const result = await UsersController.getService().updatePassword(email, old_password, new_password);
+        const result = await UsersController.getService().updatePassword(email, old_password, new_password, authUser);
         response.status(result.statusCode).send(result);
     }
 
