@@ -1,12 +1,15 @@
 import "reflect-metadata";
+import dotenv from "dotenv";
 import express from 'express';
 import cors from 'cors';
 import './database'
 import api from "./api";
 import morgan from 'morgan';
 
+dotenv.config({ path: "./.env" });
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT;
 
 app.use(express.json());
 app.use(cors());
