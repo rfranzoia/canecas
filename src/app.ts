@@ -2,15 +2,17 @@ import "reflect-metadata";
 import express from 'express';
 import cors from 'cors';
 import './database'
-import {routes} from "./routes";
+import api from "./api";
+import morgan from 'morgan';
 
 const app = express();
 const port = 3000;
 
 app.use(express.json());
 app.use(cors());
+app.use(morgan('combined'));
 
-app.use(routes);
+app.use("/api", api);
 
 app.get('/', (req, res) => {
   res.send('Hello World!');
