@@ -75,7 +75,7 @@ export class UsersService {
 
     async delete(id: number, authUser: UserDTO):(Promise<ResponseData>) {
         if (authUser.role !== "ADMIN") {
-            return new ResponseData(StatusCodes.UNAUTHORIZED, "Você não está autorizado a excluir usuários");
+            return new ResponseData(StatusCodes.FORBIDDEN, "Você não está autorizado a excluir usuários");
         }
         const user = await UserRepository.getInstance().findById(id);
         if (!user) {
@@ -102,7 +102,7 @@ export class UsersService {
             return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }
         if (authUser.email !== user.email && authUser.role !== "ADMIN") {
-            return new ResponseData(StatusCodes.UNAUTHORIZED, "Você não está autorizado a alterar senhas de outro(s) usuário(s)");
+            return new ResponseData(StatusCodes.FORBIDDEN, "Você não está autorizado a alterar senhas de outro(s) usuário(s)");
         }
         try {
             if (!await bcrypt.compare(old_password.trim(), user.password.trim())) {
