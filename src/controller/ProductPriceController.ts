@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import {ProductPricesService} from "../service/ProductPricesService";
+import {PaginationService} from "../service/PaginationService";
 
 export class ProductPriceController {
 
@@ -13,22 +14,22 @@ export class ProductPriceController {
     }
 
     async list(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
-        const result = await ProductPriceController.getService().list(Number(pageNumber), Number(pageSize));
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const result = await ProductPriceController.getService().list(skip, limit);
         response.status(result.statusCode).send(result);
     }
 
     async listByProduct(request: Request, response: Response) {
         const {productId} = request.params;
-        const {pageNumber, pageSize} = request.query;
-        const result = await ProductPriceController.getService().listByProduct(Number(productId), Number(pageNumber), Number(pageSize));
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const result = await ProductPriceController.getService().listByProduct(Number(productId), skip, limit);
         response.status(result.statusCode).send(result);
     }
 
     async listDistinctProductTypePrices(request: Request, response: Response) {
         const {productTypeId} = request.params;
-        const {pageNumber, pageSize} = request.query;
-        const result = await ProductPriceController.getService().listDistinctProductTypePrices(Number(productTypeId), Number(pageNumber), Number(pageSize));
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const result = await ProductPriceController.getService().listDistinctProductTypePrices(Number(productTypeId), skip, limit);
         response.status(result.statusCode).send(result);
     }
 

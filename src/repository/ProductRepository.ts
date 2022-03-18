@@ -16,11 +16,8 @@ export class ProductRepository {
         return this.instance;
     }
 
-    async count(pageSize: number):  Promise<{totalNumberOfRecords: number, pageSize: number, totalNumberOfPages: number}> {
-        const count = await this.repository.count();
-        return { totalNumberOfRecords: count,
-                 pageSize: pageSize,
-                 totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)}
+    async count():  Promise<Number> {
+        return await this.repository.count();
     }
 
     async findById(id: number): Promise<Products> {
@@ -35,19 +32,19 @@ export class ProductRepository {
             where: { name: name }});
     }
 
-    async find(pageNumber: number, pageSize: number): Promise<Products[]> {
+    async find(skip: number, limit: number): Promise<Products[]> {
         return await this.repository.find({
             relations:["productType"],
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             order: { name: "ASC" }});
     }
 
-    async findByProductType(productTypeId: number, pageNumber: number, pageSize: number) {
+    async findByProductType(productTypeId: number, skip: number, limit: number) {
         return await this.repository.find({
             relations:["productType"],
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             where: { product_type_id: productTypeId },
             order: { name: "ASC" }});
     }

@@ -13,17 +13,17 @@ export type ProductRequest = {
 
 export class ProductsService {
 
-    async count(pageSize:number):(Promise<ResponseData>) {
-        return new ResponseData(StatusCodes.OK, "", ProductRepository.getInstance().count(pageSize));
+    async count():(Promise<ResponseData>) {
+        return new ResponseData(StatusCodes.OK, "", ProductRepository.getInstance().count());
     }
 
-    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await ProductRepository.getInstance().find(pageNumber, pageSize);
+    async list(skip:number, limit:number):(Promise<ResponseData>) {
+        const list = await ProductRepository.getInstance().find(skip, limit);
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToListDTO(list));
     }
 
-    async listByProductType(productTypeId: number, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await ProductRepository.getInstance().findByProductType(productTypeId, pageNumber, pageSize);
+    async listByProductType(productTypeId: number, skip:number, limit:number):(Promise<ResponseData>) {
+        const list = await ProductRepository.getInstance().findByProductType(productTypeId, skip, limit);
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToListDTO(list));
     }
 

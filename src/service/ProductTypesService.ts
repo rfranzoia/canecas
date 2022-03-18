@@ -10,17 +10,17 @@ export type ProductTypeRequest = {
 
 export class ProductTypesService {
 
-    async count(pageSize:number) {
-        return new ResponseData(StatusCodes.OK, "", await ProductTypesRepository.getInstance().count(pageSize));
+    async count() {
+        return new ResponseData(StatusCodes.OK, "", await ProductTypesRepository.getInstance().count());
     }
 
-    async list(pageNumber:number, pageSize:number) {
-        const list = await ProductTypesRepository.getInstance().find(pageNumber, pageSize);
+    async list(skip:number, limit:number) {
+        const list = await ProductTypesRepository.getInstance().find(skip, limit);
         return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToListDTO(list));
     }
 
-    async listProductTypesWithMinPricesAvailable(pageNumber:number, pageSize:number): Promise<ResponseData> {
-        return new ResponseData(StatusCodes.OK, "", await ProductTypesRepository.getInstance().findProductTypesWithMinPrices(pageNumber, pageSize));
+    async listProductTypesWithMinPricesAvailable(skip:number, limit:number): Promise<ResponseData> {
+        return new ResponseData(StatusCodes.OK, "", await ProductTypesRepository.getInstance().findProductTypesWithMinPrices(skip, limit));
     }
 
     async get(id: number):(Promise<ResponseData>) {

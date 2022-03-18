@@ -1,5 +1,6 @@
 import {Request, Response} from "express";
 import {ProductTypesService} from "../service/ProductTypesService";
+import {PaginationService} from "../service/PaginationService";
 
 const DEFAULT_PAGE_SIZE = 15;
 
@@ -8,22 +9,21 @@ export class ProductTypesController {
     static service: ProductTypesService;
 
     async count(request: Request, response: Response) {
-        const {pageSize} = request.query;
-        const result = await ProductTypesController.getService().count(Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await ProductTypesController.getService().count();
         response.status(result.statusCode).send(result);
     }
 
     async list(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
-        const result = await ProductTypesController.getService().list(Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query)
+        const result = await ProductTypesController.getService().list(skip, limit);
         response.status(result.statusCode).send(result);
     }
 
     async listProductTypesWithMinPricesAvailable(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query)
         const result = await ProductTypesController
                                 .getService()
-                                .listProductTypesWithMinPricesAvailable(Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+                                .listProductTypesWithMinPricesAvailable(skip, limit);
         response.status(result.statusCode).send(result);
     }
 

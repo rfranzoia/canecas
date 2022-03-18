@@ -15,11 +15,8 @@ export class UserRepository {
         return this.instance;
     }
 
-    async count(pageSize: number):  Promise<{totalNumberOfRecords: number, pageSize: number, totalNumberOfPages: number}> {
-        const count = await this.repository.count();
-        return { totalNumberOfRecords: count,
-                 pageSize: pageSize,
-                 totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)}
+    async count():  Promise<Number> {
+        return await this.repository.count();
     }
 
     async findById(id: number): Promise<Users> {
@@ -32,17 +29,17 @@ export class UserRepository {
             where: { email: email }});
     }
 
-    async find(pageNumber: number, pageSize: number): Promise<Users[]> {
+    async find(skip: number, limit: number): Promise<Users[]> {
         return await this.repository.find({
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             order: { name: "ASC" }});
     }
 
-    async findByRole(role: string, pageNumber: number, pageSize: number): Promise<Users[]> {
+    async findByRole(role: string, skip: number, limit: number): Promise<Users[]> {
         return await this.repository.find({
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             where: { role: role }});
     }
 

@@ -11,26 +11,24 @@ export type ProductPriceRequest = {
     validTo: Date;
 }
 
-const DEFAULT_PAGE_SIZE = 15;
-
 export class ProductPricesService {
 
     async count(pageSize:number):(Promise<ResponseData>) {
         return new ResponseData(StatusCodes.OK, "", ProductPricesRepository.getInstance().count(pageSize));
     }
 
-    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await ProductPricesRepository.getInstance().find(pageNumber || 0, pageSize || DEFAULT_PAGE_SIZE);
+    async list(skip:number, limit:number):(Promise<ResponseData>) {
+        const list = await ProductPricesRepository.getInstance().find(skip, limit);
         return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
-    async listByProduct(product_id: number, pageNumber:number, pageSize:number): Promise<ResponseData> {
-        const list = await ProductPricesRepository.getInstance().findByProduct(product_id, pageNumber || 0, pageSize || DEFAULT_PAGE_SIZE);
+    async listByProduct(product_id: number, skip:number, limit:number): Promise<ResponseData> {
+        const list = await ProductPricesRepository.getInstance().findByProduct(product_id, skip, limit);
         return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
-    async listDistinctProductTypePrices(product_type_id: number, pageNumber:number, pageSize:number): Promise<ResponseData> {
-        const list = await ProductPricesRepository.getInstance().findDistinctProductTypePrices(product_type_id, pageNumber || 0, pageSize || DEFAULT_PAGE_SIZE);
+    async listDistinctProductTypePrices(product_type_id: number, skip:number, limit:number): Promise<ResponseData> {
+        const list = await ProductPricesRepository.getInstance().findDistinctProductTypePrices(product_type_id, skip, limit);
         return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
@@ -75,7 +73,7 @@ export class ProductPricesService {
     }
 
     async deleteByProduct(productId: number): Promise<ResponseData> {
-        const prices = await ProductPricesRepository.getInstance().findByProduct(productId, 0, DEFAULT_PAGE_SIZE);
+        const prices = await ProductPricesRepository.getInstance().findByProduct(productId, 0, 0);
         if (!prices) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Não existem preços cadastrados para o Produto informado!");
         }

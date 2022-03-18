@@ -2,8 +2,7 @@ import {Request, Response} from "express";
 import {UsersService} from "../service/UsersService";
 import {StatusCodes} from "http-status-codes";
 import {ResponseData} from "../dto/ResponseData";
-
-const DEFAULT_PAGE_SIZE = 15;
+import {PaginationService} from "../service/PaginationService";
 
 export class UsersController {
 
@@ -17,21 +16,20 @@ export class UsersController {
     }
 
     async count(request: Request, response: Response) {
-        const {pageSize} = request.query;
-        const result = await UsersController.getService().count(Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await UsersController.getService().count();
         response.status(result.statusCode).send(result);
     }
 
     async list(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
-        const result = await UsersController.getService().list(Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const result = await UsersController.getService().list(skip, limit);
         response.status(result.statusCode).send(result);
     }
 
     async listByUserRole(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
         const {role} = request.params;
-        const result = await UsersController.getService().listByRole(role, Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await UsersController.getService().listByRole(role, skip, limit);
         response.status(result.statusCode).send(result);
     }
 

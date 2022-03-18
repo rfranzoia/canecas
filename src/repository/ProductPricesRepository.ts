@@ -29,32 +29,31 @@ export class ProductPricesRepository {
             where: { id: id }});
     }
 
-    async find(pageNumber: number, pageSize: number): Promise<ProductPrices[]> {
+    async find(skip: number, limit: number): Promise<ProductPrices[]> {
         return await this.repository.find({
             relations:["product", "product.productType"],
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             order: { id: "ASC" }});
     }
 
-    async findByProduct(productId: number, pageNumber?: number, pageSize?: number): Promise<ProductPrices[]> {
+    async findByProduct(productId: number, skip?: number, limit?: number): Promise<ProductPrices[]> {
         return await this.repository.find({
             relations:["product", "product.productType"],
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             where: { product_id: productId },
             order: { id: "ASC" }});
     }
 
-    async findDistinctProductTypePrices(productTypeId: number, pageNumber?: number, pageSize?: number): Promise<ProductPrices[]> {
+    async findDistinctProductTypePrices(productTypeId: number, skip?: number, limit?: number): Promise<ProductPrices[]> {
         const condition = (productTypeId > 0)?"p.product_type_id = :id": "";
         return await this.repository.createQueryBuilder("pp")
                             .innerJoinAndSelect("pp.product", "p", condition, { id: productTypeId })
                             .innerJoinAndSelect("p.productType", "pt")
-                            //.distinctOn(["pt.id"])
                             .orderBy({"pt.id": "ASC", "pp.price": "ASC"})
-                            .take(pageSize)
-                            .skip(pageSize * pageNumber)
+                            .take(limit)
+                            .skip(skip)
                             .getMany();
     }
 

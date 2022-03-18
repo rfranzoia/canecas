@@ -21,17 +21,17 @@ export type UserUpdateRequest = {
 
 export class UsersService {
 
-    async count(pageSize:number):(Promise<ResponseData>) {
-        return new ResponseData(StatusCodes.OK, "", UserRepository.getInstance().count(pageSize));
+    async count():(Promise<ResponseData>) {
+        return new ResponseData(StatusCodes.OK, "", UserRepository.getInstance().count());
     }
 
-    async list(pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await UserRepository.getInstance().find(pageNumber, pageSize);
+    async list(skip:number, limit:number):(Promise<ResponseData>) {
+        const list = await UserRepository.getInstance().find(skip, limit);
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
     }
 
-    async listByRole(role: string, pageNumber:number, pageSize:number):(Promise<ResponseData>) {
-        const list = await UserRepository.getInstance().findByRole(role, pageNumber, pageSize);
+    async listByRole(role: string, skip:number, limit:number):(Promise<ResponseData>) {
+        const list = await UserRepository.getInstance().findByRole(role, skip, limit);
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
     }
 

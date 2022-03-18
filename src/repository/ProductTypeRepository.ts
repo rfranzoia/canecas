@@ -22,11 +22,8 @@ export class ProductTypesRepository {
         return this.instance;
     }
 
-    async count(pageSize: number):  Promise<{totalNumberOfRecords: number, pageSize: number, totalNumberOfPages: number}> {
-        const count = await this.repository.count();
-        return { totalNumberOfRecords: count,
-            pageSize: pageSize,
-            totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)}
+    async count():  Promise<Number> {
+        return await this.repository.count();
     }
 
     async findById(id: number): Promise<ProductTypes> {
@@ -39,8 +36,8 @@ export class ProductTypesRepository {
             where: { description: description }});
     }
 
-    async findProductTypesWithMinPrices(pageNumber:number, pageSize:number): Promise<ProductTypeWithPrice[]> {
-        const prices = await ProductPricesRepository.getInstance().findDistinctProductTypePrices(0, pageNumber, pageSize);
+    async findProductTypesWithMinPrices(skip:number, limit:number): Promise<ProductTypeWithPrice[]> {
+        const prices = await ProductPricesRepository.getInstance().findDistinctProductTypePrices(0, skip, limit);
         const ss = new Set<Number>();
         const productTypesWithPrice = [];
         for (let i = 0; i < prices.length; i++) {
@@ -57,10 +54,10 @@ export class ProductTypesRepository {
         return productTypesWithPrice;
     }
 
-    async find(pageNumber: number, pageSize: number): Promise<ProductTypes[]> {
+    async find(skip: number, limit: number): Promise<ProductTypes[]> {
         return await this.repository.find({
-            skip: pageNumber * pageSize,
-            take: pageSize,
+            skip: skip,
+            take: limit,
             order: { description: "ASC" }});
     }
 
