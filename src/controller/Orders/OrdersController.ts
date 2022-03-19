@@ -1,7 +1,6 @@
 import {Request, Response} from "express";
 import {OrdersService} from "../../service/Orders/OrdersService";
-
-const DEFAULT_PAGE_SIZE = 20;
+import {PaginationService} from "../../service/PaginationService";
 
 export class OrdersController {
 
@@ -15,28 +14,27 @@ export class OrdersController {
     }
 
     async count(request: Request, response: Response) {
-        const {pageSize} = request.query;
-        const result = await OrdersController.getService().count(Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await OrdersController.getService().count();
         response.status(result.statusCode).send(result);
     }
 
     async list(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
-        const result = await OrdersController.getService().list(Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const result = await OrdersController.getService().list(skip, limit);
         response.status(result.statusCode).send(result);
     }
 
     async listByDateRange(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
         const {start_date, end_date} = request.params;
-        const result = await OrdersController.getService().listByDateRange(new Date(start_date), new Date(end_date), Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await OrdersController.getService().listByDateRange(new Date(start_date), new Date(end_date), skip, limit);
         response.status(result.statusCode).send(result);
     }
 
     async listByUserAndStatus(request: Request, response: Response) {
-        const {pageNumber, pageSize} = request.query;
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
         const {user_id, order_status} = request.params;
-        const result = await OrdersController.getService().listByUserAndStatus(Number(user_id), order_status, Number(pageNumber || 0), Number(pageSize || DEFAULT_PAGE_SIZE));
+        const result = await OrdersController.getService().listByUserAndStatus(Number(user_id), order_status, skip, limit);
         response.status(result.statusCode).send(result);
     }
 

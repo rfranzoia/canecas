@@ -4,21 +4,6 @@ import {UserDTO} from "../../controller/Users/UserDTO";
 import {UserRepository} from "../../domain/Users/UserRepository";
 import bcrypt from "bcrypt";
 
-export type UserCreateRequest = {
-    role: string;
-    name: string;
-    email: string;
-    password: string;
-    phone: string;
-    address: string;
-}
-
-export type UserUpdateRequest = {
-    name: string;
-    phone: string;
-    address: string;
-}
-
 export class UsersService {
 
     async count():(Promise<ResponseData>) {
@@ -45,7 +30,7 @@ export class UsersService {
         return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
     }
 
-    async create({role, name, email, password, phone, address}: UserCreateRequest):(Promise<ResponseData>) {
+    async create({role, name, email, password, phone, address}: UserRequest):(Promise<ResponseData>) {
         if (await UserRepository.getInstance().findByEmail(email)) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "Email informado já está cadastrado");
         }
@@ -53,11 +38,11 @@ export class UsersService {
         try {
             const hashedPassword = await bcrypt.hash(password, 10);
 
-            const ucr: UserCreateRequest = {
+            const ucr: UserRequest = {
                 role: role,
-                name: name,
                 email: email,
                 password: hashedPassword,
+                name: name,
                 phone: phone,
                 address: address
             }
@@ -74,7 +59,7 @@ export class UsersService {
     }
 
     async delete(id: number, authUser: UserDTO):(Promise<ResponseData>) {
-        if (authUser.role !== "ADMIN") {
+        if (authUser.role !== Role.ADMIN) {
             return new ResponseData(StatusCodes.FORBIDDEN, "Você não está autorizado a excluir usuários");
         }
         const user = await UserRepository.getInstance().findById(id);
@@ -85,7 +70,7 @@ export class UsersService {
         return new ResponseData(StatusCodes.NO_CONTENT, "Usuário removido com Sucesso!");
     }
 
-    async update(id: number, {name, phone, address}: UserUpdateRequest):(Promise<ResponseData>) {
+    async update(id: number, {name, phone, address}: UserRequest):(Promise<ResponseData>) {
         const user = await UserRepository.getInstance().findById(id);
         if (!user) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
@@ -101,7 +86,7 @@ export class UsersService {
         if (!user) {
             return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }
-        if (authUser.email !== user.email && authUser.role !== "ADMIN") {
+        if (authUser.email !== user.email && authUser.role !== Role.ADMIN) {
             return new ResponseData(StatusCodes.FORBIDDEN, "Você não está autorizado a alterar senhas de outro(s) usuário(s)");
         }
         try {
@@ -136,4 +121,15 @@ export class UsersService {
             return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }
     }
+}
+
+enum Role { ADMIN = "ADMIN", USER = "USER", GUEST = "GUEST"}
+
+export interface UserRequest {
+    role?: string;
+    email?: string;
+    password?: string;
+    name: string;
+    phone: string;
+    address: string;
 }

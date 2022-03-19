@@ -125,14 +125,14 @@ export class OrdersService {
     }
 }
 
-export type OrderItemRequest = {
+export interface OrderItemRequest {
     product_id: number;
     quantity: number;
     price: number;
     discount: number;
 }
 
-export type OrdersHistoryRequest = {
+export interface OrdersHistoryRequest {
     order_id: number;
     previousStatus: string;
     currentStatus: string;

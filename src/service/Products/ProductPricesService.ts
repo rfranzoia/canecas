@@ -4,13 +4,6 @@ import {ProductPrices} from "../../domain/Products/ProductPrices";
 import {ProductPriceDTO} from "../../controller/Products/ProductPriceDTO";
 import {ProductPricesRepository} from "../../domain/Products/ProductPricesRepository";
 
-export type ProductPriceRequest = {
-    product_id: number;
-    price: number;
-    validFrom: Date;
-    validTo: Date;
-}
-
 export class ProductPricesService {
 
     async count(pageSize:number):(Promise<ResponseData>) {
@@ -80,4 +73,11 @@ export class ProductPricesService {
         await ProductPricesRepository.getInstance().deleteByProduct(productId);
         return new ResponseData(StatusCodes.NO_CONTENT, "Os Preços do Produto informado foram removido com Sucesso!");
     }
+}
+
+export interface ProductPriceRequest {
+    product_id: number;
+    price: number;
+    validFrom: Date;
+    validTo: Date;
 }

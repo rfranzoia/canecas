@@ -1,7 +1,5 @@
 import {Request, Response} from "express";
 import {UsersService} from "../../service/Users/UsersService";
-import {StatusCodes} from "http-status-codes";
-import {ResponseData} from "../ResponseData";
 import {PaginationService} from "../../service/PaginationService";
 
 export class UsersController {

@@ -4,13 +4,6 @@ import {ProductDTO} from "../../controller/Products/ProductDTO";
 import {ProductsRepository} from "../../domain/Products/ProductsRepository";
 import {ProductTypesRepository} from "../../domain/Products/ProductTypeRepository";
 
-export type ProductRequest = {
-    name: string;
-    description: string;
-    product_type_id: number;
-    image: string;
-}
-
 export class ProductsService {
 
     async count():(Promise<ResponseData>) {
@@ -75,4 +68,11 @@ export class ProductsService {
                                                             .update(id, {name, description, product_type_id, image})));
 
     }
+}
+
+export interface ProductRequest {
+    name: string;
+    description: string;
+    product_type_id: number;
+    image: string;
 }

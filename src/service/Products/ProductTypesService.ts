@@ -3,11 +3,6 @@ import {StatusCodes} from "http-status-codes";
 import {ProductTypeDTO} from "../../controller/Products/ProductTypeDTO";
 import {ProductTypesRepository} from "../../domain/Products/ProductTypeRepository";
 
-export type ProductTypeRequest = {
-    description: string;
-    image: string;
-}
-
 export class ProductTypesService {
 
     async count() {
@@ -64,4 +59,9 @@ export class ProductTypesService {
         return new ResponseData(StatusCodes.OK, "Tipo de Produto atualizado com Sucesso!", ProductTypeDTO.mapToDTO(productType));
     }
 
+}
+
+export interface ProductTypeRequest {
+    description: string;
+    image: string;
 }

@@ -1,6 +1,6 @@
 import {getRepository} from "typeorm";
 import {Users} from "./Users";
-import {UserCreateRequest, UserUpdateRequest} from "../../service/Users/UsersService";
+import {UserRequest} from "../../service/Users/UsersService";
 
 export class UserRepository {
 
@@ -43,15 +43,15 @@ export class UserRepository {
             where: { role: role }});
     }
 
-    async create({role, name, email, password, phone, address}: UserCreateRequest): Promise<Users> {
+    async create(userRequest: UserRequest): Promise<Users> {
 
         const user = await this.repository.create({
-            role,
-            name,
-            email,
-            password,
-            phone,
-            address
+            role: userRequest.role,
+            name: userRequest.name,
+            email: userRequest.email,
+            password: userRequest.password,
+            phone: userRequest.phone,
+            address: userRequest.address
         });
         await this.repository.save(user);
         return user;
@@ -61,12 +61,12 @@ export class UserRepository {
         await this.repository.delete({id});
     }
 
-    async update(id: number, {name, phone, address}: UserUpdateRequest): Promise<Users> {
+    async update(id: number, userRequest: UserRequest): Promise<Users> {
         const user = await this.findById(id);
 
-        user.name = name? name: user.name;
-        user.phone = phone? phone: user.phone;
-        user.address = address? address: user.address;
+        user.name = userRequest.name? userRequest.name: user.name;
+        user.phone = userRequest.phone? userRequest.phone: user.phone;
+        user.address = userRequest.address? userRequest.address: user.address;
 
         await this.repository.save(user);
         return user;

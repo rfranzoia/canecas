@@ -2,8 +2,6 @@ import {Request, Response} from "express";
 import {ProductTypesService} from "../../service/Products/ProductTypesService";
 import {PaginationService} from "../../service/PaginationService";
 
-const DEFAULT_PAGE_SIZE = 15;
-
 export class ProductTypesController {
 
     static service: ProductTypesService;
