@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import express from 'express';
 import cors from 'cors';
 import './database'
-import api from "./api";
+import api from "./api/api";
 import morgan from 'morgan';
 
 dotenv.config({ path: "./.env" });
