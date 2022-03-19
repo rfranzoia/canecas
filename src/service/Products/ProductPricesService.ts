@@ -69,7 +69,7 @@ export class ProductPricesService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Preço de Produto com Id informado não existe!");
         }
         await ProductPricesRepository.getInstance().delete(id);
-        return new ResponseData(StatusCodes.OK, "Preço de Produto removido com Sucesso!", ProductPriceDTO.mapToDTO(productPrice));
+        return new ResponseData(StatusCodes.NO_CONTENT, "Preço de Produto removido com Sucesso!");
     }
 
     async deleteByProduct(productId: number): Promise<ResponseData> {
@@ -78,6 +78,6 @@ export class ProductPricesService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Não existem preços cadastrados para o Produto informado!");
         }
         await ProductPricesRepository.getInstance().deleteByProduct(productId);
-        return new ResponseData(StatusCodes.OK, "Os Preços do Produto informado foram removido com Sucesso!", ProductPriceDTO.mapToListDTO(prices));
+        return new ResponseData(StatusCodes.NO_CONTENT, "Os Preços do Produto informado foram removido com Sucesso!");
     }
 }

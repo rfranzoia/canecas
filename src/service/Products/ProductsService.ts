@@ -54,7 +54,7 @@ export class ProductsService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
         }
         await ProductsRepository.getInstance().delete(id);
-        return new ResponseData(StatusCodes.OK, "Produto removido com Sucesso!", ProductDTO.mapToDTO(product));
+        return new ResponseData(StatusCodes.NO_CONTENT, "Produto removido com Sucesso!");
     }
 
     async update(id: number, {name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {

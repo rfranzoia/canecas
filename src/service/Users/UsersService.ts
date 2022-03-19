@@ -82,7 +82,7 @@ export class UsersService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
         }
         await UserRepository.getInstance().delete(id);
-        return new ResponseData(StatusCodes.OK, "Usuário removido com Sucesso!", UserDTO.mapToDTO(user));
+        return new ResponseData(StatusCodes.NO_CONTENT, "Usuário removido com Sucesso!");
     }
 
     async update(id: number, {name, phone, address}: UserUpdateRequest):(Promise<ResponseData>) {

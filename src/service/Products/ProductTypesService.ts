@@ -47,7 +47,7 @@ export class ProductTypesService {
         }
 
         await ProductTypesRepository.getInstance().delete(productType.id);
-        return new ResponseData(StatusCodes.OK, "Tipo de Produto removido com Sucesso!", ProductTypeDTO.mapToDTO(productType));
+        return new ResponseData(StatusCodes.NO_CONTENT, "Tipo de Produto removido com Sucesso!");
     }
 
     async update(id: number, {description, image}: ProductTypeRequest):(Promise<ResponseData>) {
