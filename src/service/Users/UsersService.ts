@@ -3,6 +3,7 @@ import {StatusCodes} from "http-status-codes";
 import {UserDTO} from "../../controller/Users/UserDTO";
 import {UserRepository} from "../../domain/Users/UserRepository";
 import bcrypt from "bcrypt";
+import {TokenService} from "../../security/TokenService";
 
 export class UsersService {
 
@@ -116,7 +117,10 @@ export class UsersService {
                 return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
             }
 
-            return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
+            const loggedUser = UserDTO.mapToDTO(user);
+            loggedUser.authToken = TokenService.getInstance().generateToken({ email: user.email, name: user.name });
+
+            return new ResponseData(StatusCodes.OK, "", loggedUser);
         } catch (e) {
             return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }

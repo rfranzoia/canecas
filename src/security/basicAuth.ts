@@ -1,6 +1,6 @@
 import {NextFunction} from "express";
 import {StatusCodes} from "http-status-codes";
-import {UsersService} from "./service/Users/UsersService";
+import {UsersService} from "../service/Users/UsersService";
 
 const basicAuth = async (req, res, next: NextFunction) => {
 

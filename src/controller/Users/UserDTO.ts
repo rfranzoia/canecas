@@ -7,6 +7,7 @@ export class UserDTO {
     email: string;
     phone: string;
     address: string;
+    authToken: string;
 
     constructor(id: number, role: string, name: string, email: string, phone: string, address: string) {
         this.id = id;
