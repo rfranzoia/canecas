@@ -112,7 +112,7 @@ export class UsersService {
             }
 
             const loggedUser = UserDTO.mapToDTO(user);
-            loggedUser.authToken = TokenService.getInstance().generateToken({ email: user.email, name: user.name });
+            loggedUser.authToken = TokenService.getInstance().generateToken({ id: user.id, email: user.email, name: user.name });
 
             return new ResponseData(StatusCodes.OK, "", loggedUser);
         } catch (e) {

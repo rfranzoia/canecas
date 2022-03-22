@@ -2,6 +2,8 @@ import jwt from "jsonwebtoken";
 import {NextFunction, Request, Response} from "express";
 import {StatusCodes} from "http-status-codes";
 import {ResponseData} from "../controller/ResponseData";
+import {UserRepository} from "../domain/Users/UserRepository";
+import {UserDTO} from "../controller/Users/UserDTO";
 
 export class TokenService {
     static instance: TokenService;
@@ -14,7 +16,7 @@ export class TokenService {
     }
 
     generateToken = (credentials: Credentials) => {
-        return jwt.sign( {email: credentials.email, username: credentials.name}, process.env.JWT_SECRET, {expiresIn: "36000s"})
+        return jwt.sign( {id: credentials.id, email: credentials.email, username: credentials.name}, process.env.JWT_SECRET, {expiresIn: "36000s"})
     }
 
     authenticateToken = (req: Request, res: Response, next: NextFunction) => {
@@ -25,19 +27,21 @@ export class TokenService {
             return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!"));
         }
 
-        jwt.verify(token, process.env.JWT_SECRET as string, (err: any, user: any) => {
+        jwt.verify(token, process.env.JWT_SECRET as string, async (err: any, user: any) => {
             if (err) {
                 console.error(err);
                 return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!", err));
             }
 
-            req["user"] = user
+            // add user to the request in case it's needed forward ahead
+            req["user"] = UserDTO.mapToDTO(await UserRepository.getInstance().findById(user.id));
             next()
         });
     }
 }
 
 export interface Credentials {
+    id: number;
     email: string;
     name: string;
 }
