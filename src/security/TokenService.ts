@@ -28,7 +28,7 @@ export class TokenService {
         jwt.verify(token, process.env.JWT_SECRET as string, (err: any, user: any) => {
             if (err) {
                 console.error(err);
-                return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!"));
+                return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!", err));
             }
 
             req["user"] = user

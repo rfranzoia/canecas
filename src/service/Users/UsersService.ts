@@ -127,7 +127,7 @@ export class UsersService {
     }
 }
 
-enum Role { ADMIN = "ADMIN", USER = "USER", GUEST = "GUEST"}
+export enum Role { ADMIN = "ADMIN", USER = "USER", GUEST = "GUEST"}
 
 export interface UserRequest {
     role?: string;
