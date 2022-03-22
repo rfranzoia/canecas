@@ -1,1 +1,0 @@
-{"version":3,"file":"ResponseData.js","sourceRoot":"","sources":["../../src/controller/ResponseData.ts"],"names":[],"mappings":";;;AACA,MAAa,YAAY;IAKrB,YAAY,UAAkB,EAAE,OAAgB,EAAE,IAAU;QACxD,IAAI,CAAC,UAAU,GAAG,UAAU,CAAC;QAC7B,IAAI,CAAC,OAAO,GAAG,OAAO,CAAC;QACvB,IAAI,CAAC,IAAI,GAAG,IAAI,CAAC;IACrB,CAAC;CAEJ;AAXD,oCAWC"}
