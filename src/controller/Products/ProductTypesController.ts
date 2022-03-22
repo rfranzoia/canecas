@@ -31,9 +31,10 @@ export class ProductTypesController {
         }
         return ProductTypesController.service;
     }
+
     async create(request: Request, response: Response) {
-        const { description } = request.body;
-        const result = await ProductTypesController.getService().create(description);
+        const { description, image } = request.body;
+        const result = await ProductTypesController.getService().create({description, image});
         response.status(result.statusCode).send(result);
     }
 
@@ -41,6 +42,12 @@ export class ProductTypesController {
     async get(request: Request, response: Response) {
         const { id } = request.params;
         const result = await ProductTypesController.getService().get(Number(id));
+        response.status(result.statusCode).send(result);
+    }
+
+    async getByDescription(request: Request, response: Response) {
+        const { description } = request.params;
+        const result = await ProductTypesController.getService().getByDescription(description);
         response.status(result.statusCode).send(result);
     }
 

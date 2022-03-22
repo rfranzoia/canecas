@@ -26,6 +26,14 @@ export class ProductTypesService {
         return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToDTO(productType));
     }
 
+    async getByDescription(description: string):(Promise<ResponseData>) {
+        const productType = await ProductTypesRepository.getInstance().findByDescription(description);
+        if (!productType) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Tipo de Produto não existe!");
+        }
+        return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToDTO(productType));
+    }
+
     async create({description, image}: ProductTypeRequest):(Promise<ResponseData>){
         if (await ProductTypesRepository.getInstance().findByDescription(description)) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "Tipo de Produto já existe!");
