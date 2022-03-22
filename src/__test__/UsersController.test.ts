@@ -1,54 +1,111 @@
 import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
-import {UsersService} from "../service/Users/UsersService";
-import {ConnectionHelper} from "../database/ConnectionHelper";
+import {Role} from "../service/Users/UsersService";
+import {LOGIN_TEST_USER, TestHelper} from "./TestHelper";
 
-describe("api call test", () => {
+describe("Users API test", () => {
 
-    const TEST_USER = {
-        role: "ADMIN",
-        name: "Test User",
-        email: "anothertestuser@me.com",
-        password: "somepassword",
+    const CREATE_TEST_USER = {
+        role: "USER",
+        name: "Created Test User",
+        email: "created.test.user@me.com",
+        password: "fakepassword",
         phone: "+999 12344",
         address: "Somewhere/Earth"
     }
 
-    let createdTestUser;
-
     beforeAll(async () => {
-        // create a test user and login to get access token
-        await ConnectionHelper.create();
-        let response = await new UsersService().create({
-            role: TEST_USER.role,
-            name: TEST_USER.name,
-            email: TEST_USER.email,
-            password: TEST_USER.password,
-            phone: TEST_USER.phone,
-            address: TEST_USER.address
-        });
-        response = await new UsersService().authenticate(TEST_USER.email, TEST_USER.password);
-        createdTestUser = response.data;
+        await TestHelper.createLoginTestUser();
     });
 
     afterAll(async () => {
-        // delete test user
-        await new UsersService().delete(createdTestUser.id, createdTestUser);
-        await ConnectionHelper.close();
+        await TestHelper.deleteLoginTestUser();
     });
 
-    test("user listing with token", async () => {
-        const response = await supertest(app)
-            .get("/api/users")
-            .set("Authorization", "Bearer " + createdTestUser.authToken);
-        expect(response.statusCode).toBe(StatusCodes.OK);
+    describe("given an user is logged in", () => {
+        it("should be able to list all users", async () => {
+            const response = await supertest(app)
+                .get("/api/users")
+                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+            expect(response.statusCode).toBe(StatusCodes.OK);
+        });
+
+        it("should be able to list users with the given role", async () => {
+            const role = Role.ADMIN;
+            const response = await supertest(app)
+                .get(`/api/users/role/${role}`)
+                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+            expect(response.statusCode).toBe(StatusCodes.OK);
+        });
+
+        it("should be able to get an User with a given email", async () => {
+            const response = await supertest(app)
+                .get(`/api/users/role/${LOGIN_TEST_USER.email}`)
+                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+            expect(response.statusCode).toBe(StatusCodes.OK);
+        });
     });
 
-    test("user listing without token", async () => {
-        const response = await supertest(app)
-            .get("/api/users")
-        expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+    describe("given an user is not logged in", () => {
+        it("should not be able to list users", async () => {
+            const response = await supertest(app)
+                .get("/api/users")
+            expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+        });
+
+        it("should not be able to login with invalid credentials", async () => {
+            const invalidCredentials = {
+                email: "someemail@nowere.com",
+                password: "novalidpassword"
+            };
+
+            const response = await supertest(app)
+                .post("/api/users/login")
+                .send({
+                    email: invalidCredentials.email,
+                    password: invalidCredentials.password
+                });
+            expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+        });
+
+        it("should be able to login with valid credentials", async () => {
+            const response = await supertest(app)
+                .post("/api/users/login")
+                .send({
+                    email: LOGIN_TEST_USER.email,
+                    password: LOGIN_TEST_USER.password
+                });
+            expect(response.statusCode).toBe(StatusCodes.OK);
+            expect(response.body.data.authToken.trim()).toBeDefined();
+        });
     });
 
-})
+    describe("given an user doesn't exists in the database", () => {
+        describe("and the user must be created", () => {
+            it("should be able to create an User", async () => {
+                const response = await supertest(app)
+                    .post("/api/users")
+                    .send(CREATE_TEST_USER);
+                expect(response.statusCode).toBe(StatusCodes.CREATED);
+                expect(response.body.data.email).toEqual(CREATE_TEST_USER.email);
+            });
+        });
+
+        describe("and the use must be deleted after being created", () => {
+            it("should be able to delete an existing user if there's an user logged in", async () => {
+                // searches for the created user to get its ID
+                let response = await supertest(app)
+                    .get(`/api/users/email/${CREATE_TEST_USER.email}`)
+                    .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+
+                // now deletes the created user
+                response = await supertest(app)
+                    .delete(`/api/users/${response.body.data.id}`)
+                    .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+                expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
+            });
+        });
+    });
+
+});

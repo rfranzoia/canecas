@@ -14,7 +14,7 @@ export class TokenService {
     }
 
     generateToken = (credentials: Credentials) => {
-        return jwt.sign( {email: credentials.email, username: credentials.name}, process.env.JWT_SECRET, {expiresIn: "3600s"})
+        return jwt.sign( {email: credentials.email, username: credentials.name}, process.env.JWT_SECRET, {expiresIn: "36000s"})
     }
 
     authenticateToken = (req: Request, res: Response, next: NextFunction) => {
