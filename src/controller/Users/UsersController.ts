@@ -50,9 +50,8 @@ export class UsersController {
     }
 
     async delete(request: Request, response: Response) {
-        const authUser = request["user"];
         const {id} = request.params;
-        const result = await UsersController.getService().delete(Number(id), authUser);
+        const result = await UsersController.getService().delete(Number(id));
         response.status(result.statusCode).send(result);
     }
 
@@ -64,9 +63,8 @@ export class UsersController {
     }
 
     async updatePassword(request: Request, response: Response) {
-        const authUser = request["user"];
         const {email, old_password, new_password} = request.body;
-        const result = await UsersController.getService().updatePassword(email, old_password, new_password, authUser);
+        const result = await UsersController.getService().updatePassword(email, old_password, new_password);
         response.status(result.statusCode).send(result);
     }
 
