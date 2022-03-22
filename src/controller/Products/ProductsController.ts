@@ -47,6 +47,12 @@ export class ProductsController {
         response.status(result.statusCode).send(result);
     }
 
+    async getByName(request: Request, response: Response) {
+        const {name} = request.params;
+        const result = await ProductsController.getService().getByName(name);
+        response.status(result.statusCode).send(result);
+    }
+
     async delete(request: Request, response: Response) {
         const {id} = request.params;
         const result = await ProductsController.getService().delete(Number(id));

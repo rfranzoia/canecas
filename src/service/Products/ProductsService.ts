@@ -25,6 +25,11 @@ export class ProductsService {
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToDTO(product));
     }
 
+    async getByName(name: string):(Promise<ResponseData>) {
+        const product = await ProductsRepository.getInstance().findByName(name);
+        return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToDTO(product));
+    }
+
     async create({name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
         if (await ProductsRepository.getInstance().findByName(name)) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "Produto já existe com o nome informado!");

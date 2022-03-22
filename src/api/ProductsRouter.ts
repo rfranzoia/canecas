@@ -4,13 +4,13 @@ import {Router} from "express";
 const productsController = new ProductsController();
 const productRouter = Router();
 
-productRouter.post("/", productsController.create);
 productRouter.get("/", productsController.list);
 productRouter.get("/count", productsController.count);
-
+productRouter.get("/:id", productsController.get);
+productRouter.get("/name/:name", productsController.getByName);
 productRouter.get("/productType/:product_type_id", productsController.listByType);
 
-productRouter.get("/:id", productsController.get);
+productRouter.post("/", productsController.create);
 productRouter.delete("/:id", productsController.delete);
 productRouter.put("/:id", productsController.update);
 
