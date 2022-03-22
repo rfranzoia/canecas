@@ -14,10 +14,10 @@ export class ProductsController {
     }
 
     async create(request: Request, response: Response) {
-        const {name, description, product_type_id, image} = request.body;
+        const {name, description, product_type_id, image, price} = request.body;
 
         const result = await ProductsController.getService().create({
-            name, description, product_type_id, image
+            name, description, product_type_id, image, price
         });
 
         response.status(result.statusCode).send(result);
@@ -61,8 +61,8 @@ export class ProductsController {
 
     async update(request: Request, response: Response) {
         const {id} = request.params;
-        const {name, description, product_type_id, image} = request.body;
-        const result = await ProductsController.getService().update(Number(id), {name, description, product_type_id, image});
+        const {name, description, product_type_id, image, price} = request.body;
+        const result = await ProductsController.getService().update(Number(id), {name, description, product_type_id, image, price});
         response.status(result.statusCode).send(result);
     }
 }

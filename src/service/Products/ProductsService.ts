@@ -30,7 +30,7 @@ export class ProductsService {
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToDTO(product));
     }
 
-    async create({name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
+    async create({name, description, product_type_id, image, price}: ProductRequest):(Promise<ResponseData>) {
         if (await ProductsRepository.getInstance().findByName(name)) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "Produto já existe com o nome informado!");
         }
@@ -41,7 +41,7 @@ export class ProductsService {
 
         const product = await ProductsRepository.getInstance()
                                 .findById((await ProductsRepository.getInstance()
-                                                        .create({name, description, product_type_id, image})).id);
+                                                        .create({name, description, product_type_id, image, price})).id);
 
         return new ResponseData(StatusCodes.CREATED, "", ProductDTO.mapToDTO(product));
     }
@@ -55,7 +55,7 @@ export class ProductsService {
         return new ResponseData(StatusCodes.NO_CONTENT, "Produto removido com Sucesso!");
     }
 
-    async update(id: number, {name, description, product_type_id, image}: ProductRequest):(Promise<ResponseData>) {
+    async update(id: number, {name, description, product_type_id, image, price}: ProductRequest):(Promise<ResponseData>) {
         const product = await ProductsRepository.getInstance().findById(id);
         if (!product) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Produto com Id informado não existe!");
@@ -70,7 +70,7 @@ export class ProductsService {
 
         return new ResponseData(StatusCodes.OK, "Produto atualizado com Sucesso!",
                             ProductDTO.mapToDTO(await ProductsRepository.getInstance()
-                                                            .update(id, {name, description, product_type_id, image})));
+                                                            .update(id, {name, description, product_type_id, image, price})));
 
     }
 }
@@ -80,4 +80,5 @@ export interface ProductRequest {
     description: string;
     product_type_id: number;
     image: string;
+    price: number;
 }

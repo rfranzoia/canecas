@@ -1,6 +1,5 @@
 import {ResponseData} from "../../controller/ResponseData";
 import {StatusCodes} from "http-status-codes";
-import {ProductPrices} from "../../domain/Products/ProductPrices";
 import {ProductPriceDTO} from "../../controller/Products/ProductPriceDTO";
 import {ProductPricesRepository} from "../../domain/Products/ProductPricesRepository";
 
@@ -25,35 +24,14 @@ export class ProductPricesService {
         return new ResponseData(StatusCodes.OK, "", ProductPriceDTO.mapToListDTO(list));
     }
 
-    // TODO: include additional validation (check if valid price for product already exists)
-    async create({product_id, price, validFrom, validTo}: ProductPriceRequest): Promise<ResponseData> {
+    async create({product_id, price, validUntil}: ProductPriceRequest): Promise<ResponseData> {
         const ppr = {
             product_id: Number(product_id),
             price: Number(price),
-            validFrom: new Date(validFrom),
-            validTo: new Date(validTo)
+            validUntil: new Date(validUntil)
         }
         const productPrice = await ProductPricesRepository.getInstance().findById((await ProductPricesRepository.getInstance().create(ppr)).id);
         return new ResponseData(StatusCodes.OK, "Prices added", ProductPriceDTO.mapToDTO(productPrice));
-    }
-
-    // TODO: include additional validation (check if valid price for product already exists)
-    async createAll(data: ProductPriceRequest[]): Promise<ResponseData> {
-        let prices: ProductPrices[] = [];
-
-        for (let i = 0; i < data.length; i++) {
-            const ppr = {
-                product_id: Number(data[i].product_id),
-                price: Number(data[i].price),
-                validFrom: new Date(data[i].validFrom),
-                validTo: new Date(data[i].validTo)
-            }
-            const productPrice = await this.create(ppr);
-            if (productPrice) {
-                prices.push(productPrice.data);
-            }
-        }
-        return new ResponseData(StatusCodes.OK, "Prices added", ProductPriceDTO.mapToListDTO(prices));
     }
 
     async delete(id: number): Promise<ResponseData> {
@@ -78,6 +56,5 @@ export class ProductPricesService {
 export interface ProductPriceRequest {
     product_id: number;
     price: number;
-    validFrom: Date;
-    validTo: Date;
+    validUntil: Date;
 }

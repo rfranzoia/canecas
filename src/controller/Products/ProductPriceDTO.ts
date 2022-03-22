@@ -5,19 +5,17 @@ export class ProductPriceDTO {
     id: number;
     product: ProductDTO;
     price: number;
-    validFrom: Date;
-    validTo: Date
+    validUntil: Date;
 
-    constructor(id: number, product: ProductDTO, price: number, validFrom: Date, validTo: Date) {
+    constructor(id: number, product: ProductDTO, price: number, validUntil: Date) {
         this.id = id;
         this.product = product;
         this.price = price;
-        this.validFrom = validFrom;
-        this.validTo = validTo;
+        this.validUntil = validUntil;
     }
 
     static mapToDTO(productPrice: ProductPrices): ProductPriceDTO {
-        return new ProductPriceDTO(productPrice.id, productPrice.product, productPrice.price, productPrice.validFrom, productPrice.validTo);
+        return new ProductPriceDTO(productPrice.id, productPrice.product, productPrice.price, productPrice.validUntil);
     }
 
     static mapToListDTO(productPrices: ProductPrices[]): ProductPriceDTO[] {

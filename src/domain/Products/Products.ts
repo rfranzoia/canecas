@@ -24,4 +24,7 @@ export class Products {
     @Column()
     product_type_id: number;
 
+    @Column()
+    price: number;
+
 }

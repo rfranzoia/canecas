@@ -19,14 +19,9 @@ export class ProductPrices {
     price: number;
 
     @Column({
-        name: "valid_from",
+        name: "valid_until",
         type: "date"
     })
-    validFrom: Date;
+    validUntil: Date;
 
-    @Column({
-        name: "valid_to",
-        type: "date"
-    })
-    validTo: Date
 }

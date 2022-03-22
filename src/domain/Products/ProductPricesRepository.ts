@@ -57,12 +57,11 @@ export class ProductPricesRepository {
                             .getMany();
     }
 
-    async create({product_id, price, validFrom, validTo}: ProductPriceRequest): Promise<ProductPrices> {
+    async create({product_id, price, validUntil}: ProductPriceRequest): Promise<ProductPrices> {
         const product = await this.repository.create({
             product_id: Number(product_id),
             price: Number(price),
-            validFrom: new Date(validFrom),
-            validTo: new Date(validTo)
+            validUntil: new Date(validUntil)
         });
         await this.repository.save(product);
         return product;

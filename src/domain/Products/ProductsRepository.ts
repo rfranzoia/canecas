@@ -1,6 +1,7 @@
 import {getRepository} from "typeorm";
 import {Products} from "./Products";
 import {ProductRequest} from "../../service/Products/ProductsService";
+import {ProductPrices} from "./ProductPrices";
 
 
 export class ProductsRepository {
@@ -8,6 +9,7 @@ export class ProductsRepository {
     static instance: ProductsRepository;
 
     repository = getRepository(Products);
+    productPriceRepository = getRepository(ProductPrices);
 
     static getInstance(): ProductsRepository {
         if (!this.instance) {
@@ -49,12 +51,13 @@ export class ProductsRepository {
             order: { name: "ASC" }});
     }
 
-    async create({name, description, product_type_id, image}: ProductRequest): Promise<Products> {
+    async create({name, description, product_type_id, image, price}: ProductRequest): Promise<Products> {
         const product = await this.repository.create({
             name,
             description,
             product_type_id,
-            image
+            image,
+            price
         });
         await this.repository.save(product);
         return product;
@@ -64,13 +67,23 @@ export class ProductsRepository {
         await this.repository.delete({id});
     }
 
-    async update(id: number, {name, description, product_type_id, image}: ProductRequest): Promise<Products> {
+    async update(id: number, {name, description, product_type_id, image, price}: ProductRequest): Promise<Products> {
         const product = await this.findById(id);
 
         product.name = name? name: product.name;
         product.description = description? description: product.description;
         product.product_type_id = product_type_id? product_type_id: product.product_type_id;
         product.image = image? image: product.image;
+
+        if (price && price !== product.price) {
+            product.price = price;
+            const productPrice = await this.productPriceRepository.create({
+                product_id: id,
+                price: price,
+                validUntil: new Date()
+            });
+            await this.productPriceRepository.save(productPrice);
+        }
 
         await this.repository.save(product);
         return product;

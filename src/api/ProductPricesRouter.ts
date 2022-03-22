@@ -4,7 +4,6 @@ import {Router} from "express";
 const productPriceController = new ProductPriceController();
 const productPricesRouter = Router();
 
-productPricesRouter.post("/add", productPriceController.createAll);
 productPricesRouter.post("/", productPriceController.create);
 
 productPricesRouter.get("/", productPriceController.list);

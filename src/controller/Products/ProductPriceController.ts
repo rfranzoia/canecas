@@ -46,22 +46,16 @@ export class ProductPriceController {
     }
 
     async create(request: Request, response: Response) {
-        const {product_id, price, validFrom, validTo} = request.body;
+        const {product_id, price, validUntil} = request.body;
 
         let createRequest = {
             product_id: Number(product_id),
             price: Number(price),
-            validFrom: new Date(validFrom),
-            validTo: new Date(validTo)
+            validUntil: new Date(validUntil)
         }
         
         const result = await ProductPriceController.getService().create(createRequest);
         response.status(result.statusCode).send(result);
     }
 
-    async createAll(request: Request, response: Response) {
-        const { data } = request.body;
-        const result = await ProductPriceController.getService().createAll(data);
-        response.status(result.statusCode).send(result);
-    }
 }
