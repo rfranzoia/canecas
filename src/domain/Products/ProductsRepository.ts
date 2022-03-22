@@ -1,4 +1,4 @@
-import {getRepository} from "typeorm";
+import {Between, getRepository} from "typeorm";
 import {Products} from "./Products";
 import {ProductRequest} from "../../service/Products/ProductsService";
 import {ProductPrices} from "./ProductPrices";
@@ -49,6 +49,18 @@ export class ProductsRepository {
             take: limit,
             where: { product_type_id: productTypeId },
             order: { name: "ASC" }});
+    }
+
+    async findByPriceRange(startPrice: number, endPrice: number, skip: number, limit: number) {
+        return await this.repository.find({
+            relations:["productType"],
+            skip: skip,
+            take: limit,
+            where: { price: Between(startPrice, endPrice) },
+            order: {
+                price: "ASC",
+                name: "ASC"
+            }});
     }
 
     async create({name, description, product_type_id, image, price}: ProductRequest): Promise<Products> {

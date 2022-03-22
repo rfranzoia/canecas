@@ -41,6 +41,13 @@ export class ProductsController {
         response.status(result.statusCode).send(result);
     }
 
+    async listByPriceRange(request: Request, response: Response) {
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const { startPrice, endPrice } = request.params;
+        const result = await ProductsController.getService().listByPriceRange(Number(startPrice), Number(endPrice), skip, limit);
+        response.status(result.statusCode).send(result);
+    }
+
     async get(request: Request, response: Response) {
         const {id} = request.params;
         const result = await ProductsController.getService().get(Number(id));

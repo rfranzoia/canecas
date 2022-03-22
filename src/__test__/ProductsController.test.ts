@@ -29,10 +29,20 @@ describe("Products API test (requires authentication token)", () => {
             expect(response.body.data.length).toBeGreaterThan(0);
         });
 
-        it("should be able to list all products by a given ProductType", async () => {
+        it("and should be able to list all products by a given ProductType", async () => {
             const productTypeId = 1;
             const response = await supertest(app)
                 .get(`/api/products/productType/${productTypeId}`)
+                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+            expect(response.statusCode).toBe(StatusCodes.OK);
+            expect(response.body.data.length).toBeGreaterThan(0);
+        });
+
+        it("and should be able to list all products by a given price range", async () => {
+            const startPrice = 0;
+            const endPrice = 999;
+            const response = await supertest(app)
+                .get(`/api/products/price/${startPrice}/${endPrice}`)
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.data.length).toBeGreaterThan(0);

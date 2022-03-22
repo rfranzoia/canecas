@@ -9,6 +9,7 @@ productRouter.get("/count", productsController.count);
 productRouter.get("/:id", productsController.get);
 productRouter.get("/name/:name", productsController.getByName);
 productRouter.get("/productType/:product_type_id", productsController.listByType);
+productRouter.get("/price/:startPrice/:endPrice", productsController.listByPriceRange);
 
 productRouter.post("/", productsController.create);
 productRouter.delete("/:id", productsController.delete);

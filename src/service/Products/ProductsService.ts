@@ -20,6 +20,18 @@ export class ProductsService {
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToListDTO(list));
     }
 
+    async listByPriceRange(startPrice: number, endPrice: number, skip: number, limit: number):(Promise<ResponseData>) {
+        startPrice = startPrice || 0;
+        endPrice = endPrice || 0;
+
+        if (startPrice < 0 || endPrice < 0) {
+            return new ResponseData(StatusCodes.BAD_REQUEST, "The start and ending prices cannot be negative");
+        }
+
+        const list = await ProductsRepository.getInstance().findByPriceRange(startPrice, endPrice, skip, limit);
+        return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToListDTO(list));
+    }
+
     async get(id:number):(Promise<ResponseData>) {
         const product = await ProductsRepository.getInstance().findById(id);
         return new ResponseData(StatusCodes.OK, "", ProductDTO.mapToDTO(product));
