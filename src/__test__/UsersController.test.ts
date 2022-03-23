@@ -3,6 +3,7 @@ import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {Role} from "../service/Users/UsersService";
 import {LOGIN_TEST_USER, TestHelper} from "./TestHelper";
+import {UserDTO} from "../controller/Users/UserDTO";
 
 describe("Users API test (some require jwt token)", () => {
 
@@ -82,29 +83,22 @@ describe("Users API test (some require jwt token)", () => {
     });
 
     describe("given an user doesn't exists in the database", () => {
-        describe("and the user must be created", () => {
-            it("should be able to create an User", async () => {
-                const response = await supertest(app)
-                    .post("/api/users")
-                    .send(CREATE_TEST_USER);
-                expect(response.statusCode).toBe(StatusCodes.CREATED);
-                expect(response.body.data.email).toEqual(CREATE_TEST_USER.email);
-            });
+        let createdUser: UserDTO;
+
+        it("should be able to create an User", async () => {
+            const response = await supertest(app)
+                .post("/api/users")
+                .send(CREATE_TEST_USER);
+            expect(response.statusCode).toBe(StatusCodes.CREATED);
+            expect(response.body.data.email).toEqual(CREATE_TEST_USER.email);
+            createdUser = response.body.data;
         });
 
-        describe("and the use must be deleted after being created", () => {
-            it("should be able to delete an existing user if there's an user logged in", async () => {
-                // searches for the created user to get its ID
-                let response = await supertest(app)
-                    .get(`/api/users/email/${CREATE_TEST_USER.email}`)
-                    .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
-
-                // now deletes the created user
-                response = await supertest(app)
-                    .delete(`/api/users/${response.body.data.id}`)
-                    .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
-                expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
-            });
+        it("and should be able to delete an existing user if there's an user logged in", async () => {
+            const response = await supertest(app)
+                .delete(`/api/users/${createdUser.id}`)
+                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+            expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
         });
     });
 

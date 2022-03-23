@@ -2,6 +2,7 @@ import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {TestHelper} from "./TestHelper";
+import {ProductDTO} from "../controller/Products/ProductDTO";
 
 describe("Products API test (requires jwt token for most)", () => {
 
@@ -47,20 +48,20 @@ describe("Products API test (requires jwt token for most)", () => {
     });
 
     describe("given a product doesn't exists in the database", () => {
+        let createdProduct: ProductDTO;
+
         it("should be able to add the new product", async () => {
             const response = await supertest(app)
                 .post("/api/products")
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken)
                 .send(CREATED_TEST_PRODUCT);
         expect(response.statusCode).toBe(StatusCodes.CREATED);
+        createdProduct = response.body.data;
         });
 
-        it("and should be able to find and delete de recently created product", async () => {
-            let response = await supertest(app)
-                .get(`/api/products/name/${CREATED_TEST_PRODUCT.name}`)
-
-            response = await supertest(app)
-                .delete(`/api/products/${response.body.data.id}`)
+        it("and should be able to delete the recently created product", async () => {
+            const response = await supertest(app)
+                .delete(`/api/products/${createdProduct.id}`)
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
         });

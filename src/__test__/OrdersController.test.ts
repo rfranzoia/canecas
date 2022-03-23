@@ -2,6 +2,7 @@ import supertest from "supertest";
 import {TestHelper} from "./TestHelper";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
+import {OrderDTO} from "../controller/Orders/OrderDTO";
 
 describe("Orders API test (some require jwt token)", () => {
 
@@ -14,12 +15,15 @@ describe("Orders API test (some require jwt token)", () => {
     });
 
     describe("given a list of order exists in the database", () => {
+        let orders: OrderDTO[];
+
         it("should be able to list all orders", async () => {
             const response = await supertest(app)
                 .get("/api/orders")
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.data.length).toBeGreaterThan(0);
+            orders = [...response.body.data];
         });
 
         it("should be able to list all orders by a date range", async () => {
@@ -33,11 +37,8 @@ describe("Orders API test (some require jwt token)", () => {
         });
 
         it("should be able to retrieve an order by its ID", async () => {
-            let response = await supertest(app)
-                .get("/api/orders")
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
-            const orderId = response.body.data[0].id;
-            response = await supertest(app)
+            const orderId = orders[0].id;
+            const response = await supertest(app)
                 .get(`/api/orders/${orderId}`)
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);

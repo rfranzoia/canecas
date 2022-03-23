@@ -2,6 +2,7 @@ import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {TestHelper} from "./TestHelper";
+import {ProductTypeDTO} from "../controller/Products/ProductTypeDTO";
 
 describe("ProductTypes API test (requires jwt token for most)", () => {
 
@@ -29,20 +30,20 @@ describe("ProductTypes API test (requires jwt token for most)", () => {
     });
 
     describe("given a product doesn't exists in the database", () => {
+        let createdProductType: ProductTypeDTO;
+
         it("should be able to add the new product", async () => {
             const response = await supertest(app)
                 .post("/api/productTypes")
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken)
                 .send(CREATED_TEST_PRODUCT_TYPE);
         expect(response.statusCode).toBe(StatusCodes.CREATED);
+        createdProductType = response.body.data;
         });
 
-        it("and should be able to find and delete de recently created product", async () => {
-            let response = await supertest(app)
-                .get(`/api/productTypes/description/${CREATED_TEST_PRODUCT_TYPE.description}`)
-
-            response = await supertest(app)
-                .delete(`/api/productTypes/${response.body.data.id}`)
+        it("and should be able to delete the recently created product", async () => {
+            const response = await supertest(app)
+                .delete(`/api/productTypes/${createdProductType.id}`)
                 .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
         });
