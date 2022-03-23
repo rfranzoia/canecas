@@ -37,7 +37,7 @@ export class OrdersRepository {
     }
 
     async findByDateRange(startDate: Date, endDate: Date, skip:number, limit:number):Promise<Orders[]> {
-        const list = this.ordersRepository.find({
+        return this.ordersRepository.find({
             relations: ["user"],
             skip: skip,
             take: limit,
@@ -49,16 +49,14 @@ export class OrdersRepository {
                 orderStatus: "DESC"
             }
         });
-        return list;
     }
 
-    async findByUserAndStatus(user_id: number, orderStatus: string, skip: number, limit: number): Promise<Orders[]> {
-        const list = this.ordersRepository.find({
+    async findByStatus(orderStatus: string, skip: number, limit: number): Promise<Orders[]> {
+        return this.ordersRepository.find({
             relations: ["user"],
             skip: skip,
             take: limit,
             where: {
-                user_id: user_id,
                 orderStatus: orderStatus?
                     orderStatus:
                     MoreThanOrEqual("0")
@@ -67,7 +65,6 @@ export class OrdersRepository {
                 orderDate: "DESC"
             }
         });
-        return list;
     }
 
     async findById(id: uuid): Promise<Orders> {

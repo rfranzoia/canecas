@@ -7,29 +7,40 @@ import {OrderHistoryDTO} from "../../controller/Orders/OrderHistoryDTO";
 import {OrderDTO} from "../../controller/Orders/OrderDTO";
 import {OrderItemDTO} from "../../controller/Orders/OrderItemDTO";
 import {OrdersRepository} from "../../domain/Orders/OrdersRepository";
+import {UserRepository} from "../../domain/Users/UserRepository";
+import {Role} from "../Users/UsersService";
+import {Users} from "../../domain/Users/Users";
 
 export class OrdersService {
 
     repository = getRepository(Orders);
-    
+
     async count():(Promise<ResponseData>) {
-        return new ResponseData(StatusCodes.OK, "", await OrdersRepository.getInstance().count());
+        return new ResponseData(StatusCodes.OK, "", {
+            orders_count: await OrdersRepository.getInstance().count()
+        });
     }
 
-    async list(skip:number, limit:number):(Promise<ResponseData>) {
-        const list = await OrdersRepository.getInstance().find(skip, limit);
-        return new ResponseData(StatusCodes.OK, "",  await Promise.all(list.map(async (order) => this.getCompleteOrder(order))));
+    async list(skip:number, limit:number, userId: number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(userId);
+        const list: Orders[] = await OrdersRepository.getInstance().find(skip, limit);
+        const orders = filterOrdersByUser(list, user);
+        return new ResponseData(StatusCodes.OK, "",  await Promise.all(orders.map(async (order) => getCompleteOrder(order))));
     }
 
-    async listByDateRange(startDate: Date, endDate: Date, skip:number, limit:number):(Promise<ResponseData>) {
+    async listByDateRange(startDate: Date, endDate: Date, skip:number, limit:number, userId: number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(userId);
         const list = await OrdersRepository.getInstance().findByDateRange(startDate, endDate, skip, limit);
-        return new ResponseData(StatusCodes.OK, "",  await Promise.all(list.map(async (order) => this.getCompleteOrder(order))));
+        const orders = filterOrdersByUser(list, user);
+        return new ResponseData(StatusCodes.OK, "",  await Promise.all(orders.map(async (order) => getCompleteOrder(order))));
     }
 
 
-    async listByUserAndStatus(user_id: number, orderStatus: string, skip:number, limit:number):(Promise<ResponseData>) {
-        const list = await OrdersRepository.getInstance().findByUserAndStatus(user_id, orderStatus, skip, limit);
-        return new ResponseData(StatusCodes.OK, "", await Promise.all(list.map(async (order) => this.getCompleteOrder(order))));
+    async listByStatus(orderStatus: string, skip:number, limit:number, userId: number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(userId);
+        const list = await OrdersRepository.getInstance().findByStatus(orderStatus, skip, limit);
+        const orders = filterOrdersByUser(list, user);
+        return new ResponseData(StatusCodes.OK, "", await Promise.all(orders.map(async (order) => getCompleteOrder(order))));
     }
 
     async get(id: uuid):(Promise<ResponseData>) {
@@ -38,12 +49,12 @@ export class OrdersService {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
         }
 
-        return new ResponseData(StatusCodes.OK, "", await this.getCompleteOrder(order));
+        return new ResponseData(StatusCodes.OK, "", await getCompleteOrder(order));
     }
 
     async create(user_id: number, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
         let order = await OrdersRepository.getInstance().createOrder(user_id);
-        return new ResponseData(StatusCodes.CREATED, "", await this.createItemsAndGetOrder(orderItems, order));
+        return new ResponseData(StatusCodes.CREATED, "", await createItemsAndGetOrder(orderItems, order));
     }
 
     async addRemoveOrderItems(order_id: uuid, orderItems: OrderItemRequest[]):(Promise<ResponseData>) {
@@ -58,7 +69,7 @@ export class OrdersService {
         // delete all existing items
         await OrdersRepository.getInstance().deleteOrderItemsByOrderId(order.id);
 
-        return new ResponseData(StatusCodes.OK, "", await this.createItemsAndGetOrder(orderItems, order));
+        return new ResponseData(StatusCodes.OK, "", await createItemsAndGetOrder(orderItems, order));
     }
 
     async deleteOrderAndItems(id: uuid):(Promise<ResponseData>) {
@@ -100,29 +111,41 @@ export class OrdersService {
         await OrdersRepository.getInstance().updateOrderStatus(order, orderDate, orderStatus);
 
         // add the change to the OrdersHistory
-        const history = await OrdersRepository.getInstance().createOrdersHistory(order, {
+        await OrdersRepository.getInstance().createOrdersHistory(order, {
             order_id: order.id,
             previousStatus: previous,
             currentStatus: order.orderStatus,
             changeReason: changeReason
         });
 
-        return new ResponseData(StatusCodes.OK, "Situação do Pedido atualizada com sucesso!", this.getCompleteOrder(order));
+        return new ResponseData(StatusCodes.OK, "Situação do Pedido atualizada com sucesso!", getCompleteOrder(order));
     }
 
-    // add items to an provided order
-    private async createItemsAndGetOrder(orderItems: OrderItemRequest[], order: Orders): Promise<OrderDTO> {
-        await OrdersRepository.getInstance().createOrderItems(orderItems, order);
-        return await this.getCompleteOrder(order);
-    }
+}
 
-    // retrieves an order with all items and history
-    private async getCompleteOrder(order: Orders): Promise<OrderDTO> {
-        const orderItems = await OrdersRepository.getInstance().findOrderItemsByOrderId(order.id);
-        const orderHistory = await OrdersRepository.getInstance().findOrdersHistoryByOrderId(order.id);
+function filterOrdersByUser(list: Orders[], user: Users) {
+    return list.filter(order => {
+        if (user.role === Role.ADMIN) {
+            return order;
+        } else if (user.id === order.user_id) {
+            return order;
+        }
+    });
+}
 
-        return OrderDTO.mapToDTO(order,OrderItemDTO.mapToListDTO(orderItems), OrderHistoryDTO.mapToListDTO(orderHistory));
-    }
+// add items to an provided order
+async function createItemsAndGetOrder(orderItems: OrderItemRequest[], order: Orders): Promise<OrderDTO> {
+    await OrdersRepository.getInstance().createOrderItems(orderItems, order);
+    return await getCompleteOrder(order);
+}
+
+// retrieves an order with all items and history
+async function getCompleteOrder(order: Orders):Promise<OrderDTO> {
+
+    const orderItems = await OrdersRepository.getInstance().findOrderItemsByOrderId(order.id);
+    const orderHistory = await OrdersRepository.getInstance().findOrdersHistoryByOrderId(order.id);
+
+    return OrderDTO.mapToDTO(order,OrderItemDTO.mapToListDTO(orderItems), OrderHistoryDTO.mapToListDTO(orderHistory));
 }
 
 export interface OrderItemRequest {

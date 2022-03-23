@@ -20,21 +20,24 @@ export class OrdersController {
 
     async list(request: Request, response: Response) {
         const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
-        const result = await OrdersController.getService().list(skip, limit);
+        const userId = Number(request["user"].id);
+        const result = await OrdersController.getService().list(skip, limit, userId);
         response.status(result.statusCode).send(result);
     }
 
     async listByDateRange(request: Request, response: Response) {
         const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
         const {start_date, end_date} = request.params;
-        const result = await OrdersController.getService().listByDateRange(new Date(start_date), new Date(end_date), skip, limit);
+        const userId = Number(request["user"].id);
+        const result = await OrdersController.getService().listByDateRange(new Date(start_date), new Date(end_date), skip, limit, userId);
         response.status(result.statusCode).send(result);
     }
 
-    async listByUserAndStatus(request: Request, response: Response) {
+    async listByStatus(request: Request, response: Response) {
         const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
-        const {user_id, order_status} = request.params;
-        const result = await OrdersController.getService().listByUserAndStatus(Number(user_id), order_status, skip, limit);
+        const {order_status} = request.params;
+        const userId = Number(request["user"].id);
+        const result = await OrdersController.getService().listByStatus(order_status, skip, limit, userId);
         response.status(result.statusCode).send(result);
     }
 
