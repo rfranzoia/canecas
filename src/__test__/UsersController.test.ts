@@ -4,7 +4,7 @@ import {StatusCodes} from "http-status-codes";
 import {Role} from "../service/Users/UsersService";
 import {LOGIN_TEST_USER, TestHelper} from "./TestHelper";
 
-describe("Users API test", () => {
+describe("Users API test (some require jwt token)", () => {
 
     const CREATE_TEST_USER = {
         role: "USER",

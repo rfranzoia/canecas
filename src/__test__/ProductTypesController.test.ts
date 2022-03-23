@@ -3,7 +3,7 @@ import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {TestHelper} from "./TestHelper";
 
-describe("ProductTypes API test (requires authentication token)", () => {
+describe("ProductTypes API test (requires jwt token for most)", () => {
 
     const CREATED_TEST_PRODUCT_TYPE = {
         description: "Some dummy description for a test productTypes that needs it",
