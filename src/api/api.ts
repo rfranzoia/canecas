@@ -6,7 +6,6 @@ import productTypeRouter from "./ProductTypeRouter";
 import productRouter from "./ProductsRouter";
 import usersRouter from "./UsersRouter";
 import ordersRouter from "./OrdersRouter";
-import {TokenService} from "../security/TokenService";
 
 const app = express();
 
@@ -20,12 +19,11 @@ app.get('/', (req, res) => {
 });
 
 const api = Router();
-const tokenService = TokenService.getInstance();
 
 api.use("/users", usersRouter);
-api.use("/productTypes", tokenService.authenticateToken, productTypeRouter);
-api.use("/products", tokenService.authenticateToken, productRouter);
-api.use("/orders", tokenService.authenticateToken, ordersRouter);
+api.use("/productTypes", productTypeRouter);
+api.use("/products", productRouter);
+api.use("/orders", ordersRouter);
 
 app.use("/api", api);
 export default app;

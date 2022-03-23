@@ -24,7 +24,6 @@ describe("Products API test (requires jwt token for most)", () => {
         it("should be able to list all products", async () => {
             const response = await supertest(app)
                 .get("/api/products")
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.data.length).toBeGreaterThan(0);
         });
@@ -33,7 +32,6 @@ describe("Products API test (requires jwt token for most)", () => {
             const productTypeId = 1;
             const response = await supertest(app)
                 .get(`/api/products/productType/${productTypeId}`)
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.data.length).toBeGreaterThan(0);
         });
@@ -43,7 +41,6 @@ describe("Products API test (requires jwt token for most)", () => {
             const endPrice = 999;
             const response = await supertest(app)
                 .get(`/api/products/price/${startPrice}/${endPrice}`)
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.data.length).toBeGreaterThan(0);
         });
@@ -61,7 +58,6 @@ describe("Products API test (requires jwt token for most)", () => {
         it("and should be able to find and delete de recently created product", async () => {
             let response = await supertest(app)
                 .get(`/api/products/name/${CREATED_TEST_PRODUCT.name}`)
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
 
             response = await supertest(app)
                 .delete(`/api/products/${response.body.data.id}`)

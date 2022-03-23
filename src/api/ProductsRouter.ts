@@ -1,8 +1,11 @@
 import {ProductsController} from "../controller/Products/ProductsController";
 import {Router} from "express";
+import {TokenService} from "../security/TokenService";
 
 const productsController = new ProductsController();
 const productRouter = Router();
+
+const tokenService = TokenService.getInstance();
 
 productRouter.get("/", productsController.list);
 productRouter.get("/count", productsController.count);
@@ -11,8 +14,8 @@ productRouter.get("/name/:name", productsController.getByName);
 productRouter.get("/productType/:product_type_id", productsController.listByType);
 productRouter.get("/price/:startPrice/:endPrice", productsController.listByPriceRange);
 
-productRouter.post("/", productsController.create);
-productRouter.delete("/:id", productsController.delete);
-productRouter.put("/:id", productsController.update);
+productRouter.post("/", tokenService.authenticateToken, productsController.create);
+productRouter.delete("/:id", tokenService.authenticateToken, productsController.delete);
+productRouter.put("/:id", tokenService.authenticateToken, productsController.update);
 
 export default productRouter;
