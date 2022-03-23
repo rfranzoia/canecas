@@ -94,3 +94,9 @@ export interface ProductRequest {
     image: string;
     price: number;
 }
+
+export interface ProductPriceHistoryRequest {
+    product_id: number;
+    price: number;
+    validUntil: Date;
+}

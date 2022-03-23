@@ -2,8 +2,8 @@ import {Entity, PrimaryGeneratedColumn, Column, ManyToOne} from "typeorm";
 import {JoinColumn} from "typeorm";
 import {Products} from "./Products";
 
-@Entity("product_prices")
-export class ProductPrices {
+@Entity("product_price_history")
+export class ProductPriceHistory {
 
     @PrimaryGeneratedColumn()
     id: number;

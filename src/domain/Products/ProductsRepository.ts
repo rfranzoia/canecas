@@ -1,7 +1,7 @@
 import {Between, getRepository} from "typeorm";
 import {Products} from "./Products";
 import {ProductRequest} from "../../service/Products/ProductsService";
-import {ProductPrices} from "./ProductPrices";
+import {ProductPriceHistory} from "./ProductPriceHistory";
 
 
 export class ProductsRepository {
@@ -9,7 +9,7 @@ export class ProductsRepository {
     static instance: ProductsRepository;
 
     repository = getRepository(Products);
-    productPriceRepository = getRepository(ProductPrices);
+    productPriceRepository = getRepository(ProductPriceHistory);
 
     static getInstance(): ProductsRepository {
         if (!this.instance) {

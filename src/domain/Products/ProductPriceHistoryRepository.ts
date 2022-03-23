@@ -1,17 +1,16 @@
 import {getRepository} from "typeorm";
-import {ProductPrices} from "./ProductPrices";
-import {ProductPriceRequest} from "../../service/Products/ProductPricesService";
+import {ProductPriceHistory} from "./ProductPriceHistory";
+import {ProductPriceHistoryRequest} from "../../service/Products/ProductsService";
 
+export class ProductPriceHistoryRepository {
 
-export class ProductPricesRepository {
+    static instance: ProductPriceHistoryRepository;
 
-    static instance: ProductPricesRepository;
+    repository = getRepository(ProductPriceHistory);
 
-    repository = getRepository(ProductPrices);
-
-    static getInstance(): ProductPricesRepository {
+    static getInstance(): ProductPriceHistoryRepository {
         if (!this.instance) {
-            this.instance = new ProductPricesRepository();
+            this.instance = new ProductPriceHistoryRepository();
         }
         return this.instance;
     }
@@ -23,13 +22,13 @@ export class ProductPricesRepository {
                  totalNumberOfPages: Math.floor(count / pageSize) + (count % pageSize == 0? 0: 1)}
     }
 
-    async findById(id: number): Promise<ProductPrices> {
+    async findById(id: number): Promise<ProductPriceHistory> {
         return await this.repository.findOne({
             relations: ["product", "product.productType"],
             where: { id: id }});
     }
 
-    async find(skip: number, limit: number): Promise<ProductPrices[]> {
+    async find(skip: number, limit: number): Promise<ProductPriceHistory[]> {
         return await this.repository.find({
             relations:["product", "product.productType"],
             skip: skip,
@@ -37,7 +36,7 @@ export class ProductPricesRepository {
             order: { id: "ASC" }});
     }
 
-    async findByProduct(productId: number, skip?: number, limit?: number): Promise<ProductPrices[]> {
+    async findByProduct(productId: number, skip?: number, limit?: number): Promise<ProductPriceHistory[]> {
         return await this.repository.find({
             relations:["product", "product.productType"],
             skip: skip,
@@ -46,7 +45,7 @@ export class ProductPricesRepository {
             order: { id: "ASC" }});
     }
 
-    async findDistinctProductTypePrices(productTypeId: number, skip?: number, limit?: number): Promise<ProductPrices[]> {
+    async findDistinctProductTypePrices(productTypeId: number, skip?: number, limit?: number): Promise<ProductPriceHistory[]> {
         const condition = (productTypeId > 0)?"p.product_type_id = :id": "";
         return await this.repository.createQueryBuilder("pp")
                             .innerJoinAndSelect("pp.product", "p", condition, { id: productTypeId })
@@ -57,7 +56,7 @@ export class ProductPricesRepository {
                             .getMany();
     }
 
-    async create({product_id, price, validUntil}: ProductPriceRequest): Promise<ProductPrices> {
+    async create({product_id, price, validUntil}: ProductPriceHistoryRequest): Promise<ProductPriceHistory> {
         const product = await this.repository.create({
             product_id: Number(product_id),
             price: Number(price),
