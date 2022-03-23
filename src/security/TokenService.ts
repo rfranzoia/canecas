@@ -2,8 +2,6 @@ import jwt from "jsonwebtoken";
 import {NextFunction, Request, Response} from "express";
 import {StatusCodes} from "http-status-codes";
 import {ResponseData} from "../controller/ResponseData";
-import {UserRepository} from "../domain/Users/UserRepository";
-import {UserDTO} from "../controller/Users/UserDTO";
 
 export class TokenService {
     static instance: TokenService;
@@ -33,8 +31,7 @@ export class TokenService {
                 return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!", err));
             }
 
-            // add user to the request in case it's needed forward ahead
-            req["user"] = UserDTO.mapToDTO(await UserRepository.getInstance().findById(user.id));
+            req["user"] = user;
             next()
         });
     }
