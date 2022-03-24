@@ -14,10 +14,6 @@ export class ProductTypesService {
         return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToListDTO(list));
     }
 
-    async listProductTypesWithMinPricesAvailable(skip:number, limit:number): Promise<ResponseData> {
-        return new ResponseData(StatusCodes.OK, "", await ProductTypesRepository.getInstance().findProductTypesWithMinPrices(skip, limit));
-    }
-
     async get(id: number):(Promise<ResponseData>) {
         const productType = await ProductTypesRepository.getInstance().findById(id);
         if (!productType) {

@@ -8,7 +8,6 @@ const productTypeRouter = Router();
 const tokenService = TokenService.getInstance();
 
 productTypeRouter.get("/", productTypesController.list);
-productTypeRouter.get("/prices", productTypesController.listProductTypesWithMinPricesAvailable);
 productTypeRouter.get("/count", productTypesController.count);
 productTypeRouter.get("/:id", productTypesController.get);
 productTypeRouter.get("/description/:description", productTypesController.getByDescription);

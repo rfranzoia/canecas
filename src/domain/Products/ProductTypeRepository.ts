@@ -1,7 +1,6 @@
 import {getRepository} from "typeorm";
 import {ProductTypes} from "./ProductTypes";
 import {ProductTypeRequest} from "../../service/Products/ProductTypesService";
-import {ProductPriceHistoryRepository} from "./ProductPriceHistoryRepository";
 
 export type ProductTypeWithPrice = {
     id: number;
@@ -34,24 +33,6 @@ export class ProductTypesRepository {
     async findByDescription(description: string): Promise<ProductTypes> {
         return await this.repository.findOne({
             where: { description: description }});
-    }
-
-    async findProductTypesWithMinPrices(skip:number, limit:number): Promise<ProductTypeWithPrice[]> {
-        const prices = await ProductPriceHistoryRepository.getInstance().findDistinctProductTypePrices(0, skip, limit);
-        const ss = new Set<Number>();
-        const productTypesWithPrice = [];
-        for (let i = 0; i < prices.length; i++) {
-            if (!ss.has(prices[i].product.productType.id)) {
-                ss.add(prices[i].product.productType.id);
-                productTypesWithPrice.push({
-                    id: prices[i].product.productType.id,
-                    description: prices[i].product.productType.description,
-                    price: prices[i].price,
-                    image: prices[i].product.productType.image
-                })
-            }
-        }
-        return productTypesWithPrice;
     }
 
     async find(skip: number, limit: number): Promise<ProductTypes[]> {

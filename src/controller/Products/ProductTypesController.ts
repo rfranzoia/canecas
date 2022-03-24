@@ -17,14 +17,6 @@ export class ProductTypesController {
         response.status(result.statusCode).send(result);
     }
 
-    async listProductTypesWithMinPricesAvailable(request: Request, response: Response) {
-        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query)
-        const result = await ProductTypesController
-                                .getService()
-                                .listProductTypesWithMinPricesAvailable(skip, limit);
-        response.status(result.statusCode).send(result);
-    }
-
     static getService = () => {
         if (!this.service) {
             ProductTypesController.service = new ProductTypesService();
