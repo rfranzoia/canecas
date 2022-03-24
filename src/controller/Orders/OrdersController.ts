@@ -41,9 +41,18 @@ export class OrdersController {
         response.status(result.statusCode).send(result);
     }
 
+    async listOrderHistoryByOrderId(request: Request, response: Response) {
+        const {skip, limit} = await PaginationService.getInstance().getPagination(request.query);
+        const { id } = request.params;
+        const userId = Number(request["user"].id);
+        const result = await OrdersController.getService().listOrderHistoryByOrderId(id, skip, limit, userId);
+        response.status(result.statusCode).send(result);
+    }
+
     async get(request: Request, response: Response) {
         const { id } = request.params;
-        const result = await OrdersController.getService().get(id);
+        const userId = Number(request["user"].id);
+        const result = await OrdersController.getService().get(id, userId);
         response.status(result.statusCode).send(result);
     }
 
@@ -69,7 +78,8 @@ export class OrdersController {
     async updateStatus(request: Request, response: Response) {
         const { id } = request.params;
         const { orderStatus, changeReason } = request.body;
-        const result = await OrdersController.getService().updateOrderStatus(id, orderStatus, changeReason);
+        const userId = Number(request["user"].id);
+        const result = await OrdersController.getService().updateOrderStatus(id, orderStatus, changeReason, userId);
         response.status(result.statusCode).send(result);
     }
 }

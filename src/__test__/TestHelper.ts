@@ -1,17 +1,16 @@
-import {ConnectionHelper} from "../database/ConnectionHelper";
 import {UsersService} from "../service/Users/UsersService";
 import randomEmail from "random-email";
 
-export const LOGIN_TEST_USER = {
+export const LOGIN_USER: TestUser = {
     role: "ADMIN",
-    name: "Test User",
-    email: "anothertestuser@me.com",
+    name: "Login Admin User Test",
+    email: "loginadminusertest@me.com",
     password: "somepassword",
-    phone: "+999 12344",
+    phone: "+999 12346344",
     address: "Somewhere/Earth"
 }
 
-export const CREATE_TEST_USER: TestUser = {
+export const TEST_USER: TestUser = {
     role: "USER",
     name: "Created Test User",
     email: "created.test.user@me.com",
@@ -32,38 +31,29 @@ export interface TestUser {
     authToken?: string;
 }
 
-let loginTestUser: TestUser;
-
 export const TestHelper = {
 
-    async createLoginTestUser() {
+    async createLoginUserAndAuthenticate(role: string): Promise<TestUser> {
         // create a test user and login to get access token
-        await ConnectionHelper.create();
-        let response = await new UsersService().create({
-            role: LOGIN_TEST_USER.role,
-            name: LOGIN_TEST_USER.name,
-            email: LOGIN_TEST_USER.email,
-            password: LOGIN_TEST_USER.password,
-            phone: LOGIN_TEST_USER.phone,
-            address: LOGIN_TEST_USER.address
-        });
-        response = await new UsersService().authenticate(LOGIN_TEST_USER.email, LOGIN_TEST_USER.password);
-        loginTestUser = response.data;
+        const user = {
+            ...LOGIN_USER,
+            role: role,
+            email: randomEmail(),
+        }
+
+        await new UsersService().create(user);
+        const response = await new UsersService().authenticate(user.email, user.password);
+        return response.data;
     },
 
-    async deleteLoginTestUser() {
+    async deleteLoginTestUser(userId: number) {
         // delete test user
-        await new UsersService().delete(loginTestUser.id);
-        await ConnectionHelper.close();
-    },
-
-    getLoginTestUser(): TestUser {
-        return loginTestUser;
+        await new UsersService().delete(userId);
     },
 
     getTestUser(): TestUser {
         return {
-            ...CREATE_TEST_USER,
+            ...TEST_USER,
             email: randomEmail()
         };
     }

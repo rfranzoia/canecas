@@ -43,10 +43,14 @@ export class OrdersService {
         return new ResponseData(StatusCodes.OK, "", await Promise.all(orders.map(async (order) => getCompleteOrder(order))));
     }
 
-    async get(id: uuid):(Promise<ResponseData>) {
+    async get(id: uuid, userId: number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(userId);
         const order = await OrdersRepository.getInstance().findById(id);
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
+
+        } else if (user.role !== Role.ADMIN && order.user.id !== user.id) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado com o ID informado!");
         }
 
         return new ResponseData(StatusCodes.OK, "", await getCompleteOrder(order));
@@ -62,7 +66,7 @@ export class OrdersService {
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado com o ID informado!");
 
-        } else if (order.orderStatus !== "0") {
+        } else if (order.orderStatus !== OrderStatus.NEW) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "O Pedido informado não pode ser modificado!");
         }
 
@@ -72,12 +76,35 @@ export class OrdersService {
         return new ResponseData(StatusCodes.OK, "", await createItemsAndGetOrder(orderItems, order));
     }
 
+    async listOrderItemsByOrderId(order_id: uuid, skip: number, limit: number): Promise<ResponseData> {
+        const order = await OrdersRepository.getInstance().findById(order_id);
+        if (!order) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado com o ID informado!");
+        }
+        return new ResponseData(StatusCodes.OK, "",
+                    OrderItemDTO.mapToListDTO(await OrdersRepository.getInstance().findOrderItemsByOrderId(order_id, skip, limit)))
+    }
+
+    async listOrderHistoryByOrderId(order_id: uuid, skip: number, limit: number, userId: number): Promise<ResponseData> {
+        const user = await UserRepository.getInstance().findById(userId);
+        const order = await OrdersRepository.getInstance().findById(order_id);
+        if (!order) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado com o ID informado!");
+
+        } else if (user.role !== Role.ADMIN && order.user.id !== user.id) {
+            return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado com o ID informado!");
+        }
+
+        return new ResponseData(StatusCodes.OK, "",
+            OrderHistoryDTO.mapToListDTO(await OrdersRepository.getInstance().findOrdersHistoryByOrderId(order_id, skip, limit)))
+    }
+
     async deleteOrderAndItems(id: uuid):(Promise<ResponseData>) {
         const order = await OrdersRepository.getInstance().findById(id);
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
 
-        } else if (order.orderStatus !== "0") {
+        } else if (order.orderStatus !== OrderStatus.NEW) {
             return new ResponseData(StatusCodes.BAD_REQUEST, "O Pedido informado não pode ser excluido!");
         }
 
@@ -93,7 +120,8 @@ export class OrdersService {
         return new ResponseData(StatusCodes.NO_CONTENT, "Pedido removido com sucesso!");
     }
 
-    async updateOrderStatus(id: uuid, orderStatus: string, changeReason: string):(Promise<ResponseData>) {
+    async updateOrderStatus(id: uuid, orderStatus: string, changeReason: string, userId: number):(Promise<ResponseData>) {
+        const user = await UserRepository.getInstance().findById(userId);
         const order = await OrdersRepository.getInstance().findById(id);
         if (!order) {
             return new ResponseData(StatusCodes.NOT_FOUND, "Nenhum pedido encontrado!");
@@ -104,9 +132,15 @@ export class OrdersService {
             return new ResponseData(StatusCodes.BAD_REQUEST, "O novo status de pedido informado não é válido!");
         }
 
+        if (user.role !== Role.ADMIN) {
+            if (orderStatus !== OrderStatus.CREATED && orderStatus !== OrderStatus.CANCELED) {
+                return new ResponseData(StatusCodes.BAD_REQUEST, "O novo status de pedido informado não é válido!");
+            }
+        }
+
         // save status before change to new one
         const previous = order.orderStatus;
-        const orderDate = previous === "0"? new Date(): order.orderDate;
+        const orderDate = previous === OrderStatus.NEW? new Date(): order.orderDate;
 
         await OrdersRepository.getInstance().updateOrderStatus(order, orderDate, orderStatus);
 
@@ -142,11 +176,13 @@ async function createItemsAndGetOrder(orderItems: OrderItemRequest[], order: Ord
 // retrieves an order with all items and history
 async function getCompleteOrder(order: Orders):Promise<OrderDTO> {
 
-    const orderItems = await OrdersRepository.getInstance().findOrderItemsByOrderId(order.id);
-    const orderHistory = await OrdersRepository.getInstance().findOrdersHistoryByOrderId(order.id);
+    const orderItems = await OrdersRepository.getInstance().findOrderItemsByOrderId(order.id, 0, 0);
+    const orderHistory = await OrdersRepository.getInstance().findOrdersHistoryByOrderId(order.id, 0, 0);
 
     return OrderDTO.mapToDTO(order,OrderItemDTO.mapToListDTO(orderItems), OrderHistoryDTO.mapToListDTO(orderHistory));
 }
+
+export enum OrderStatus { NEW = "0", CREATED = "1", IN_PROGRESS = "2", FINISHED = "3", CANCELED = "9" }
 
 export interface OrderItemRequest {
     product_id: number;

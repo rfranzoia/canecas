@@ -117,9 +117,11 @@ export class OrdersRepository {
         return orderHistory;
     }
 
-    async findOrderItemsByOrderId(orderId: number): Promise<OrderItems[]> {
+    async findOrderItemsByOrderId(orderId: number, skip: number, limit: number): Promise<OrderItems[]> {
         return await this.orderItemsRepository.find({
             relations: ["product", "product.productType"],
+            skip: skip,
+            take: limit,
             where: {
                 order_id: orderId
             }
@@ -155,8 +157,10 @@ export class OrdersRepository {
         return order;
     }
 
-    async findOrdersHistoryByOrderId(orderId: number): Promise<OrdersHistory[]> {
+    async findOrdersHistoryByOrderId(orderId: number, skip: number, limit: number): Promise<OrdersHistory[]> {
         return await this.ordersHistoryRepository.find({
+            skip: skip,
+            take: limit,
             where: {
                 order_id: orderId
             },
@@ -165,4 +169,5 @@ export class OrdersRepository {
             }
         });
     }
+
 }
