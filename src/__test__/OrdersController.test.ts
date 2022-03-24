@@ -194,7 +194,7 @@ describe("Orders API test (requires jwt token)", () => {
 });
 
 const getCustomerOrder = (createdUser: TestUser) => {
-    return CUSTOMER_ORDER = {
+    return {
         user_id: createdUser.id,
         orderItems: [
             {
