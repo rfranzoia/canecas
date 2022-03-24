@@ -45,17 +45,6 @@ export class ProductPriceHistoryRepository {
             order: { id: "ASC" }});
     }
 
-    async findDistinctProductTypePrices(productTypeId: number, skip?: number, limit?: number): Promise<ProductPriceHistory[]> {
-        const condition = (productTypeId > 0)?"p.product_type_id = :id": "";
-        return await this.repository.createQueryBuilder("pp")
-                            .innerJoinAndSelect("pp.product", "p", condition, { id: productTypeId })
-                            .innerJoinAndSelect("p.productType", "pt")
-                            .orderBy({"pt.id": "ASC", "pp.price": "ASC"})
-                            .take(limit)
-                            .skip(skip)
-                            .getMany();
-    }
-
     async create({product_id, price, validUntil}: ProductPriceHistoryRequest): Promise<ProductPriceHistory> {
         const product = await this.repository.create({
             product_id: Number(product_id),
