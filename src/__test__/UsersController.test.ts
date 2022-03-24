@@ -7,15 +7,6 @@ import {UserDTO} from "../controller/Users/UserDTO";
 
 describe("Users API test (some require jwt token)", () => {
 
-    const CREATE_TEST_USER = {
-        role: "USER",
-        name: "Created Test User",
-        email: "created.test.user@me.com",
-        password: "fakepassword",
-        phone: "+999 12344",
-        address: "Somewhere/Earth"
-    }
-
     beforeAll(async () => {
         await TestHelper.createLoginTestUser();
     });
@@ -88,9 +79,9 @@ describe("Users API test (some require jwt token)", () => {
         it("should be able to create an User", async () => {
             const response = await supertest(app)
                 .post("/api/users")
-                .send(CREATE_TEST_USER);
+                .send(TestHelper.getTestUser());
             expect(response.statusCode).toBe(StatusCodes.CREATED);
-            expect(response.body.data.email).toEqual(CREATE_TEST_USER.email);
+            expect(response.body.data.email).toEqual(TestHelper.getTestUser().email);
             createdUser = response.body.data;
         });
 

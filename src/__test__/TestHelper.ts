@@ -1,5 +1,6 @@
 import {ConnectionHelper} from "../database/ConnectionHelper";
 import {UsersService} from "../service/Users/UsersService";
+import randomEmail from "random-email";
 
 export const LOGIN_TEST_USER = {
     role: "ADMIN",
@@ -10,8 +11,18 @@ export const LOGIN_TEST_USER = {
     address: "Somewhere/Earth"
 }
 
+export const CREATE_TEST_USER: TestUser = {
+    role: "USER",
+    name: "Created Test User",
+    email: "created.test.user@me.com",
+    password: "fakepassword",
+    phone: "+999 12344",
+    address: "Somewhere/Earth"
+}
+
+
 export interface TestUser {
-    id: number;
+    id?: number;
     role: string;
     name: string;
     email: string;
@@ -48,5 +59,12 @@ export const TestHelper = {
 
     getLoginTestUser(): TestUser {
         return loginTestUser;
+    },
+
+    getTestUser(): TestUser {
+        return {
+            ...CREATE_TEST_USER,
+            email: randomEmail()
+        };
     }
 }
