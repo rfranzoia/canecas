@@ -2,24 +2,28 @@ import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {Role} from "../service/Users/UsersService";
-import {LOGIN_TEST_USER, TestHelper} from "./TestHelper";
+import {LOGIN_USER, TestHelper, TestUser} from "./TestHelper";
 import {UserDTO} from "../controller/Users/UserDTO";
+import {ConnectionHelper} from "../database/ConnectionHelper";
 
 describe("Users API test (some require jwt token)", () => {
-
+    let loggedUser: TestUser;
+    
     beforeAll(async () => {
-        await TestHelper.createLoginTestUser();
+        await ConnectionHelper.create();
+        loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
     });
 
     afterAll(async () => {
-        await TestHelper.deleteLoginTestUser();
+        await TestHelper.deleteLoginTestUser(loggedUser.id);
+        await ConnectionHelper.close();
     });
 
     describe("given an user is logged in", () => {
         it("should be able to list all users", async () => {
             const response = await supertest(app)
                 .get("/api/users")
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+                .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
         });
 
@@ -27,14 +31,14 @@ describe("Users API test (some require jwt token)", () => {
             const role = Role.ADMIN;
             const response = await supertest(app)
                 .get(`/api/users/role/${role}`)
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+                .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
         });
 
         it("should be able to get an User with a given email", async () => {
             const response = await supertest(app)
-                .get(`/api/users/role/${LOGIN_TEST_USER.email}`)
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+                .get(`/api/users/role/${LOGIN_USER.email}`)
+                .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
         });
     });
@@ -65,8 +69,8 @@ describe("Users API test (some require jwt token)", () => {
             const response = await supertest(app)
                 .post("/api/users/login")
                 .send({
-                    email: LOGIN_TEST_USER.email,
-                    password: LOGIN_TEST_USER.password
+                    email: loggedUser.email,
+                    password: LOGIN_USER.password
                 });
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.data.authToken.trim()).toBeDefined();
@@ -77,18 +81,20 @@ describe("Users API test (some require jwt token)", () => {
         let createdUser: UserDTO;
 
         it("should be able to create an User", async () => {
+            const testUser = TestHelper.getTestUser();
+
             const response = await supertest(app)
                 .post("/api/users")
-                .send(TestHelper.getTestUser());
+                .send(testUser);
             expect(response.statusCode).toBe(StatusCodes.CREATED);
-            expect(response.body.data.email).toEqual(TestHelper.getTestUser().email);
+            expect(response.body.data.email).toEqual(testUser.email);
             createdUser = response.body.data;
         });
 
         it("and should be able to delete an existing user if there's an user logged in", async () => {
             const response = await supertest(app)
                 .delete(`/api/users/${createdUser.id}`)
-                .set("Authorization", "Bearer " + TestHelper.getLoginTestUser().authToken);
+                .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
         });
     });
