@@ -9,7 +9,7 @@ import {ConnectionHelper} from "../database/ConnectionHelper";
 describe("Products API test (requires jwt token for most)", () => {
     let loggedUser: TestUser;
 
-    const CREATED_TEST_PRODUCT = {
+    const TEST_PRODUCT = {
         name: "Test Product",
         description: "Some dummy description for a test products that needs it",
         image: "imagePath/imageName.png",
@@ -59,7 +59,7 @@ describe("Products API test (requires jwt token for most)", () => {
             const response = await supertest(app)
                 .post("/api/products")
                 .set("Authorization", "Bearer " + loggedUser.authToken)
-                .send(CREATED_TEST_PRODUCT);
+                .send(TEST_PRODUCT);
             expect(response.statusCode).toBe(StatusCodes.CREATED);
             createdProduct = response.body.data;
         });

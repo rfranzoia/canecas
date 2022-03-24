@@ -185,7 +185,6 @@ describe("Orders API test (requires jwt token)", () => {
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                 expect(response.statusCode).toBe(StatusCodes.OK);
                 expect(response.body.data.length).toBeGreaterThan(1);
-                console.log(response.body.data)
             });
         });
     });
