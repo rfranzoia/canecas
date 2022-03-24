@@ -14,5 +14,6 @@ ordersRouter.get("/:id", ordersController.get);
 ordersRouter.get("/from/:start_date/to/:end_date", ordersController.listByDateRange);
 
 ordersRouter.put("/:id", ordersController.updateStatus);
+ordersRouter.delete("/:id", ordersController.delete)
 
 export default ordersRouter;

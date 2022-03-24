@@ -90,7 +90,12 @@ export class OrdersRepository {
             });
             await this.ordersRepository.save(order)
         }
-        return order;
+        return this.ordersRepository.findOne({
+            relations: ["user"],
+            where: {
+                id: order.id
+            }
+        });
     }
 
     async createOrderItems(orderItems: OrderItemRequest[], order: Orders) {
