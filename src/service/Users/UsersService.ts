@@ -1,40 +1,48 @@
-import {ResponseData} from "../../controller/ResponseData";
-import {StatusCodes} from "http-status-codes";
 import {UserDTO} from "../../controller/Users/UserDTO";
 import {UserRepository} from "../../domain/Users/UserRepository";
 import bcrypt from "bcrypt";
 import {TokenService} from "../../security/TokenService";
-import logger from "../../Logger";
+import logger from "../../utils/Logger";
+import NotFoundError from "../../utils/errors/NotFoundError";
+import BadRequestError from "../../utils/errors/BadRequestError";
+import InternalServerError from "../../utils/errors/InternalServerError";
+import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 
 export class UsersService {
 
-    async count():(Promise<ResponseData>) {
-        return new ResponseData(StatusCodes.OK, "", UserRepository.getInstance().count());
+    async count(): Promise<Number> {
+        return UserRepository.getInstance().count();
     }
 
-    async list(skip:number, limit:number):(Promise<ResponseData>) {
+    async list(skip:number, limit:number): Promise<UserDTO[]> {
         const list = await UserRepository.getInstance().find(skip, limit);
-        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
+        return UserDTO.mapToListDTO(list);
     }
 
-    async listByRole(role: string, skip:number, limit:number):(Promise<ResponseData>) {
+    async listByRole(role: string, skip:number, limit:number): Promise<UserDTO[]> {
         const list = await UserRepository.getInstance().findByRole(role, skip, limit);
-        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToListDTO(list));
+        return UserDTO.mapToListDTO(list);
     }
 
-    async get(id:number):(Promise<ResponseData>) {
+    async get(id:number): Promise<UserDTO | NotFoundError> {
         const user = await UserRepository.getInstance().findById(id);
-        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
+        if (!user) {
+            return new NotFoundError(`Usuário com ID: ${id} não existe`)
+        }
+        return  UserDTO.mapToDTO(user);
     }
 
-    async getByEmail(email:string):(Promise<ResponseData>) {
+    async getByEmail(email:string): Promise<UserDTO | NotFoundError> {
         const user = await UserRepository.getInstance().findByEmail(email);
-        return new ResponseData(StatusCodes.OK, "", UserDTO.mapToDTO(user));
+        if (!user) {
+            return new NotFoundError(`Usuário com e-mail: ${email} não existe`)
+        }
+        return UserDTO.mapToDTO(user);
     }
 
-    async create({role, name, email, password, phone, address}: UserRequest):(Promise<ResponseData>) {
+    async create({role, name, email, password, phone, address}: UserRequest): Promise<UserDTO | BadRequestError | InternalServerError> {
         if (await UserRepository.getInstance().findByEmail(email)) {
-            return new ResponseData(StatusCodes.BAD_REQUEST, "Email informado já está cadastrado");
+            return new BadRequestError("Email informado já está cadastrado");
         }
 
         try {
@@ -53,74 +61,68 @@ export class UsersService {
                                     .findById((await UserRepository.getInstance()
                                         .create(ucr)).id);
 
-            return new ResponseData(StatusCodes.CREATED, "", UserDTO.mapToDTO(user));
+            return UserDTO.mapToDTO(user);
         } catch (error) {
             logger.error("Error while creating user", error);
-            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao criar o Usuário", error);
+            return new InternalServerError("Ocorreu um problema ao criar o Usuário");
         }
 
     }
 
-    async delete(id: number):(Promise<ResponseData>) {
+    async delete(id: number): Promise<Boolean | NotFoundError> {
         const user = await UserRepository.getInstance().findById(id);
         if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
+            return new NotFoundError(`Usuário com ID: ${id} não existe`)
         }
         await UserRepository.getInstance().delete(id);
-        return new ResponseData(StatusCodes.NO_CONTENT, "Usuário removido com Sucesso!");
+        return true;
     }
 
-    async update(id: number, {name, phone, address}: UserRequest):(Promise<ResponseData>) {
+    async update(id: number, {name, phone, address}: UserRequest): Promise<UserDTO | NotFoundError> {
         const user = await UserRepository.getInstance().findById(id);
         if (!user) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Usuário não existe");
+            return new NotFoundError(`Usuário com ID: ${id} não existe`)
         }
-        return new ResponseData(StatusCodes.OK, "usuário atualizado com Sucesso!",
-                            UserDTO.mapToDTO(await UserRepository.getInstance()
-                                                            .update(id, {name, phone, address})));
-
+        return UserDTO.mapToDTO(await UserRepository.getInstance().update(id, {name, phone, address}));
     }
 
-    async updatePassword(email: string, old_password: string, new_password: string): Promise<ResponseData> {
+    async updatePassword(email: string, old_password: string, new_password: string): Promise<UserDTO | UnauthorizedError | InternalServerError> {
         const user = await UserRepository.getInstance().findByEmail(email);
         if (!user) {
-            return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+            return new UnauthorizedError("Usuário/senha invalido(s)");
         }
         try {
             if (!await bcrypt.compare(old_password.trim(), user.password.trim())) {
-                return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+                return new UnauthorizedError("Usuário/senha invalido(s)");
             }
 
             const hashedPassword = await bcrypt.hash(new_password, 10);
-            return new ResponseData(StatusCodes.OK, "Senha atualizada",
-                            UserDTO.mapToDTO(await UserRepository.getInstance()
-                                                        .updatePassword(user.id, hashedPassword)));
+            return UserDTO.mapToDTO(await UserRepository.getInstance().updatePassword(user.id, hashedPassword));
 
         } catch (error) {
             logger.error("Error while users password", error);
-            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao atualizar a senha", error);
+            return new InternalServerError("Ocorreu um problema ao atualizar a senha");
         }
     }
 
-    async authenticate(email: string, password: string): Promise<ResponseData> {
+    async authenticate(email: string, password: string): Promise<UserDTO | UnauthorizedError> {
         const user = await UserRepository.getInstance().findByEmail(email);
         if (!user) {
-            return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
-
+            return new UnauthorizedError("Usuário/senha invalido(s)");
         }
 
         try {
             if (!await bcrypt.compare(password, user.password)) {
-                return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+                return new UnauthorizedError("Usuário/senha invalido(s)");
             }
 
             const loggedUser = UserDTO.mapToDTO(user);
             loggedUser.authToken = TokenService.getInstance().generateToken({ id: user.id, email: user.email, name: user.name });
 
-            return new ResponseData(StatusCodes.OK, "", loggedUser);
+            return loggedUser;
         } catch (error) {
             logger.error("Invalid username/password error", error);
-            return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
+            return new UnauthorizedError("Usuário/senha invalido(s)");
         }
     }
 }
