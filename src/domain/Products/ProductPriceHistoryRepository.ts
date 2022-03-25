@@ -1,6 +1,5 @@
 import {getRepository} from "typeorm";
 import {ProductPriceHistory} from "./ProductPriceHistory";
-import {ProductPriceHistoryRequest} from "../../service/Products/ProductsService";
 
 export class ProductPriceHistoryRepository {
 
@@ -65,4 +64,10 @@ export class ProductPriceHistoryRepository {
         });
     }
 
+}
+
+export interface ProductPriceHistoryRequest {
+    product_id: number;
+    price: number;
+    validUntil: Date;
 }
