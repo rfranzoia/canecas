@@ -1,13 +1,14 @@
 import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
-import {TestHelper, TestUser} from "./TestHelper";
+import {TestHelper} from "./TestHelper";
 import {ProductTypeDTO} from "../controller/Products/ProductTypeDTO";
 import {Role} from "../service/Users/UsersService";
 import {ConnectionHelper} from "../database/ConnectionHelper";
+import {UserDTO} from "../controller/Users/UserDTO";
 
 describe("ProductTypes API test (requires jwt token for most)", () => {
-    let loggedUser: TestUser;
+    let loggedUser: UserDTO;
 
     const TEST_PRODUCT_TYPE = {
         description: "Some dummy description for a test productTypes that needs it",

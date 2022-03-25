@@ -1,5 +1,8 @@
 import {UsersService} from "../service/Users/UsersService";
 import randomEmail from "random-email";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import logger from "../utils/Logger";
+import {UserDTO} from "../controller/Users/UserDTO";
 
 export const LOGIN_USER: TestUser = {
     role: "ADMIN",
@@ -33,7 +36,7 @@ export interface TestUser {
 
 export const TestHelper = {
 
-    async createLoginUserAndAuthenticate(role: string): Promise<TestUser> {
+    async createLoginUserAndAuthenticate(role: string): Promise<UserDTO> {
         // create a test user and login to get access token
         const user = {
             ...LOGIN_USER,
@@ -43,7 +46,10 @@ export const TestHelper = {
 
         await new UsersService().create(user);
         const response = await new UsersService().authenticate(user.email, user.password);
-        return response.data;
+        if (response instanceof UnauthorizedError) {
+            logger.error("User not authorized to login with the provided credentials", response);
+        }
+        return response as UserDTO;
     },
 
     async deleteLoginTestUser(userId: number) {

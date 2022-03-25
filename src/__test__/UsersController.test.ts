@@ -2,12 +2,12 @@ import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {Role} from "../service/Users/UsersService";
-import {LOGIN_USER, TestHelper, TestUser} from "./TestHelper";
+import {LOGIN_USER, TestHelper} from "./TestHelper";
 import {UserDTO} from "../controller/Users/UserDTO";
 import {ConnectionHelper} from "../database/ConnectionHelper";
 
 describe("Users API test (some require jwt token)", () => {
-    let loggedUser: TestUser;
+    let loggedUser: UserDTO;
     
     beforeAll(async () => {
         await ConnectionHelper.create();
@@ -40,6 +40,22 @@ describe("Users API test (some require jwt token)", () => {
                 .get(`/api/users/role/${LOGIN_USER.email}`)
                 .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
+        });
+
+        it("should NOT be able to find by an invalid ID", async () => {
+            const id = 0;
+            const response = await supertest(app)
+                .get(`/api/users/${id}`)
+                .set("Authorization", "Bearer " + loggedUser.authToken);
+            expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
+        });
+
+        it("should NOT be able to find by an invalid email", async () => {
+            const email = "invalid-email";
+            const response = await supertest(app)
+                .get(`/api/users/email/${email}`)
+                .set("Authorization", "Bearer " + loggedUser.authToken);
+            expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
         });
     });
 

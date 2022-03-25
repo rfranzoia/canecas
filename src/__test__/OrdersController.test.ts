@@ -1,5 +1,5 @@
 import supertest from "supertest";
-import {TestHelper, TestUser} from "./TestHelper";
+import {TestHelper} from "./TestHelper";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {OrderDTO} from "../controller/Orders/OrderDTO";
@@ -7,6 +7,7 @@ import {Role} from "../service/Users/UsersService";
 import {ConnectionHelper} from "../database/ConnectionHelper";
 import {OrdersRepository} from "../domain/Orders/OrdersRepository";
 import {OrderStatus} from "../service/Orders/OrdersService";
+import {UserDTO} from "../controller/Users/UserDTO";
 
 describe("Orders API test (requires jwt token)", () => {
 
@@ -21,7 +22,7 @@ describe("Orders API test (requires jwt token)", () => {
     describe("given a list of order exists in the database", () => {
         describe("and logged user is ADMIN", () => {
             let orders: OrderDTO[];
-            let loggedUser: TestUser;
+            let loggedUser: UserDTO;
 
             beforeAll(async () => {
                 loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
@@ -65,7 +66,7 @@ describe("Orders API test (requires jwt token)", () => {
     describe("given a customer order doesn't exists in the database", () => {
         describe("and the logged user is a customer", () => {
             let order: OrderDTO;
-            let loggedUser: TestUser;
+            let loggedUser: UserDTO;
 
             beforeAll(async () => {
                 loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.USER);
@@ -100,7 +101,7 @@ describe("Orders API test (requires jwt token)", () => {
 
     describe("given an order exists in the database", () => {
         let createdOrder: OrderDTO;
-        let loggedUser: TestUser;
+        let loggedUser: UserDTO;
 
         afterAll(async () => {
             // since the order status will likely to be changed and the endpoints don't allow
@@ -192,7 +193,7 @@ describe("Orders API test (requires jwt token)", () => {
 
 });
 
-const getCustomerOrder = (createdUser: TestUser) => {
+const getCustomerOrder = (createdUser: UserDTO) => {
     return {
         user_id: createdUser.id,
         orderItems: [
