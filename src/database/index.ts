@@ -1,3 +1,4 @@
 import {createConnection} from "typeorm";
+import logger from "../Logger";
 
-createConnection().then(() => console.log("database connected"));
+createConnection().then(() => logger.info("database connected"));

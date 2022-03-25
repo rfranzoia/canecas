@@ -4,6 +4,7 @@ import {UserDTO} from "../../controller/Users/UserDTO";
 import {UserRepository} from "../../domain/Users/UserRepository";
 import bcrypt from "bcrypt";
 import {TokenService} from "../../security/TokenService";
+import logger from "../../Logger";
 
 export class UsersService {
 
@@ -53,8 +54,9 @@ export class UsersService {
                                         .create(ucr)).id);
 
             return new ResponseData(StatusCodes.CREATED, "", UserDTO.mapToDTO(user));
-        } catch (e) {
-            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao criar o Usuário", e);
+        } catch (error) {
+            logger.error("Error while creating user", error);
+            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao criar o Usuário", error);
         }
 
     }
@@ -94,8 +96,9 @@ export class UsersService {
                             UserDTO.mapToDTO(await UserRepository.getInstance()
                                                         .updatePassword(user.id, hashedPassword)));
 
-        } catch (e) {
-            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao atualizar a senha", e);
+        } catch (error) {
+            logger.error("Error while users password", error);
+            return new ResponseData(StatusCodes.INTERNAL_SERVER_ERROR, "Ocorreu um problema ao atualizar a senha", error);
         }
     }
 
@@ -115,7 +118,8 @@ export class UsersService {
             loggedUser.authToken = TokenService.getInstance().generateToken({ id: user.id, email: user.email, name: user.name });
 
             return new ResponseData(StatusCodes.OK, "", loggedUser);
-        } catch (e) {
+        } catch (error) {
+            logger.error("Invalid username/password error", error);
             return new ResponseData(StatusCodes.UNAUTHORIZED, "Usuário/Senha invalido(s)");
         }
     }

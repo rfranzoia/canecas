@@ -4,9 +4,9 @@ import {UserRequest} from "../../service/Users/UsersService";
 
 export class UserRepository {
 
-    static instance: UserRepository;
-
     repository = getRepository(Users);
+
+    static instance: UserRepository;
 
     static getInstance(): UserRepository {
         if (!this.instance) {
