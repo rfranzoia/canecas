@@ -1,69 +1,80 @@
-import {ResponseData} from "../../controller/ResponseData";
-import {StatusCodes} from "http-status-codes";
 import {ProductTypeDTO} from "../../controller/Products/ProductTypeDTO";
 import {ProductTypesRepository} from "../../domain/Products/ProductTypeRepository";
+import NotFoundError from "../../utils/errors/NotFoundError";
+import BadRequestError from "../../utils/errors/BadRequestError";
+import logger from "../../utils/Logger";
+import InternalServerError from "../../utils/errors/InternalServerError";
 
 export class ProductTypesService {
 
-    async count() {
-        return new ResponseData(StatusCodes.OK, "", await ProductTypesRepository.getInstance().count());
+    async count(): Promise<number> {
+        return await ProductTypesRepository.getInstance().count();
     }
 
-    async list(skip:number, limit:number) {
+    async list(skip:number, limit:number): Promise<ProductTypeDTO[]> {
         const list = await ProductTypesRepository.getInstance().find(skip, limit);
-        return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToListDTO(list));
+        return ProductTypeDTO.mapToListDTO(list);
     }
 
-    async get(id: number):(Promise<ResponseData>) {
+    async get(id: number): Promise<ProductTypeDTO | NotFoundError> {
         const productType = await ProductTypesRepository.getInstance().findById(id);
         if (!productType) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Tipo de Produto não existe!");
+            return new NotFoundError(`Tipo de Produto com ID ${id} não existe`)
         }
-        return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToDTO(productType));
+        return ProductTypeDTO.mapToDTO(productType);
     }
 
-    async getByDescription(description: string):(Promise<ResponseData>) {
+    async getByDescription(description: string): Promise<ProductTypeDTO | NotFoundError> {
         const productType = await ProductTypesRepository.getInstance().findByDescription(description);
         if (!productType) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Tipo de Produto não existe!");
+            return new NotFoundError(`Tipo de Produto com descrição ${description} não existe`)
         }
-        return new ResponseData(StatusCodes.OK, "", ProductTypeDTO.mapToDTO(productType));
+        return ProductTypeDTO.mapToDTO(productType);
     }
 
-    async create({description, image}: ProductTypeRequest):(Promise<ResponseData>){
+    async create({description, image}: ProductTypeRequest): Promise<ProductTypeDTO | BadRequestError | InternalServerError> {
         if (await ProductTypesRepository.getInstance().findByDescription(description)) {
-            return new ResponseData(StatusCodes.BAD_REQUEST, "Tipo de Produto já existe!");
+            return new BadRequestError(`Tipo de produto com descrição ${description} já existe`);
         }
 
-        const productType = await ProductTypesRepository.getInstance().findById((await ProductTypesRepository.getInstance().create({description, image})).id);
-        return new ResponseData(StatusCodes.CREATED, "", ProductTypeDTO.mapToDTO(productType));
+        try {
+            const productType = await ProductTypesRepository.getInstance().findById((await ProductTypesRepository.getInstance().create({description, image})).id);
+            return ProductTypeDTO.mapToDTO(productType);
+        } catch (error) {
+            logger.error("Error creating the product type", error);
+            return new InternalServerError("Ocorreu um erro ao criar o Tipo de Produto")
+        }
     }
 
-    async delete(id: number):(Promise<ResponseData>) {
+    async delete(id: number): Promise<void | NotFoundError> {
         const productType = await ProductTypesRepository.getInstance().findById(id);
         if (!productType) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Tipo de Produto não existe!");
+            return new NotFoundError(`Tipo de Produto com ID ${id} não existe`) ;
         }
 
         await ProductTypesRepository.getInstance().delete(productType.id);
-        return new ResponseData(StatusCodes.NO_CONTENT, "Tipo de Produto removido com Sucesso!");
     }
 
-    async update(id: number, {description, image}: ProductTypeRequest):(Promise<ResponseData>) {
+    async update(id: number, {description, image}: ProductTypeRequest): Promise<ProductTypeDTO | NotFoundError | BadRequestError | InternalServerError> {
         let productType = await ProductTypesRepository.getInstance().findById(id);
         if (!productType) {
-            return new ResponseData(StatusCodes.NOT_FOUND, "Tipo de Produto não existe!");
+            return new NotFoundError(`Tipo de Produto com ID ${id} não existe`);
         }
 
         if (await ProductTypesRepository.getInstance().findByDescription(description)) {
-            return new ResponseData(StatusCodes.BAD_REQUEST, "Tipo de Produto já existe!");
+            return new BadRequestError(`Tipo de Produto com descrição "${id}" já existe`) ;
         }
 
-        productType = await ProductTypesRepository.getInstance().update(id, {description, image});
-        return new ResponseData(StatusCodes.OK, "Tipo de Produto atualizado com Sucesso!", ProductTypeDTO.mapToDTO(productType));
+        try {
+            productType = await ProductTypesRepository.getInstance().update(id, {description, image});
+            return ProductTypeDTO.mapToDTO(productType);
+        } catch (error) {
+            logger.error("An error occur while updating the product type", error);
+            return new InternalServerError(`Ocorreu um erro ao atualizar o produto`);
+        }
     }
-
 }
+
 
 export interface ProductTypeRequest {
     description: string;

@@ -21,7 +21,7 @@ export class ProductTypesRepository {
         return this.instance;
     }
 
-    async count():  Promise<Number> {
+    async count():  Promise<number> {
         return await this.repository.count();
     }
 
