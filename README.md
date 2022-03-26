@@ -27,7 +27,7 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
     + run npm install
     + make sure you have Postgres database running
     + setup environment variables to access database
-        TYPEORM_CONNECTION = postgres
+        ```TYPEORM_CONNECTION = postgres
         TYPEORM_HOST = the machine IP where the application will run
         TYPEORM_USERNAME = <database username>
         TYPEORM_PASSWORD = <database password>
@@ -35,6 +35,7 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
         TYPEORM_PORT = 5432
         TYPEORM_ENTITIES = src/domain/**/*.ts
         TYPEORM_ENTITIES_DIR = src/domain
+        ´´´
 
     + also need to setup the application port
         PORT=<Port number here>
