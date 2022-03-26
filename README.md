@@ -46,8 +46,8 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
 
     + the project can be run using a docker container on both postgres and canecas-service
         * the following instructions pull a postgres image and create database/tables for the application
-            # run: docker run --name postgres -e POSTGRES_PASSWORD=<postgres password> -p 5432:5432 -d postgres:9.6.23-alpine
-            # run: **docker exec -it postgres  psql -U postgres postgres**, to access psql CLI
+            # run: `docker run --name postgres -e POSTGRES_PASSWORD=<postgres password> -p 5432:5432 -d postgres:9.6.23-alpine`
+            # run: `docker exec -it postgres  psql -U postgres postgres`, to access psql CLI
                 # create database canecas;
                 # create role caneca with password '<the password you defined in TYPEORM_PASSWORD environment variable>';
                 # ALTER ROLE caneca NOSUPERUSER CREATEDB NOCREATEROLE INHERIT LOGIN;
