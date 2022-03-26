@@ -17,7 +17,7 @@ app.use(morgan('combined'));
 
 app.get('/', (req, res) => {
     res.send({
-        message: "Canecas API"
+        message: "Canecas-service API"
     });
 });
 
