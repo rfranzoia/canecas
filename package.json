@@ -16,7 +16,7 @@
     "test": "jest",
     "dev": "nodemon src/app.ts",
     "start": "ts-node src/app.ts",
-    "cluster": "pm2-runtime start dist/server.js -i max"
+    "cluster": "pm2-runtime start dist/src/app.js -i max"
   },
   "dependencies": {
     "@types/cors": "^2.8.12",
@@ -38,11 +38,11 @@
     "uuid": "^8.3.2",
     "winston": "^3.6.0"
   },
-  "name": "canecas",
+  "name": "canecas-service",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.ts",
   "keywords": [],
-  "author": "",
+  "author": "Romeu Franzoia Jr",
   "license": "ISC",
-  "description": ""
+  "description": "API Services implementation for Canecas Mugshop"
 }
