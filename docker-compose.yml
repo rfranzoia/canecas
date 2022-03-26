@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  app:
+    image: franzoia/canecas-service
+    ports:
+      - "3000:3000"
+    networks:
+      - canecas-service-network-2
+
+networks:
+  canecas-service-network-2:
+    driver: bridge
