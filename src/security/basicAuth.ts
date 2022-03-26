@@ -1,6 +1,8 @@
 import {NextFunction} from "express";
 import {StatusCodes} from "http-status-codes";
 import {UsersService} from "../service/Users/UsersService";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import {UserDTO} from "../controller/Users/UserDTO";
 
 const basicAuth = async (req, res, next: NextFunction) => {
 
@@ -21,13 +23,12 @@ const basicAuth = async (req, res, next: NextFunction) => {
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
     const response = await userService.authenticate(username, password);
-    if (response.statusCode != StatusCodes.OK) {
-        return res.status(response.statusCode)
-                    .send(response);
+    if (response instanceof UnauthorizedError) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({ message: 'User not authorized' });
     }
 
     // attach user to request object
-    req.user = response.data
+    req.user = response as UserDTO;
 
     next();
 }
