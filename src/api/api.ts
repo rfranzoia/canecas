@@ -16,7 +16,9 @@ app.use(cors());
 app.use(morgan('combined'));
 
 app.get('/', (req, res) => {
-    res.send('Hello World!');
+    res.send({
+        message: "Canecas API"
+    });
 });
 
 const api = Router();

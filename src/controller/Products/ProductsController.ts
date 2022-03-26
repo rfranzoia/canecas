@@ -94,7 +94,9 @@ export class ProductsController {
 
 }
 
-function processResult(statusCode: number, result: ProductDTO | NotFoundError | BadRequestError | InternalServerError, response: Response) {
+const processResult = (statusCode: number,
+                       result: ProductDTO | NotFoundError | BadRequestError | InternalServerError,
+                       response: Response) => {
     if (result instanceof BadRequestError) {
         return response.status(StatusCodes.BAD_REQUEST).send(new ResponseData(StatusCodes.BAD_REQUEST, result.message, result));
 
