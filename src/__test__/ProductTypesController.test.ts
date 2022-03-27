@@ -2,13 +2,10 @@ import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {TestHelper} from "./TestHelper";
-import {ProductTypeDTO} from "../controller/Products/ProductTypeDTO";
-import {Role} from "../service/Users/UsersService";
-import {ConnectionHelper} from "../database/ConnectionHelper";
-import {UserDTO} from "../controller/Users/UserDTO";
+import {Role} from "../domain/Users/Users";
 
 describe("ProductTypes API test (requires jwt token for most)", () => {
-    let loggedUser: UserDTO;
+    let loggedUser;
 
     const TEST_PRODUCT_TYPE = {
         description: "Some dummy description for a test productTypes that needs it",
@@ -16,13 +13,11 @@ describe("ProductTypes API test (requires jwt token for most)", () => {
     };
 
     beforeAll(async () => {
-        await ConnectionHelper.create();
         loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
     });
 
     afterAll(async () => {
-        await TestHelper.deleteLoginTestUser(loggedUser.id);
-        await ConnectionHelper.close();
+        await TestHelper.deleteLoginTestUser(loggedUser._id);
     });
 
     describe("given a list of productTypes exists in the database", () => {
@@ -36,7 +31,7 @@ describe("ProductTypes API test (requires jwt token for most)", () => {
     });
 
     describe("given a product doesn't exists in the database", () => {
-        let createdProductType: ProductTypeDTO;
+        let createdProductType;
 
         it("should be able to add the new product", async () => {
             const response = await supertest(app)

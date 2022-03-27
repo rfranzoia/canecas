@@ -1,35 +1,30 @@
 import supertest from "supertest";
-import {TestHelper} from "./TestHelper";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
-import {OrderDTO} from "../controller/Orders/OrderDTO";
-import {Role} from "../service/Users/UsersService";
-import {ConnectionHelper} from "../database/ConnectionHelper";
-import {OrdersRepository} from "../domain/Orders/OrdersRepository";
-import {OrderStatus} from "../service/Orders/OrdersService";
-import {UserDTO} from "../controller/Users/UserDTO";
+import {TestHelper} from "./TestHelper";
+import {Role} from "../domain/Users/Users";
+import {ordersRepository} from "../domain/orders/OrdersRepository";
+import {OrderStatus} from "../domain/orders/Orders";
 
 describe("Orders API test (requires jwt token)", () => {
 
     beforeAll( async () => {
-        await ConnectionHelper.create();
     });
 
     afterAll(async () => {
-        await ConnectionHelper.close();
     });
 
     describe("given a list of order exists in the database", () => {
         describe("and logged user is ADMIN", () => {
-            let orders: OrderDTO[];
-            let loggedUser: UserDTO;
+            let orders;
+            let loggedUser;
 
             beforeAll(async () => {
                 loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
             });
 
             afterAll(async () => {
-                await TestHelper.deleteLoginTestUser(loggedUser.id);
+                await TestHelper.deleteLoginTestUser(loggedUser._id);
             });
 
             it("should be able to list all orders", async () => {
@@ -65,15 +60,15 @@ describe("Orders API test (requires jwt token)", () => {
 
     describe("given a customer order doesn't exists in the database", () => {
         describe("and the logged user is a customer", () => {
-            let order: OrderDTO;
-            let loggedUser: UserDTO;
+            let order;
+            let loggedUser;
 
             beforeAll(async () => {
                 loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.USER);
             });
 
             afterAll(async () => {
-                await TestHelper.deleteLoginTestUser(loggedUser.id);
+                await TestHelper.deleteLoginTestUser(loggedUser._id);
             });
 
 
@@ -100,16 +95,14 @@ describe("Orders API test (requires jwt token)", () => {
     });
 
     describe("given an order exists in the database", () => {
-        let createdOrder: OrderDTO;
-        let loggedUser: UserDTO;
+        let createdOrder;
+        let loggedUser;
 
         afterAll(async () => {
             // since the order status will likely to be changed and the endpoints don't allow
             // removing orders with status above 0, it's required the use of the
             // repository directly in this case
-            await OrdersRepository.getInstance().deleteOrderItemsByOrderId(createdOrder.id);
-            await OrdersRepository.getInstance().deleteOrdersHistoryByOrderId(createdOrder.id);
-            await OrdersRepository.getInstance().deleteOrderById(createdOrder.id);
+            await ordersRepository.delete(createdOrder._id);
 
             // deletes the created user/customer
             await supertest(app)
@@ -193,7 +186,7 @@ describe("Orders API test (requires jwt token)", () => {
 
 });
 
-const getCustomerOrder = (createdUser: UserDTO) => {
+const getCustomerOrder = (createdUser) => {
     return {
         user_id: createdUser.id,
         orderItems: [

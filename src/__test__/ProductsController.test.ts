@@ -2,13 +2,10 @@ import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
 import {TestHelper} from "./TestHelper";
-import {ProductDTO} from "../controller/Products/ProductDTO";
-import {Role} from "../service/Users/UsersService";
-import {ConnectionHelper} from "../database/ConnectionHelper";
-import {UserDTO} from "../controller/Users/UserDTO";
+import {Role} from "../domain/Users/Users";
 
 describe("Products API test (requires jwt token for most)", () => {
-    let loggedUser: UserDTO;
+    let loggedUser;
 
     const TEST_PRODUCT = {
         name: "Test Product",
@@ -18,13 +15,11 @@ describe("Products API test (requires jwt token for most)", () => {
     };
 
     beforeAll(async () => {
-        await ConnectionHelper.create();
         loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
     });
 
     afterAll(async () => {
-        await TestHelper.deleteLoginTestUser(loggedUser.id);
-        await ConnectionHelper.close();
+        await TestHelper.deleteLoginTestUser(loggedUser._id);
     });
 
     describe("given a list of products exists in the database", () => {
@@ -54,7 +49,7 @@ describe("Products API test (requires jwt token for most)", () => {
     });
 
     describe("given a product doesn't exists in the database", () => {
-        let createdProduct: ProductDTO;
+        let createdProduct;
 
         it("should be able to add the new product", async () => {
             const response = await supertest(app)
