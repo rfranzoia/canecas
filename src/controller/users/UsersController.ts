@@ -4,6 +4,7 @@ import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import {User} from "../../domain/Users/Users";
 import {userService} from "../../service/users/UsersService";
+import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 
 export class UsersController {
 
@@ -127,6 +128,19 @@ export class UsersController {
             return res.status(StatusCodes.BAD_REQUEST).send(error);
         }
         return res.status(StatusCodes.OK).send(await userService.getByEmail(email));
+    }
+
+    async login(req, res) {
+        const {email, password} = req.body;
+        const result = await userService.authenticate(email, password);
+        if (result instanceof UnauthorizedError) {
+            return res.status(StatusCodes.UNAUTHORIZED).send(result as UnauthorizedError);
+        }
+        const user = {
+            ...result._doc,
+            authToken: result.authToken
+        }
+        return res.status(StatusCodes.OK).send(user);
     }
 
 }

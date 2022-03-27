@@ -5,6 +5,8 @@ import InternalServerErrorError from "../../utils/errors/InternalServerErrorErro
 import {Role, User} from "../../domain/Users/Users";
 import {userRepository} from "../../domain/Users/UsersRepository";
 import logger from "../../utils/Logger";
+import UnauthorizedError from "../../utils/errors/UnauthorizedError";
+import {tokenService} from "../../security/TokenService";
 
 class UsersService {
 
@@ -48,9 +50,7 @@ class UsersService {
     }
 
     async create(user: User) {
-        if (await userRepository.findByName(user.name)) {
-            return new BadRequestError("User name already in use");
-        } else if (await userRepository.findByEmail(user.email)) {
+        if (await userRepository.findByEmail(user.email)) {
             return new BadRequestError("User email already in use");
         } else if (!(user.role in Role)) {
             return new BadRequestError("User role is not valid");
@@ -110,6 +110,27 @@ class UsersService {
         } catch (error) {
             logger.error("Error while updating password");
             return new InternalServerErrorError("Error while updating the password");
+        }
+    }
+
+    async authenticate(email: string, password: string) {
+        const user = await userRepository.findByEmail(email);
+        if (!user) {
+            return new UnauthorizedError("Usuário/senha invalido(s)");
+        }
+
+        try {
+            if (!await bcrypt.compare(password, user.password)) {
+                return new UnauthorizedError("Usuário/senha invalido(s)");
+            }
+
+            const loggedUser = user;
+            loggedUser.authToken = tokenService.generateToken({ id: user.id, email: user.email, name: user.name });
+
+            return loggedUser;
+        } catch (error) {
+            logger.error("Invalid username/password error", error);
+            return new UnauthorizedError("Usuário/senha invalido(s)");
         }
     }
 }
