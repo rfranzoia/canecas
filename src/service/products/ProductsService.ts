@@ -15,6 +15,19 @@ class ProductsService {
         return await productRepository.findAll();
     }
 
+    async listByType(type: string) {
+        return await productRepository.findByType(type);
+    }
+
+    async listByPriceRange(startPrice: number, endPrice: number) {
+        startPrice = startPrice || 0;
+        endPrice = endPrice || 999999;
+        if (startPrice < 0 || endPrice < 0) {
+            return new BadRequestError("Start an End prices must be greater than zero");
+        }
+        return await productRepository.findByPriceRange(startPrice, endPrice);
+    }
+
     async findById(id: string) {
         const pt = await productRepository.findById(id);
         if (!pt) {

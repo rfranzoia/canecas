@@ -14,6 +14,23 @@ class ProductRepository {
         });
     }
 
+    async findByType(type: string) {
+        return await ProductModel.find({ type: type }, {
+            '__v': 0,
+        });
+    }
+
+    async findByPriceRange(startPrice: number, endPrice: number) {
+        return await ProductModel.find({
+            price: {
+                $gte: startPrice,
+                $lte: endPrice
+            }
+        }, {
+            '__v': 0,
+        });
+    }
+
     async findById(id: string) {
         return await ProductModel.findOne({ _id: id }, { '__v': 0,});
     }

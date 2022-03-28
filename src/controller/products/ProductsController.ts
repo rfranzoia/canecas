@@ -33,6 +33,20 @@ export class ProductsController {
         return res.status(StatusCodes.OK).send(await productService.list());
     }
 
+    async listByType(req, res) {
+        const { type } = req.params;
+        return res.status(StatusCodes.OK).send(await productService.listByType(type));
+    }
+
+    async listByPriceRange(req, res) {
+        const { startPrice, endPrice } = req.params;
+        const result = await productService.listByPriceRange(startPrice, endPrice);
+        if (result instanceof BadRequestError) {
+            return res.status(StatusCodes.BAD_REQUEST).send(result as BadRequestError);
+        }
+        return res.status(StatusCodes.OK).send(result);
+    }
+
     async create(req, res) {
         const { name, description, price, type } = req.body;
         const p: Product = {

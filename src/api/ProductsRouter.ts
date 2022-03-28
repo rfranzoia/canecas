@@ -11,8 +11,8 @@ productRouter.get("/", productsController.list);
 productRouter.get("/count", productsController.count);
 productRouter.get("/:id", productsController.get);
 productRouter.get("/name/:name", productsController.getByName);
-//productRouter.get("/productType/:product_type_id", productsController.listByType);
-//productRouter.get("/price/:startPrice/:endPrice", productsController.listByPriceRange);
+productRouter.get("/type/:type", productsController.listByType);
+productRouter.get("/price/:startPrice/:endPrice", productsController.listByPriceRange);
 
 productRouter.post("/", tokenService.authenticateToken, productsController.create);
 productRouter.delete("/:id", tokenService.authenticateToken, productsController.delete);
