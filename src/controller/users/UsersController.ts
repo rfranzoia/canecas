@@ -5,6 +5,7 @@ import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 import {User} from "../../domain/Users/Users";
 import {userService} from "../../service/users/UsersService";
 import {evaluateResult} from "../ControllerHelper";
+import {responseMessage} from "../ResponseData";
 
 export class UsersController {
 
@@ -54,13 +55,13 @@ export class UsersController {
             address: address
         }
         const user = await userService.create(u);
-        return evaluateResult(user, res, StatusCodes.CREATED, user);
+        return evaluateResult(user, res, StatusCodes.CREATED, async () => user);
     }
 
     async delete(req, res) {
         const { id } = req.params;
         const result = await userService.delete(id);
-        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "User deleted successfully" });
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("User deleted successfully"));
     }
 
     async update(req, res) {
@@ -73,13 +74,13 @@ export class UsersController {
             address: address
         }
         const result = await userService.update(id, user);
-        return evaluateResult(result, res, StatusCodes.OK, await userService.get(id));
+        return evaluateResult(result, res, StatusCodes.OK, async () => await userService.get(id));
     }
 
     async updatePassword(req, res) {
         const { email, currentPassword, newPassword } = req.body;
         const result = await userService.updatePassword(email, currentPassword, newPassword);
-        return evaluateResult(result, res, StatusCodes.OK, await userService.getByEmail(email));
+        return evaluateResult(result, res, StatusCodes.OK, async () => await userService.getByEmail(email));
     }
 
     async login(req, res) {

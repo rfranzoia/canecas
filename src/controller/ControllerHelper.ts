@@ -3,7 +3,7 @@ import NotFoundError from "../utils/errors/NotFoundError";
 import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
 import BadRequestError from "../utils/errors/BadRequestError";
 
-export const evaluateResult = async (result, res, status, data) => {
+export const evaluateResult = async (result, res, status, callback) => {
     if (result instanceof NotFoundError) {
         return res.status(StatusCodes.NOT_FOUND).send(result as NotFoundError);
 
@@ -15,5 +15,6 @@ export const evaluateResult = async (result, res, status, data) => {
         const error = result as BadRequestError;
         return res.status(StatusCodes.BAD_REQUEST).send(error);
     }
+    const data = await callback();
     return res.status(status).send(data);
 }

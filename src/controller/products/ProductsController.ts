@@ -4,6 +4,7 @@ import NotFoundError from "../../utils/errors/NotFoundError";
 import {Product} from "../../domain/products/Product";
 import {productService} from "../../service/products/ProductsService";
 import {evaluateResult} from "../ControllerHelper";
+import {responseMessage} from "../ResponseData";
 
 export class ProductsController {
 
@@ -56,13 +57,13 @@ export class ProductsController {
             type: type
         }
         const product = await productService.create(p);
-        return evaluateResult(product, res, StatusCodes.CREATED, product);
+        return evaluateResult(product, res, StatusCodes.CREATED, async () => product);
     }
 
     async delete(req, res) {
         const { id } = req.params;
         const result = await productService.delete(id);
-        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "Type deleted successfully" });
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Type deleted successfully"));
     }
 
     async update(req, res) {
@@ -75,7 +76,7 @@ export class ProductsController {
             type: type
         }
         const result = await productService.update(id, product);
-        return evaluateResult(result, res, StatusCodes.OK, await productService.findById(id));
+        return evaluateResult(result, res, StatusCodes.OK, async () => await productService.findById(id));
     }
 
 }

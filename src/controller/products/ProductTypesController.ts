@@ -2,6 +2,7 @@ import {StatusCodes} from "http-status-codes";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import {productTypesService} from "../../service/products/ProductTypesService";
 import {evaluateResult} from "../ControllerHelper";
+import {responseMessage} from "../ResponseData";
 
 export class ProductTypesController {
 
@@ -34,20 +35,20 @@ export class ProductTypesController {
     async create(req, res) {
         const { description } = req.body;
         const result = await productTypesService.create({ description: description });
-        return evaluateResult(result, res, StatusCodes.CREATED, result);
+        return evaluateResult(result, res, StatusCodes.CREATED, async () => result);
     }
 
     async delete(req, res) {
         const { id } = req.params;
         const result = await productTypesService.delete(id);
-        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "Type deleted successfully"});
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Type deleted successfully"));
     }
 
     async update(req, res) {
         const { id } = req.params;
         const { description } = req.body;
         const result = await productTypesService.update(id, description);
-        return evaluateResult(result, res, StatusCodes.CREATED, await productTypesService.findById(id));
+        return evaluateResult(result, res, StatusCodes.CREATED, async () => await productTypesService.findById(id));
     }
 
 }
