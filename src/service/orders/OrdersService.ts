@@ -14,26 +14,27 @@ class OrdersService {
         return await ordersRepository.count();
     }
 
-    async list() {
-        return await ordersRepository.findAll();
+    async list(userEmail: string) {
+        return await filterOrdersByUser(await ordersRepository.findAll(), userEmail);
     }
 
-    async listByDateRange(startDate: string, endDate: string) {
+    async listByDateRange(startDate: string, endDate: string, userEmail: string) {
         try {
             const start = new Date(startDate);
             const end = new Date(endDate);
             if (end < start) {
                 return new BadRequestError("End date must be after start date");
             }
-            return await ordersRepository.findByDateRange(start, end);
+            return await filterOrdersByUser(await ordersRepository.findByDateRange(start, end), userEmail);
         } catch (error) {
             return new BadRequestError("Start and/or End date(s) not valid");
         }
     }
 
-    async get(id: string) {
+    async get(id: string, userEmail: string) {
         const order = await ordersRepository.findById(id);
-        if (!order) {
+        const user = await userRepository.findByEmail(userEmail);
+        if (!order || (user.role !== Role.ADMIN && order.userEmail !== userEmail)) {
             return new NotFoundError(`No Order found with ID ${id}`);
         }
         return order;
@@ -55,14 +56,15 @@ class OrdersService {
             };
             return await ordersRepository.create(order);
         } catch (error) {
-            logger.error("Error while creating", error);
+            logger.error("Error while creating", error.stack);
             return new InternalServerErrorError("Error while creating the new Order", error);
         }
     }
 
-    async delete(id: string) {
+    async delete(id: string, userEmail) {
+        const user = await userRepository.findByEmail(userEmail);
         const order = await ordersRepository.findById(id);
-        if (!order) {
+        if (!order || (user.role !== Role.ADMIN && order.userEmail !== userEmail)) {
             return new NotFoundError(`No order found with ID ${id}`);
         }
         const result = await ordersRepository.delete(id);
@@ -76,35 +78,38 @@ class OrdersService {
             const user = await userRepository.findByEmail(userEmail);
             const existingOrder = await ordersRepository.findById(id);
 
-            // validate the role of the user that's requesting changes
+            // validate if the order exists at all
+            if (!existingOrder) {
+                return new NotFoundError(`No Order found with ID ${id}`);
+            }
+
+            // validate if the user can access the order and can make the changes
             if (user.role !== Role.ADMIN) {
                 if (existingOrder.userEmail !== user.email) {
-                    return new NotFoundError("Order doesn't exists");
+                    return new NotFoundError(`No Order found with ID ${id}`);
 
                 } else if (order.status && order.status !== OrderStatus.CREATED && order.status !== OrderStatus.CANCELED) {
                     return new BadRequestError("Customers can only confirm or cancel orders");
                 }
             }
 
-            if (!existingOrder) {
-                return new NotFoundError("Order doesn't exists");
-            }
-
-            const prevStatus = existingOrder.status;
-
-            // validate the status change
-            if (prevStatus === OrderStatus.FINISHED || prevStatus === OrderStatus.CANCELED) {
-                return new BadRequestError("This order cannot be changed anymore");
-            } else if (order.status && existingOrder.status > order.status) {
-                return new BadRequestError("Orders status can only move forward");
-            }
-
-            // update the order.statusHistory
-            if (order.status && order.status in OrderStatus) {
+            // status changes and items changes are mutually exclusive
+            // these are also the only possible changes in the order
+            if (order.status) {
+                // if this is a status change
                 if (!(order.status in OrderStatus)) {
-                    return new BadRequestError("Order status is not valid");
-
+                    return new BadRequestError(`Order status ${order.status} is not valid`);
                 }
+
+                const prevStatus = existingOrder.status;
+
+                // status changes cannot occur for FINISHED and CANCELED orders
+                if (prevStatus === OrderStatus.FINISHED || prevStatus === OrderStatus.CANCELED) {
+                    return new BadRequestError("This order cannot be changed anymore");
+                } else if (existingOrder.status > order.status) {
+                    return new BadRequestError("Orders status can only move forward");
+                }
+
                 const history: OrderStatusHistory = {
                     changeDate: new Date(),
                     prevStatus: prevStatus,
@@ -115,16 +120,19 @@ class OrdersService {
                     ...existingOrder.statusHistory,
                     history
                 ]
-            }
-            // validate items changes if the order can be changed
-            if (existingOrder.status === OrderStatus.NEW && order.items) {
+            } else if (order.items) {
+                // if this is an items
+                if (existingOrder.status !== OrderStatus.NEW) {
+                    return new BadRequestError("Items change can only occur for NEW orders");
+                }
                 order.totalPrice = order.items.reduce((acc, item) => {
                     return acc + (item.price * item.amount);
                 }, 0);
             }
+
             return await ordersRepository.update(id, order);
         } catch (error) {
-            logger.error("Error while updating order", error);
+            logger.error("Error while updating order", error.stack);
             return new InternalServerErrorError("Error while updating order", error);
         }
     }
@@ -139,6 +147,17 @@ const isValid = (orderItems: OrderItem[]) => {
         }
     }
     return true;
+}
+
+const filterOrdersByUser = async (list, userEmail: string) => {
+    const user = await userRepository.findByEmail(userEmail);
+    return list.filter(order => {
+        if (user.role === Role.ADMIN) {
+            return order;
+        } else if (user.email === order.userEmail) {
+            return order;
+        }
+    });
 }
 
 export const ordersService = new OrdersService();

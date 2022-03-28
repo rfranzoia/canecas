@@ -4,6 +4,7 @@ import BadRequestError from "../../utils/errors/BadRequestError";
 import {ordersService} from "../../service/orders/OrdersService";
 import {Order} from "../../domain/orders/Orders";
 import {evaluateResult} from "../ControllerHelper";
+import {responseMessage} from "../ResponseData";
 
 export class OrdersController {
 
@@ -12,12 +13,14 @@ export class OrdersController {
     }
 
     async list(req, res) {
-        return res.status(StatusCodes.OK).send(await ordersService.list());
+        const userEmail = req['user'].email;
+        return res.status(StatusCodes.OK).send(await ordersService.list(userEmail));
     }
 
     async listByDateRange(req, res) {
         const {start_date, end_date} = req.params;
-        const result = await ordersService.listByDateRange(start_date, end_date);
+        const userEmail = req['user'].email;
+        const result = await ordersService.listByDateRange(start_date, end_date, userEmail);
         if (result instanceof BadRequestError) {
             return res.status(StatusCodes.BAD_REQUEST).send(result as BadRequestError);
         }
@@ -26,7 +29,8 @@ export class OrdersController {
 
     async get(req, res) {
         const { id } = req.params;
-        const order = await ordersService.get(id);
+        const userEmail = req['user'].email;
+        const order = await ordersService.get(id, userEmail);
         if (order instanceof NotFoundError) {
             return res.status(StatusCodes.NOT_FOUND).send(order as NotFoundError);
         }
@@ -41,13 +45,14 @@ export class OrdersController {
             items: items
         }
         const order = await ordersService.create(o);
-        return evaluateResult(order, res, StatusCodes.CREATED, order);
+        return evaluateResult(order, res, StatusCodes.CREATED, () => order);
     }
 
     async delete(req, res) {
         const { id } = req.params;
-        const result = await ordersService.delete(id);
-        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "Order deleted successfully" })
+        const userEmail = req['user'].email;
+        const result = await ordersService.delete(id, userEmail);
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Order deleted successfully" ));
     }
 
     async update(req, res) {
@@ -60,7 +65,7 @@ export class OrdersController {
             items: items
         }
         const result = await ordersService.update(id, order, userEmail);
-        return evaluateResult(result, res, StatusCodes.OK, await ordersService.get(id));
+        return evaluateResult(result, res, StatusCodes.OK, async () => await ordersService.get(id, userEmail));
     }
 }
 
