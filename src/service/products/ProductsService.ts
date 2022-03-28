@@ -55,7 +55,7 @@ class ProductsService {
             }
             return await productRepository.create(product);
         } catch (error) {
-            logger.error("Error while creating product", error);
+            logger.error("Error while creating product", error.stack);
             return new InternalServerErrorError("Error while creating the product", error);
         }
     }

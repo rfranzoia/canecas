@@ -64,8 +64,8 @@ class UsersService {
             }
             return await userRepository.create(user);
         } catch (error) {
-            logger.error("Error while creating", error);
-            return new InternalServerErrorError("Error while creating the new User");
+            logger.error("Error while creating", error.stack);
+            return new InternalServerErrorError("Error while creating the new User", error);
         }
     }
 
@@ -92,8 +92,8 @@ class UsersService {
             }
             return new BadRequestError("User already exists");
         } catch (error) {
-            logger.error("Error while updating user");
-            return new InternalServerErrorError("Error while updating user");
+            logger.error("Error while updating user", error.stack);
+            return new InternalServerErrorError("Error while updating user", error);
         }
     }
 
@@ -108,8 +108,8 @@ class UsersService {
             const hashedPassword = await bcrypt.hash(newPassword, 10);
             return await userRepository.updatePassword(email, hashedPassword);
         } catch (error) {
-            logger.error("Error while updating password");
-            return new InternalServerErrorError("Error while updating the password");
+            logger.error("Error while updating password", error.stack);
+            return new InternalServerErrorError("Error while updating the password", error);
         }
     }
 
