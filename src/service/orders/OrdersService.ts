@@ -2,10 +2,11 @@ import logger from "../../utils/Logger";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {Order, OrderItem} from "../../domain/orders/Orders";
+import {Order, OrderItem, OrderStatus, OrderStatusHistory} from "../../domain/orders/Orders";
 import {ordersRepository} from "../../domain/orders/OrdersRepository";
 import {userRepository} from "../../domain/Users/UsersRepository";
 import {productRepository} from "../../domain/products/ProductRepository";
+import {Role} from "../../domain/Users/Users";
 
 class OrdersService {
 
@@ -15,6 +16,19 @@ class OrdersService {
 
     async list() {
         return await ordersRepository.findAll();
+    }
+
+    async listByDateRange(startDate: string, endDate: string) {
+        try {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            if (end < start) {
+                return new BadRequestError("End date must be after start date");
+            }
+            return await ordersRepository.findByDateRange(start, end);
+        } catch (error) {
+            return new BadRequestError("Start and/or End date(s) not valid");
+        }
     }
 
     async get(id: string) {
@@ -57,8 +71,46 @@ class OrdersService {
         }
     }
 
-    async update(id: string, order: Order) {
+    async update(id: string, order: Order, userEmail: string) {
         try {
+            const user = await userRepository.findByEmail(userEmail);
+            const existingOrder = await ordersRepository.findById(id);
+
+            if (user.role !== Role.ADMIN) {
+                if (existingOrder.userEmail !== user.email) {
+                    return new NotFoundError("Order doesn't exists");
+
+                } else if (order.status && order.status !== OrderStatus.CREATED && order.status !== OrderStatus.CANCELED) {
+                    return new BadRequestError("Customers can only confirm or cancel orders");
+                }
+            }
+            const prevStatus = existingOrder.status;
+            if (prevStatus === OrderStatus.FINISHED || prevStatus === OrderStatus.CANCELED) {
+                return new BadRequestError("This order cannot be changed anymore");
+            } else if (order.status && existingOrder.status > order.status) {
+                return new BadRequestError("Orders status can only move forward");
+            }
+            if (order.status && order.status in OrderStatus) {
+                if (!(order.status in OrderStatus)) {
+                    return new BadRequestError("Order status is not valid");
+
+                }
+                const history: OrderStatusHistory = {
+                    changeDate: new Date(),
+                    prevStatus: prevStatus,
+                    currStatus: order.status,
+                    reason: order.statusReason? order.statusReason: `Order status update ${OrderStatus[order.status]}`
+                }
+                order.statusHistory = [
+                    ...existingOrder.statusHistory,
+                    history
+                ]
+            }
+            if (existingOrder.status === OrderStatus.NEW && order.items) {
+                order.totalPrice = order.items.reduce((acc, item) => {
+                    return acc + (item.price * item.amount);
+                }, 0);
+            }
             return await ordersRepository.update(id, order);
         } catch (error) {
             logger.error("Error while updating order", error);

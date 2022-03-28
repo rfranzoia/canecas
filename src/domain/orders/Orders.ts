@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export enum OrderStatus { NEW = "0", CREATED = "1", IN_PROGRESS = "2", FINISHED = "3", CANCELED = "9" }
+export enum OrderStatus { NEW = 0, CREATED = 1, IN_PROGRESS = 2, FINISHED = 3, CANCELED = 9 }
 
 const orderItemSchema = new mongoose.Schema({
     product: {type: String, required: true},
@@ -10,15 +10,15 @@ const orderItemSchema = new mongoose.Schema({
 
 const orderStatusHistorySchema = new mongoose.Schema({
     changeDate: {type: Date, required: true},
-    prevStatus: {type: String, required: true},
-    currStatus: {type: String, required: true},
+    prevStatus: {type: Number, required: true},
+    currStatus: {type: Number, required: true},
     reason: {type: String},
 });
 
 const orderSchema = new mongoose.Schema({
     orderDate: {type: Date, required: true},
     userEmail: {type: String, required: true},
-    status: {type: String, required: true},
+    status: {type: Number, required: true},
     totalPrice: {type: Number, required: true},
     items: [ orderItemSchema ],
     statusHistory: [ orderStatusHistorySchema ]
@@ -29,7 +29,8 @@ export const OrdersModel = mongoose.model("order", orderSchema);
 export interface Order {
     orderDate?: Date,
     userEmail?: string,
-    status?: string,
+    status?: number,
+    statusReason?: string,
     totalPrice?: number,
     items?: OrderItem[],
     statusHistory?: OrderStatusHistory[]
@@ -43,7 +44,7 @@ export interface OrderItem {
 
 export interface OrderStatusHistory {
     changeDate: Date,
-    prevStatus: string,
-    currStatus: string,
+    prevStatus: number,
+    currStatus: number,
     reason?: string
 }

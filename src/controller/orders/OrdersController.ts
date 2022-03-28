@@ -1,9 +1,9 @@
 import {StatusCodes} from "http-status-codes";
 import NotFoundError from "../../utils/errors/NotFoundError";
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import {ordersService} from "../../service/orders/OrdersService";
 import {Order} from "../../domain/orders/Orders";
+import {evaluateResult} from "../ControllerHelper";
 
 export class OrdersController {
 
@@ -13,6 +13,15 @@ export class OrdersController {
 
     async list(req, res) {
         return res.status(StatusCodes.OK).send(await ordersService.list());
+    }
+
+    async listByDateRange(req, res) {
+        const {start_date, end_date} = req.params;
+        const result = await ordersService.listByDateRange(start_date, end_date);
+        if (result instanceof BadRequestError) {
+            return res.status(StatusCodes.BAD_REQUEST).send(result as BadRequestError);
+        }
+        return res.status(StatusCodes.OK).send(result);
     }
 
     async get(req, res) {
@@ -32,50 +41,26 @@ export class OrdersController {
             items: items
         }
         const order = await ordersService.create(o);
-        if (order instanceof InternalServerErrorError) {
-            const error = order as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
-
-        } else if (order instanceof BadRequestError) {
-            const error = order as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-
-        return res.status(StatusCodes.CREATED).send(order);
+        return evaluateResult(order, res, StatusCodes.CREATED, order);
     }
 
     async delete(req, res) {
         const { id } = req.params;
         const result = await ordersService.delete(id);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send(result as NotFoundError);
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
-        }
-        return res.status(StatusCodes.NO_CONTENT).send({ message: "Order deleted successfully" });
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "Order deleted successfully" })
     }
 
     async update(req, res) {
+        const userEmail = req['user'].email;
         const { id } = req.params;
-        const { status, totalPrice } = req.body;
+        const { status, totalPrice, items } = req.body;
         const order: Order = {
             status: status,
-            totalPrice: totalPrice
+            totalPrice: totalPrice,
+            items: items
         }
-        const result = await ordersService.update(id, order);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send(result as NotFoundError);
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
-
-        } else if (result instanceof BadRequestError) {
-            const error = result as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-        return res.status(StatusCodes.OK).send(await ordersService.get(id));
+        const result = await ordersService.update(id, order, userEmail);
+        return evaluateResult(result, res, StatusCodes.OK, await ordersService.get(id));
     }
 }
+

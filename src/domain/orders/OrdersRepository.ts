@@ -16,6 +16,17 @@ class OrdersRepository {
     async findAll() {
         return await OrdersModel.find({}, {
             '__v': 0, 'password': 0,
+        }).sort({ orderDate: "desc", createdAt: "desc" });
+    }
+
+    async findByDateRange(startDate: Date, endDate: Date) {
+        return await OrdersModel.find({
+            orderDate: {
+                $gte: startDate,
+                $lte: endDate
+            }
+        }, {
+            '__v': 0, 'password': 0,
         });
     }
 
@@ -53,7 +64,9 @@ class OrdersRepository {
         try {
             return await OrdersModel.findOneAndUpdate({ _id: id }, {
                 status: order.status,
-                totalPrice: order.totalPrice
+                totalPrice: order.totalPrice,
+                items: order.items,
+                statusHistory: order.statusHistory
             }, { returnOriginal: false  });
         } catch (error) {
             logger.error("Error updating Order", error);
