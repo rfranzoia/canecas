@@ -4,6 +4,7 @@ import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import {productRepository} from "../../domain/products/ProductRepository";
 import {productTypeRepository} from "../../domain/products/ProductTypeRepository";
+import logger from "../../utils/Logger";
 
 class ProductsService {
 
@@ -45,13 +46,18 @@ class ProductsService {
     }
 
     async create(product: Product) {
-        const p = await productRepository.findByName(product.name);
-        if (p) {
-            return new BadRequestError("Product with same name already exists");
-        } else if (!await productTypeRepository.findByDescription(product.type)) {
-            return new BadRequestError("Product Type doesnt't exists");
+        try {
+            const p = await productRepository.findByName(product.name);
+            if (p) {
+                return new BadRequestError("Product with same name already exists");
+            } else if (!await productTypeRepository.findByDescription(product.type)) {
+                return new BadRequestError("Product Type doesnt't exists");
+            }
+            return await productRepository.create(product);
+        } catch (error) {
+            logger.error("Error while creating product", error);
+            return new InternalServerErrorError("Error while creating the product", error);
         }
-        return await productRepository.create(product);
     }
 
     async delete(id: string) {

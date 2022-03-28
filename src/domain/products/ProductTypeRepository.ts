@@ -22,11 +22,15 @@ class ProductTypeRepository {
     }
 
     async create(productType: ProductType) {
-        const pt = await ProductTypeModel.create({
-            description: productType.description
-        });
-        await pt.save();
-        return pt;
+        try {
+            const type = await ProductTypeModel.create({
+                description: productType.description
+            });
+            await type.save();
+            return type;
+        } catch (error) {
+            return new InternalServerErrorError("Error creating the Type");
+        }
     }
 
     async delete(id: string) {

@@ -1,8 +1,7 @@
 import {StatusCodes} from "http-status-codes";
-import BadRequestError from "../../utils/errors/BadRequestError";
 import NotFoundError from "../../utils/errors/NotFoundError";
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import {productTypesService} from "../../service/products/ProductTypesService";
+import {evaluateResult} from "../ControllerHelper";
 
 export class ProductTypesController {
 
@@ -34,46 +33,21 @@ export class ProductTypesController {
 
     async create(req, res) {
         const { description } = req.body;
-        const pt = await productTypesService.create({ description: description });
-        if (!pt) {
-            return res.status(StatusCodes.NOT_FOUND).send("Type was not created!");
-
-        } else if (pt instanceof BadRequestError) {
-            const error = pt as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-        return res.status(StatusCodes.CREATED).send(pt);
+        const result = await productTypesService.create({ description: description });
+        return evaluateResult(result, res, StatusCodes.CREATED, result);
     }
 
     async delete(req, res) {
         const { id } = req.params;
         const result = await productTypesService.delete(id);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("Type not found!");
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: "Error while deleting the type", error: error });
-        }
-        return res.status(StatusCodes.NO_CONTENT).send({ message: "Type deleted successfully" });
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "Type deleted successfully"});
     }
 
     async update(req, res) {
         const { id } = req.params;
         const { description } = req.body;
         const result = await productTypesService.update(id, description);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("Type not found!");
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: "Error while deleting the type", error: error });
-
-        } else if (result instanceof BadRequestError) {
-            const error = result as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-        return res.status(StatusCodes.OK).send(await productTypesService.findById(id));
+        return evaluateResult(result, res, StatusCodes.CREATED, await productTypesService.findById(id));
     }
 
 }

@@ -1,10 +1,10 @@
 import {StatusCodes} from "http-status-codes";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import NotFoundError from "../../utils/errors/NotFoundError";
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
+import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 import {User} from "../../domain/Users/Users";
 import {userService} from "../../service/users/UsersService";
-import UnauthorizedError from "../../utils/errors/UnauthorizedError";
+import {evaluateResult} from "../ControllerHelper";
 
 export class UsersController {
 
@@ -17,16 +17,6 @@ export class UsersController {
         const user = await userService.get(id);
         if (user instanceof NotFoundError) {
             return res.status(StatusCodes.NOT_FOUND).send("User not found");
-        }
-        return res.status(StatusCodes.OK).send(user);
-    }
-
-
-    async getByName(req, res) {
-        const { name } = req.params;
-        const user = await userService.getByName(name);
-        if (user instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("User not found!");
         }
         return res.status(StatusCodes.OK).send(user);
     }
@@ -64,29 +54,13 @@ export class UsersController {
             address: address
         }
         const user = await userService.create(u);
-        if (user instanceof InternalServerErrorError) {
-            const error = user as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(error);
-
-        } else if (user instanceof BadRequestError) {
-            const error = user as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-
-        return res.status(StatusCodes.CREATED).send(user);
+        return evaluateResult(user, res, StatusCodes.CREATED, user);
     }
 
     async delete(req, res) {
         const { id } = req.params;
         const result = await userService.delete(id);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("User not found!");
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: "Error while deleting the user", error: error });
-        }
-        return res.status(StatusCodes.NO_CONTENT).send({ message: "User deleted successfully" });
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, { message: "User deleted successfully" });
     }
 
     async update(req, res) {
@@ -99,35 +73,13 @@ export class UsersController {
             address: address
         }
         const result = await userService.update(id, user);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("User not found!");
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: "Error while updating the user", error: error });
-
-        } else if (result instanceof BadRequestError) {
-            const error = result as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-        return res.status(StatusCodes.OK).send(await userService.get(id));
+        return evaluateResult(result, res, StatusCodes.OK, await userService.get(id));
     }
 
     async updatePassword(req, res) {
         const { email, currentPassword, newPassword } = req.body;
         const result = await userService.updatePassword(email, currentPassword, newPassword);
-        if (result instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send(result as NotFoundError);
-
-        } else if (result instanceof InternalServerErrorError) {
-            const error = result as InternalServerErrorError;
-            return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send({ message: "Error while updating the users password", error: error });
-
-        } else if (result instanceof BadRequestError) {
-            const error = result as BadRequestError;
-            return res.status(StatusCodes.BAD_REQUEST).send(error);
-        }
-        return res.status(StatusCodes.OK).send(await userService.getByEmail(email));
+        return evaluateResult(result, res, StatusCodes.OK, await userService.getByEmail(email));
     }
 
     async login(req, res) {
