@@ -84,6 +84,11 @@ class OrdersService {
                     return new BadRequestError("Customers can only confirm or cancel orders");
                 }
             }
+
+            if (!existingOrder) {
+                return new NotFoundError("Order doesn't exists");
+            }
+
             const prevStatus = existingOrder.status;
             if (prevStatus === OrderStatus.FINISHED || prevStatus === OrderStatus.CANCELED) {
                 return new BadRequestError("This order cannot be changed anymore");
@@ -99,7 +104,7 @@ class OrdersService {
                     changeDate: new Date(),
                     prevStatus: prevStatus,
                     currStatus: order.status,
-                    reason: order.statusReason? order.statusReason: `Order status update ${OrderStatus[order.status]}`
+                    reason: order.statusReason ? order.statusReason : `Order status update ${OrderStatus[order.status]}`
                 }
                 order.statusHistory = [
                     ...existingOrder.statusHistory,
