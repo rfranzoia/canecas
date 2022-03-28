@@ -76,6 +76,7 @@ class OrdersService {
             const user = await userRepository.findByEmail(userEmail);
             const existingOrder = await ordersRepository.findById(id);
 
+            // validate the role of the user that's requesting changes
             if (user.role !== Role.ADMIN) {
                 if (existingOrder.userEmail !== user.email) {
                     return new NotFoundError("Order doesn't exists");
@@ -90,11 +91,15 @@ class OrdersService {
             }
 
             const prevStatus = existingOrder.status;
+
+            // validate the status change
             if (prevStatus === OrderStatus.FINISHED || prevStatus === OrderStatus.CANCELED) {
                 return new BadRequestError("This order cannot be changed anymore");
             } else if (order.status && existingOrder.status > order.status) {
                 return new BadRequestError("Orders status can only move forward");
             }
+
+            // update the order.statusHistory
             if (order.status && order.status in OrderStatus) {
                 if (!(order.status in OrderStatus)) {
                     return new BadRequestError("Order status is not valid");
@@ -111,6 +116,7 @@ class OrdersService {
                     history
                 ]
             }
+            // validate items changes if the order can be changed
             if (existingOrder.status === OrderStatus.NEW && order.items) {
                 order.totalPrice = order.items.reduce((acc, item) => {
                     return acc + (item.price * item.amount);
