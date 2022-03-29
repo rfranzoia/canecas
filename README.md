@@ -3,13 +3,14 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
 
 ## **Uses:**
 
-* NodeJs v16
-* Typescript
-* Express
-* Morgan (for basic logging upon requests)
-* MongoDB
-* Mongoose
-* swagger (API Documentation)
+* [NodeJs] (v16)
+* [Typescript]
+* [Express]
+* [Morgan] (for basic logging on requests)
+* [Winston] (for application logging)
+* [MongoDB]
+* [Mongoose]
+* [Swagger UI Express] (API Documentation)
 
     ### **Some security using:**
 
@@ -48,6 +49,19 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
     - run: ```docker run -it -p 3500:3500 --name canecas-service franzoia/canecas-service```
 
 - API documentation is provided with Swagger
-    - access: **http://<server-location>/api-docs** to view the documentation
+    - access: ```http://<serverlocation>/api-docs``` to view the documentation
 
-© Romeu Franzoia Junior / 2022
+
+**© Romeu Franzoia Junior / 2022**
+
+[//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
+    
+[NodeJS]: <http://nodejs.org>
+[TypeScript]: <http://typescriptlang.org/>
+[Express]: <http://expressjs.com>
+[MongoDB]: <http://mongodb.org/>
+[Mongoose]: <http://mongoosejs.com/>
+[Morgan]: <http://npmjs.com/package/morgan>
+[Winston]: <http://npmjs.com/package/winston>
+[Swagger UI Express]: <http://npmjs.com/package/swagger-ui-express>
+
