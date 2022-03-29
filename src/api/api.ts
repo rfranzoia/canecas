@@ -12,8 +12,12 @@ const app = express();
 
 app.use(helmet());
 app.use(express.json());
-app.use(cors());
-app.use(morgan('combined'));
+app.use(cors({
+    origin: "*",
+    methods: ['GET','POST','DELETE','UPDATE','PUT','PATCH']
+}));
+
+app.use(morgan('[:method] - :date[iso] ":url" :status :response-time ms - :res[content-length]'));
 
 app.get('/', (req, res) => {
     res.send({
