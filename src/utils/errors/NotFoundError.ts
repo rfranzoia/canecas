@@ -3,9 +3,9 @@ import {StatusCodes} from "http-status-codes";
 import logger from "../Logger";
 
 class NotFoundError extends BaseError {
-    constructor(name: string, error: Error = undefined, statusCode: number = StatusCodes.NOT_FOUND, description: string = "Not found") {
-        super(name, statusCode, description, error);
-        logger.info(`NotFound: ${name}`);
+    constructor(message: string, error: Error = undefined, statusCode: number = StatusCodes.NOT_FOUND, name: string = "Not found") {
+        super(message, statusCode, name, error);
+        logger.info(`NotFound: ${message}`);
     }
 }
 

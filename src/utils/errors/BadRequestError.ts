@@ -3,9 +3,9 @@ import {StatusCodes} from "http-status-codes";
 import logger from "../Logger";
 
 class BadRequestError extends BaseError {
-    constructor(name: string, error: Error = undefined, statusCode: number = StatusCodes.BAD_REQUEST, description: string = "Invalid Request") {
-        super(name, statusCode, description, error);
-        logger.info(`BadRequest: ${name}`);
+    constructor(message: string, error: Error = undefined, statusCode: number = StatusCodes.BAD_REQUEST, name: string = "Invalid Request") {
+        super(message, statusCode, name, error);
+        logger.info(`BadRequest: ${message}`);
     }
 }
 
