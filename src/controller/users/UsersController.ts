@@ -1,6 +1,4 @@
 import {StatusCodes} from "http-status-codes";
-import BadRequestError from "../../utils/errors/BadRequestError";
-import NotFoundError from "../../utils/errors/NotFoundError";
 import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 import {User} from "../../domain/Users/Users";
 import {userService} from "../../service/users/UsersService";
@@ -16,19 +14,13 @@ export class UsersController {
     async get(req, res) {
         const { id } = req.params;
         const user = await userService.get(id);
-        if (user instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("User not found");
-        }
-        return res.status(StatusCodes.OK).send(user);
+        return evaluateResult(user, res, StatusCodes.OK, async () => user);
     }
 
     async getByEmail(req, res) {
         const { email } = req.params;
         const user = await userService.getByEmail(email);
-        if (user instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("User not found!");
-        }
-        return res.status(StatusCodes.OK).send(user);
+        return evaluateResult(user, res, StatusCodes.OK, async () => user);
     }
 
     async list(req, res) {
@@ -37,11 +29,8 @@ export class UsersController {
 
     async listByRole(req, res) {
         const { role } = req.params;
-        const result = res.status(StatusCodes.OK).send(await userService.listByRole(role));
-        if (result instanceof BadRequestError) {
-            return res.status(StatusCodes.BAD_REQUEST).send(result as BadRequestError);
-        }
-        return result;
+        const users = res.status(StatusCodes.OK).send(await userService.listByRole(role));
+        return evaluateResult(users, res, StatusCodes.CREATED, async () => users);
     }
 
     async create(req, res) {

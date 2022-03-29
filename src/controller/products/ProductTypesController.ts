@@ -1,5 +1,4 @@
 import {StatusCodes} from "http-status-codes";
-import NotFoundError from "../../utils/errors/NotFoundError";
 import {productTypesService} from "../../service/products/ProductTypesService";
 import {evaluateResult} from "../ControllerHelper";
 import {responseMessage} from "../ResponseData";
@@ -17,19 +16,13 @@ export class ProductTypesController {
     async get(req, res) {
         const { id } = req.params;
         const pt = await productTypesService.findById(id);
-        if (pt instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("Type not found");
-        }
-        return res.status(StatusCodes.OK).send(pt);
+        return evaluateResult(pt, res, StatusCodes.OK, async () => pt);
     }
 
     async findByDescription(req, res) {
         const { description } = req.params;
         const pt = await productTypesService.findByDescription(description);
-        if (pt instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send("Type not found!");
-        }
-        return res.status(StatusCodes.OK).send(pt);
+        return evaluateResult(pt, res, StatusCodes.OK, async () => pt);
     }
 
     async create(req, res) {

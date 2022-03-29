@@ -1,6 +1,4 @@
 import {StatusCodes} from "http-status-codes";
-import NotFoundError from "../../utils/errors/NotFoundError";
-import BadRequestError from "../../utils/errors/BadRequestError";
 import {ordersService} from "../../service/orders/OrdersService";
 import {Order} from "../../domain/orders/Orders";
 import {evaluateResult} from "../ControllerHelper";
@@ -20,21 +18,15 @@ export class OrdersController {
     async listByDateRange(req, res) {
         const {start_date, end_date} = req.params;
         const userEmail = req['user'].email;
-        const result = await ordersService.listByDateRange(start_date, end_date, userEmail);
-        if (result instanceof BadRequestError) {
-            return res.status(StatusCodes.BAD_REQUEST).send(result as BadRequestError);
-        }
-        return res.status(StatusCodes.OK).send(result);
+        const orders = await ordersService.listByDateRange(start_date, end_date, userEmail);
+        return evaluateResult(orders, res, StatusCodes.CREATED, () => orders);
     }
 
     async get(req, res) {
         const { id } = req.params;
         const userEmail = req['user'].email;
         const order = await ordersService.get(id, userEmail);
-        if (order instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send(order as NotFoundError);
-        }
-        return res.status(StatusCodes.OK).send(order);
+        return evaluateResult(order, res, StatusCodes.CREATED, () => order);
     }
 
     async create(req, res) {

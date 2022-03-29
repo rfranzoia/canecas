@@ -1,6 +1,4 @@
 import {StatusCodes} from "http-status-codes";
-import BadRequestError from "../../utils/errors/BadRequestError";
-import NotFoundError from "../../utils/errors/NotFoundError";
 import {Product} from "../../domain/products/Product";
 import {productService} from "../../service/products/ProductsService";
 import {evaluateResult} from "../ControllerHelper";
@@ -15,19 +13,13 @@ export class ProductsController {
     async get(req, res) {
         const { id } = req.params;
         const product = await productService.findById(id);
-        if (product instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send(product as NotFoundError);
-        }
-        return res.status(StatusCodes.OK).send(product);
+        return evaluateResult(product, res, StatusCodes.OK, async () => product);
     }
 
     async getByName(req, res) {
         const { name } = req.params;
         const product = await productService.findByName(name);
-        if (product instanceof NotFoundError) {
-            return res.status(StatusCodes.NOT_FOUND).send(product as NotFoundError);
-        }
-        return res.status(StatusCodes.OK).send(product);
+        return evaluateResult(product, res, StatusCodes.OK, async () => product);
     }
 
     async list(req, res) {
@@ -36,16 +28,14 @@ export class ProductsController {
 
     async listByType(req, res) {
         const { type } = req.params;
-        return res.status(StatusCodes.OK).send(await productService.listByType(type));
+        const products = await productService.listByType(type);
+        return evaluateResult(products, res, StatusCodes.OK, async () => products);
     }
 
     async listByPriceRange(req, res) {
         const { startPrice, endPrice } = req.params;
-        const result = await productService.listByPriceRange(startPrice, endPrice);
-        if (result instanceof BadRequestError) {
-            return res.status(StatusCodes.BAD_REQUEST).send(result as BadRequestError);
-        }
-        return res.status(StatusCodes.OK).send(result);
+        const products = await productService.listByPriceRange(startPrice, endPrice);
+        return evaluateResult(products, res, StatusCodes.OK, async () => products);
     }
 
     async create(req, res) {
