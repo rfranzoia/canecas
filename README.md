@@ -9,6 +9,7 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
     * Morgan (for basic logging upon requests)
     * MongoDB (Using Atlas)
     * Mongoose
+    * swagger (API Documentation)
 
 ### **Some security using:**
 
@@ -27,7 +28,7 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
     * run npm install
     * make sure you have a MongoDB installed in you machine or somewhere in the cloud
     * set the connection string to your database in an environment variable
-        MONGO_URL = mongodb+srv://<user>:<password>E@<server_url/database>?retryWrites=true&w=majority
+        MONGO_URL = mongodb+srv://<user>:<password>@<server_url/database>?retryWrites=true&w=majority
 
     * also need to setup the application port
         PORT=<Port number here>
@@ -41,6 +42,9 @@ Microservices implementation of a Online Mug shop, written in NodeJS and Typescr
         * build the canecas-service docker image
             * update your environment variables accondingly
             * run: docker build . --platform <desired target platform> -t <github id>/canecas-service
-            * run: docker run -it -p 3000:3000 --name canecas-service franzoia/canecas-service
+            * run: docker run -it -p 3500:3500 --name canecas-service franzoia/canecas-service
+
+    * API documentation is provided with Swagger
+        * access: **http://<server-location>/api-docs** to view the documentation
 
 © Romeu Franzoia Junior / 2022
