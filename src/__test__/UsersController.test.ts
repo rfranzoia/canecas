@@ -1,8 +1,8 @@
 import supertest from "supertest";
 import app from "../api/api";
-import {StatusCodes} from "http-status-codes";
-import {LOGIN_USER, TestHelper} from "./TestHelper";
 import {Role} from "../domain/Users/Users";
+import {StatusCodes} from "http-status-codes";
+import {TEST_USER, TestHelper} from "./TestHelper";
 import {mongoConnect, mongoDisconnect} from "../database/mongo";
 
 describe("Users API test (some require jwt token)", () => {
@@ -10,19 +10,26 @@ describe("Users API test (some require jwt token)", () => {
     
     beforeAll(async () => {
         await mongoConnect();
-        loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
     });
 
     afterAll(async () => {
+        await TestHelper.deleteAllTestUsers();
         await mongoDisconnect();
-        await TestHelper.deleteLoginTestUser(loggedUser._id);
     });
 
-    describe("given an user is not logged in", () => {
-        it("should not be able to list users", async () => {
+    describe("given an user doesn't exists in the database", () => {
+        let createdUser;
+
+        it("should be able to create an User", async () => {
+            //const testUser = TestHelper.getTestUser();
+            const testUser = await TestHelper.createTestUser(Role.USER);
+
             const response = await supertest(app)
-                .get("/api/users")
-            expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+                .post("/api/users")
+                .send(testUser);
+            expect(response.statusCode).toBe(StatusCodes.CREATED);
+            expect(response.body.email).toEqual(testUser.email);
+            createdUser = response.body;
         });
 
         it("should not be able to login with invalid credentials", async () => {
@@ -44,15 +51,41 @@ describe("Users API test (some require jwt token)", () => {
             const response = await supertest(app)
                 .post("/api/users/login")
                 .send({
-                    email: loggedUser.email,
-                    password: LOGIN_USER.password
+                    email: createdUser.email,
+                    password: TEST_USER.password
                 });
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.authToken).toBeDefined();
+            loggedUser = response.body;
         });
+
+        it("and should be able to delete an existing user if there's an user logged in", async () => {
+            const response = await supertest(app)
+                .delete(`/api/users/${createdUser._id}`)
+                .set("Authorization", "Bearer " + loggedUser.authToken);
+            expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
+        });
+
+    });
+
+    describe("given an user is not logged in", () => {
+        it("should not be able to list users", async () => {
+            const response = await supertest(app)
+                .get("/api/users")
+            expect(response.statusCode).toBe(StatusCodes.UNAUTHORIZED);
+        });
+
+
     });
 
     describe("given an user is logged in", () => {
+        let loginUser;
+
+        beforeAll(async () => {
+            loginUser = await TestHelper.createTestUser(Role.ADMIN);
+            loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.ADMIN);
+        });
+
         it("should be able to list all users", async () => {
             const response = await supertest(app)
                 .get("/api/users")
@@ -70,7 +103,7 @@ describe("Users API test (some require jwt token)", () => {
 
         it("should be able to get an User with a given email", async () => {
             const response = await supertest(app)
-                .get(`/api/users/role/${LOGIN_USER.email}`)
+                .get(`/api/users/role/${TEST_USER.email}`)
                 .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
         });
@@ -89,28 +122,6 @@ describe("Users API test (some require jwt token)", () => {
                 .get(`/api/users/email/${email}`)
                 .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.NOT_FOUND);
-        });
-    });
-
-    describe("given an user doesn't exists in the database", () => {
-        let createdUser;
-
-        it("should be able to create an User", async () => {
-            const testUser = TestHelper.getTestUser();
-
-            const response = await supertest(app)
-                .post("/api/users")
-                .send(testUser);
-            expect(response.statusCode).toBe(StatusCodes.CREATED);
-            expect(response.body.email).toEqual(testUser.email);
-            createdUser = response.body;
-        });
-
-        it("and should be able to delete an existing user if there's an user logged in", async () => {
-            const response = await supertest(app)
-                .delete(`/api/users/${createdUser._id}`)
-                .set("Authorization", "Bearer " + loggedUser.authToken);
-            expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
         });
     });
 

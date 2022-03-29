@@ -14,6 +14,7 @@ describe("Orders API test (requires jwt token)", () => {
     });
 
     afterAll(async () => {
+        await TestHelper.deleteAllTestUsers();
         await mongoDisconnect();
     });
 
@@ -23,20 +24,15 @@ describe("Orders API test (requires jwt token)", () => {
             let loggedUser;
 
             beforeAll(async () => {
-                loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.USER);
+                loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.USER);
             });
-
-            afterAll(async () => {
-                await TestHelper.deleteLoginTestUser(loggedUser._id);
-            });
-
 
             it("should be able to create a new order", async () => {
                 // attempts to create the order
                 const response = await supertest(app)
                     .post("/api/orders")
                     .set("Authorization", "Bearer " + loggedUser.authToken)
-                    .send(getCustomerOrder(loggedUser));
+                    .send(getTestOrder(loggedUser));
                 expect(response.statusCode).toBe(StatusCodes.CREATED);
                 order = response.body;
 
@@ -59,11 +55,7 @@ describe("Orders API test (requires jwt token)", () => {
             let loggedUser;
 
             beforeAll(async () => {
-                loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
-            });
-
-            afterAll(async () => {
-                await TestHelper.deleteLoginTestUser(loggedUser._id);
+                loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.ADMIN);
             });
 
             it("should be able to list all orders", async () => {
@@ -117,13 +109,13 @@ describe("Orders API test (requires jwt token)", () => {
 
             beforeAll(async () => {
                 // login as cusstomer
-                loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.USER);
+                loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.USER);
 
                 // creates an order
                 const response = await supertest(app)
                     .post("/api/orders")
                     .set("Authorization", "Bearer " + loggedUser.authToken)
-                    .send(getCustomerOrder(loggedUser));
+                    .send(getTestOrder(loggedUser));
                 createdOrder = response.body;
             });
 
@@ -161,7 +153,7 @@ describe("Orders API test (requires jwt token)", () => {
 
             beforeAll(async () => {
                 // login as admin
-                loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
+                loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.ADMIN);
             });
 
             it("should be able to change status", async () => {
@@ -187,7 +179,7 @@ describe("Orders API test (requires jwt token)", () => {
 
 });
 
-const getCustomerOrder = (createdUser) => {
+const getTestOrder = (createdUser) => {
     return {
         orderDate: "2022-03-27",
         userEmail: createdUser.email,

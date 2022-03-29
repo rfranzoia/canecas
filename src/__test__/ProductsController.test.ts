@@ -1,28 +1,21 @@
 import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
-import {TestHelper} from "./TestHelper";
 import {Role} from "../domain/Users/Users";
+import {TestHelper} from "./TestHelper";
 import {mongoConnect, mongoDisconnect} from "../database/mongo";
 
 describe("Products API test (requires jwt token for most)", () => {
     let loggedUser;
 
-    const TEST_PRODUCT = {
-        name: "Test Product",
-        description: "Some dummy description for a test products that needs it",
-        price: 10.9,
-        type: "Caneca"
-    };
-
     beforeAll(async () => {
         await mongoConnect();
-        loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
+        loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.ADMIN);
     });
 
     afterAll(async () => {
+        await TestHelper.deleteAllTestUsers();
         await mongoDisconnect();
-        await TestHelper.deleteLoginTestUser(loggedUser._id);
     });
 
     describe("given a product doesn't exists in the database", () => {
@@ -32,7 +25,7 @@ describe("Products API test (requires jwt token for most)", () => {
             const response = await supertest(app)
                 .post("/api/products")
                 .set("Authorization", "Bearer " + loggedUser.authToken)
-                .send(TEST_PRODUCT);
+                .send(getTestProduct());
             expect(response.statusCode).toBe(StatusCodes.CREATED);
             createdProduct = response.body;
         });
@@ -72,3 +65,12 @@ describe("Products API test (requires jwt token for most)", () => {
     });
 
 });
+
+const getTestProduct = () => {
+    return {
+        name: "Test Product",
+        description: "Some dummy description for a test products that needs it",
+        price: 10.9,
+        type: "Caneca"
+    };
+}
