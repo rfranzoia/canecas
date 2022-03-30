@@ -19,14 +19,14 @@ export class OrdersController {
         const {start_date, end_date} = req.params;
         const userEmail = req['user'].email;
         const orders = await ordersService.listByDateRange(start_date, end_date, userEmail);
-        return evaluateResult(orders, res, StatusCodes.CREATED, () => orders);
+        return evaluateResult(orders, res, StatusCodes.OK, () => orders);
     }
 
     async get(req, res) {
         const { id } = req.params;
         const userEmail = req['user'].email;
         const order = await ordersService.get(id, userEmail);
-        return evaluateResult(order, res, StatusCodes.CREATED, () => order);
+        return evaluateResult(order, res, StatusCodes.OK, () => order);
     }
 
     async create(req, res) {

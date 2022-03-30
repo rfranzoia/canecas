@@ -4,6 +4,8 @@ import {StatusCodes} from "http-status-codes";
 import {Role} from "../domain/Users/Users";
 import {TestHelper} from "./TestHelper";
 import {mongoConnect, mongoDisconnect} from "../database/mongo";
+import {productService} from "../service/products/ProductsService";
+import {Product} from "../domain/products/Product";
 
 describe("Products API test (requires jwt token for most)", () => {
     let loggedUser;
@@ -39,6 +41,23 @@ describe("Products API test (requires jwt token for most)", () => {
     });
 
     describe("given a list of products exists in the database", () => {
+        let sampleProduct;
+
+        beforeAll(async () => {
+            const testProduct = getTestProduct();
+            const p: Product = {
+                name: testProduct.name,
+                description: testProduct.description,
+                price: testProduct.price,
+                type: testProduct.type
+            }
+            sampleProduct = await productService.create(p);
+        });
+
+        afterAll(async () => {
+            await productService.delete(sampleProduct._id);
+        });
+
         it("should be able to list all products", async () => {
             const response = await supertest(app)
                 .get("/api/products")

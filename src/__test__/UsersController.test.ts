@@ -103,7 +103,7 @@ describe("Users API test (some require jwt token)", () => {
 
         it("should be able to get an User with a given email", async () => {
             const response = await supertest(app)
-                .get(`/api/users/role/${TEST_USER.email}`)
+                .get(`/api/users/email/${loggedUser.email}`)
                 .set("Authorization", "Bearer " + loggedUser.authToken);
             expect(response.statusCode).toBe(StatusCodes.OK);
         });

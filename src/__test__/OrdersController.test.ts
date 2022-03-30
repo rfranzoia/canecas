@@ -4,8 +4,10 @@ import {StatusCodes} from "http-status-codes";
 import {TestHelper} from "./TestHelper";
 import {Role} from "../domain/Users/Users";
 import {ordersRepository} from "../domain/orders/OrdersRepository";
-import {OrderStatus} from "../domain/orders/Orders";
+import {Order, OrderStatus} from "../domain/orders/Orders";
 import {mongoConnect, mongoDisconnect} from "../database/mongo";
+import {userRepository} from "../domain/Users/UsersRepository";
+import {ordersService} from "../service/orders/OrdersService";
 
 describe("Orders API test (requires jwt token)", () => {
 
@@ -53,10 +55,24 @@ describe("Orders API test (requires jwt token)", () => {
         describe("and logged user is ADMIN", () => {
             let orders;
             let loggedUser;
+            let sampleTestOrder;
 
             beforeAll(async () => {
                 loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.ADMIN);
+
+                const testOrder = getTestOrder(loggedUser);
+                const o: Order = {
+                    orderDate: new Date(testOrder.orderDate),
+                    userEmail: testOrder.userEmail,
+                    items: testOrder.items
+                }
+
+                sampleTestOrder = await ordersService.create(o);
             });
+
+            afterAll(async () => {
+                await ordersRepository.delete(sampleTestOrder._id);
+            })
 
             it("should be able to list all orders", async () => {
                 const response = await supertest(app)
@@ -99,9 +115,12 @@ describe("Orders API test (requires jwt token)", () => {
             // repository directly in this case
             await ordersRepository.delete(createdOrder._id);
 
+            // identify the user/customer in the created order
+            const orderUser = await userRepository.findByEmail(createdOrder.userEmail);
+
             // deletes the created user/customer
             await supertest(app)
-                .delete(`/api/users/${createdOrder.user.id}`)
+                .delete(`/api/users/${orderUser._id}`)
                 .set("Authorization", "Bearer " + loggedUser.authToken);
         });
 

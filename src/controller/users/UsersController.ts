@@ -29,8 +29,8 @@ export class UsersController {
 
     async listByRole(req, res) {
         const { role } = req.params;
-        const users = res.status(StatusCodes.OK).send(await userService.listByRole(role));
-        return evaluateResult(users, res, StatusCodes.CREATED, async () => users);
+        const users = await userService.listByRole(role);
+        return evaluateResult(users, res, StatusCodes.OK, async () => users);
     }
 
     async create(req, res) {

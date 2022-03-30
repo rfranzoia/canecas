@@ -27,7 +27,9 @@ class UserRepository {
     }
 
     async findByRole(role: string) {
-        return await UserModel.find({ role: role }, { '__v': 0, 'password': 0, });
+        return await UserModel.find({ role: role }, {
+            '__v': 0, 'password': 0,
+        });
     }
 
     async create(user: User) {
