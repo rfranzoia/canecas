@@ -55,10 +55,11 @@ export class UsersController {
 
     async update(req, res) {
         const { id } = req.params;
-        const { name, role, phone, address } = req.body;
+        const { role, name, email, phone, address } = req.body;
         const user: User = {
-            name: name,
             role: role,
+            name: name,
+            email: email,
             phone: phone,
             address: address
         }

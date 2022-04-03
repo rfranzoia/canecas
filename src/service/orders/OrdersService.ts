@@ -73,9 +73,9 @@ class OrdersService {
         }
     }
 
-    async update(id: string, order: Order, userEmail: string) {
+    async update(id: string, order: Order, reqUserEmail: string) {
         try {
-            const user = await userRepository.findByEmail(userEmail);
+            const user = await userRepository.findByEmail(reqUserEmail);
             const existingOrder = await ordersRepository.findById(id);
 
             // validate if the order exists at all
@@ -88,7 +88,7 @@ class OrdersService {
                 if (existingOrder.userEmail !== user.email) {
                     return new NotFoundError(`No Order found with ID ${id}`);
 
-                } else if (order.status && order.status !== OrderStatus.CREATED && order.status !== OrderStatus.CANCELED) {
+                } else if (order.status && order.status !== OrderStatus.CONFIRMED && order.status !== OrderStatus.CANCELED) {
                     return new BadRequestError("Customers can only confirm or cancel orders");
                 }
             }

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export enum OrderStatus { NEW = 0, CREATED = 1, IN_PROGRESS = 2, FINISHED = 3, CANCELED = 9 }
+export enum OrderStatus { NEW = 0, CONFIRMED = 1, IN_PRODUCTION = 2, READY_TO_DELIVER = 3, FINISHED = 8, CANCELED = 9 }
 
 const orderItemSchema = new mongoose.Schema({
     product: {type: String, required: true},

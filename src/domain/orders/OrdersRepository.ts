@@ -63,6 +63,8 @@ class OrdersRepository {
     async update(id: string, order: Order) {
         try {
             return await OrdersModel.findOneAndUpdate({ _id: id }, {
+                userEmail: order.userEmail,
+                orderDate: order.orderDate,
                 status: order.status,
                 totalPrice: order.totalPrice,
                 items: order.items,

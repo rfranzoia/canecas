@@ -48,16 +48,18 @@ export class OrdersController {
     }
 
     async update(req, res) {
-        const userEmail = req['user'].email;
+        const reqUserEmail = req['user'].email;
         const { id } = req.params;
-        const { status, totalPrice, items } = req.body;
+        const { orderDate, userEmail, status, totalPrice, items } = req.body;
         const order: Order = {
+            orderDate: orderDate,
+            userEmail: userEmail,
             status: status,
             totalPrice: totalPrice,
             items: items
         }
-        const result = await ordersService.update(id, order, userEmail);
-        return evaluateResult(result, res, StatusCodes.OK, async () => await ordersService.get(id, userEmail));
+        const result = await ordersService.update(id, order, reqUserEmail);
+        return evaluateResult(result, res, StatusCodes.OK, async () => await ordersService.get(id, reqUserEmail));
     }
 }
 

@@ -42,11 +42,9 @@ class ProductTypeRepository {
     }
 
     async update(id: string, description: string) {
-        const pt = await ProductTypeModel.findOneAndUpdate({ _id: id }, {
+        return await ProductTypeModel.findOneAndUpdate({ _id: id }, {
             description: description
         }, { returnOriginal: false  });
-        console.log(pt);
-        return pt;
     }
 }
 

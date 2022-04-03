@@ -62,8 +62,9 @@ class UserRepository {
     async update(id: string, user: User) {
         try {
             return await UserModel.findOneAndUpdate({ _id: id }, {
-                name: user.name,
                 role: user.role,
+                name: user.name,
+                email: user.email,
                 phone: user.phone,
                 address: user.address
             }, { returnOriginal: false  });

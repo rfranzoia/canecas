@@ -154,7 +154,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .put(`/api/orders/${createdOrder._id}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                     .send({
-                        status: OrderStatus.CREATED,
+                        status: OrderStatus.CONFIRMED,
                     });
                 expect(response.statusCode).toBe(StatusCodes.OK);
             });
@@ -180,7 +180,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .put(`/api/orders/${createdOrder._id}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                     .send({
-                        status: OrderStatus.IN_PROGRESS,
+                        status: OrderStatus.IN_PRODUCTION,
                     });
                 expect(response.statusCode).toBe(StatusCodes.OK);
             });

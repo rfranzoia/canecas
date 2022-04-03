@@ -86,11 +86,11 @@ class UsersService {
             if (!u) {
                 return new NotFoundError(`No user found with ID ${id}`);
             }
-            const u2 = await userRepository.findByName(user.name);
+            const u2 = await userRepository.findByEmail(user.email);
             if (!u2 || u2.id === id) {
                 return await userRepository.update(id, user);
             }
-            return new BadRequestError("User already exists");
+            return new BadRequestError("User email is already in use");
         } catch (error) {
             logger.error("Error while updating user", error.stack);
             return new InternalServerErrorError("Error while updating user", error);
