@@ -26,8 +26,8 @@ export class ProductTypesController {
     }
 
     async create(req, res) {
-        const { description } = req.body;
-        const result = await productTypesService.create({ description: description });
+        const { description, image } = req.body;
+        const result = await productTypesService.create({ description: description, image: image });
         return evaluateResult(result, res, StatusCodes.CREATED, async () => result);
     }
 
@@ -39,8 +39,8 @@ export class ProductTypesController {
 
     async update(req, res) {
         const { id } = req.params;
-        const { description } = req.body;
-        const result = await productTypesService.update(id, description);
+        const { description, image } = req.body;
+        const result = await productTypesService.update(id, description, image);
         return evaluateResult(result, res, StatusCodes.CREATED, async () => await productTypesService.findById(id));
     }
 

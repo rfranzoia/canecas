@@ -24,7 +24,8 @@ class ProductTypeRepository {
     async create(productType: ProductType) {
         try {
             const type = await ProductTypeModel.create({
-                description: productType.description
+                description: productType.description,
+                image: productType.image
             });
             await type.save();
             return type;
@@ -41,9 +42,10 @@ class ProductTypeRepository {
         }
     }
 
-    async update(id: string, description: string) {
+    async update(id: string, description: string, image: string) {
         return await ProductTypeModel.findOneAndUpdate({ _id: id }, {
-            description: description
+            description: description,
+            image: image
         }, { returnOriginal: false  });
     }
 }

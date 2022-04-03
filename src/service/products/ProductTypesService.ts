@@ -33,7 +33,7 @@ class ProductTypesService {
     async create(productType: ProductType) {
         const pt = await productTypeRepository.findByDescription(productType.description);
         if (pt) {
-            return new BadRequestError("Type already exists");
+            return new BadRequestError(`Type already exists with the description ${productType.description}`);
         }
         return await productTypeRepository.create(productType);
     }
@@ -49,16 +49,16 @@ class ProductTypesService {
         }
     }
 
-    async update(id: string, description: string) {
+    async update(id: string, description: string, image: string) {
         const pt = await productTypeRepository.findById(id);
         if (!pt) {
             return new NotFoundError(`No type found with ID ${id}`);
         }
         const pt2 = await productTypeRepository.findByDescription(description);
         if (!pt2 || pt2.id === id) {
-            return await productTypeRepository.update(id, description);
+            return await productTypeRepository.update(id, description, image);
         }
-        return new BadRequestError("Type already exists");
+        return new BadRequestError(`Type already exists with the description ${description}`);
 
     }
 }
