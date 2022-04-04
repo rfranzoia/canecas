@@ -39,12 +39,13 @@ export class ProductsController {
     }
 
     async create(req, res) {
-        const { name, description, price, type } = req.body;
+        const { name, description, price, type, image } = req.body;
         const p: Product = {
             name: name,
             description: description,
             price: price,
-            type: type
+            type: type,
+            image: image
         }
         const product = await productService.create(p);
         return evaluateResult(product, res, StatusCodes.CREATED, async () => product);
@@ -58,12 +59,13 @@ export class ProductsController {
 
     async update(req, res) {
         const { id } = req.params;
-        const { name, description, price, type } = req.body;
+        const { name, description, price, type, image } = req.body;
         const product: Product = {
             name: name,
             description: description,
             price: price,
-            type: type
+            type: type,
+            image: image
         }
         const result = await productService.update(id, product);
         return evaluateResult(result, res, StatusCodes.OK, async () => await productService.findById(id));

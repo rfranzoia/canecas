@@ -45,7 +45,8 @@ class ProductRepository {
                 name: product.name,
                 description: product.description,
                 price: product.price,
-                type: product.type
+                type: product.type,
+                image: product.image
             });
             await p.save();
             return p;
@@ -70,7 +71,8 @@ class ProductRepository {
                 name: product.name,
                 description: product.description,
                 price: product.price,
-                type: product.type
+                type: product.type,
+                image: product.image
             }, { returnOriginal: false  });
         } catch (error) {
             logger.error("Error updating Product", error);
