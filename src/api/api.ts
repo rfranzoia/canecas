@@ -5,7 +5,7 @@ import express, {Router} from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json";
 import {TokenService} from "../security/TokenService";
-import productTypeRouter from "./ProductTypeRouter";
+import typeRouter from "./TypeRouter";
 import productRouter from "./ProductsRouter";
 import usersRouter from "./UsersRouter";
 import ordersRouter from "./OrdersRouter";
@@ -42,7 +42,7 @@ app.get('/', (req, res) => {
 const api = Router();
 
 api.use("/users", usersRouter);
-api.use("/productTypes", productTypeRouter);
+api.use("/types", typeRouter);
 api.use("/products", productRouter);
 api.use("/orders", TokenService.getInstance().authenticateToken, ordersRouter);
 

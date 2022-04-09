@@ -5,9 +5,9 @@ const schema = new mongoose.Schema({
     image: {type: String, required: true}
 }, { timestamps: true });
 
-export const ProductTypeModel = mongoose.model("product_type", schema);
+export const TypeModel = mongoose.model("product_type", schema);
 
-export interface ProductType {
+export interface Type {
     description: string;
     image: string;
 }

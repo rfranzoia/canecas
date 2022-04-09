@@ -3,7 +3,7 @@ import BadRequestError from "../../utils/errors/BadRequestError";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import {productRepository} from "../../domain/products/ProductRepository";
-import {productTypeRepository} from "../../domain/products/ProductTypeRepository";
+import {typeRepository} from "../../domain/products/TypeRepository";
 import logger from "../../utils/Logger";
 
 class ProductsService {
@@ -50,7 +50,7 @@ class ProductsService {
             const p = await productRepository.findByName(product.name);
             if (p) {
                 return new BadRequestError("Product with same name already exists");
-            } else if (!await productTypeRepository.findByDescription(product.type)) {
+            } else if (!await typeRepository.findByDescription(product.type)) {
                 return new BadRequestError("Product Type doesnt't exists");
             }
             return await productRepository.create(product);

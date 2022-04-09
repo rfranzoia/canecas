@@ -1,21 +1,21 @@
-import {ProductType} from "../../domain/products/ProductType";
+import {Type} from "../../domain/products/Type";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {productTypeRepository} from "../../domain/products/ProductTypeRepository";
+import {typeRepository} from "../../domain/products/TypeRepository";
 
-class ProductTypesService {
+class TypesService {
 
     async count() {
-        return await productTypeRepository.count();
+        return await typeRepository.count();
     }
 
     async list() {
-        return await productTypeRepository.findAll();
+        return await typeRepository.findAll();
     }
 
     async findById(id: string) {
-        const pt = await productTypeRepository.findById(id);
+        const pt = await typeRepository.findById(id);
         if (!pt) {
             return new NotFoundError(`No type found with ID ${id}`);
         }
@@ -23,44 +23,44 @@ class ProductTypesService {
     }
 
     async findByDescription(description: string) {
-        const pt = await productTypeRepository.findByDescription(description)
+        const pt = await typeRepository.findByDescription(description)
         if (!pt) {
             return new NotFoundError(`No type found with description ${description}`);
         }
         return pt;
     }
 
-    async create(productType: ProductType) {
-        const pt = await productTypeRepository.findByDescription(productType.description);
+    async create(type: Type) {
+        const pt = await typeRepository.findByDescription(type.description);
         if (pt) {
-            return new BadRequestError(`Type already exists with the description ${productType.description}`);
+            return new BadRequestError(`Type already exists with the description ${type.description}`);
         }
-        return await productTypeRepository.create(productType);
+        return await typeRepository.create(type);
     }
 
     async delete(id: string) {
-        const pt = await productTypeRepository.findById(id);
+        const pt = await typeRepository.findById(id);
         if (!pt) {
             return new NotFoundError(`No type found with ID ${id}`);
         }
-        const result = await productTypeRepository.delete(id);
+        const result = await typeRepository.delete(id);
         if (result instanceof InternalServerErrorError) {
             return result;
         }
     }
 
     async update(id: string, description: string, image: string) {
-        const pt = await productTypeRepository.findById(id);
+        const pt = await typeRepository.findById(id);
         if (!pt) {
             return new NotFoundError(`No type found with ID ${id}`);
         }
-        const pt2 = await productTypeRepository.findByDescription(description);
+        const pt2 = await typeRepository.findByDescription(description);
         if (!pt2 || pt2.id === id) {
-            return await productTypeRepository.update(id, description, image);
+            return await typeRepository.update(id, description, image);
         }
         return new BadRequestError(`Type already exists with the description ${description}`);
 
     }
 }
 
-export const productTypesService = new ProductTypesService();
+export const typesService = new TypesService();

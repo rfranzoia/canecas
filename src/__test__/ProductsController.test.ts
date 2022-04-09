@@ -65,7 +65,7 @@ describe("Products API test (requires jwt token for most)", () => {
             expect(response.body.length).toBeGreaterThan(0);
         });
 
-        it("and should be able to list all products by a given ProductType", async () => {
+        it("and should be able to list all products by a given Type", async () => {
             const type = "Caneca";
             const response = await supertest(app)
                 .get(`/api/products/type/${type}`)
