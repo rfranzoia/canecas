@@ -50,11 +50,12 @@ export class OrdersController {
     async update(req, res) {
         const reqUserEmail = req['user'].email;
         const { id } = req.params;
-        const { orderDate, userEmail, status, totalPrice, items } = req.body;
+        const { orderDate, userEmail, status, statusReason, totalPrice, items } = req.body;
         const order: Order = {
             orderDate: orderDate,
             userEmail: userEmail,
             status: status,
+            statusReason: statusReason,
             totalPrice: totalPrice,
             items: items
         }

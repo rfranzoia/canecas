@@ -110,11 +110,15 @@ class OrdersService {
                     return new BadRequestError("Orders status can only move forward");
                 }
 
+                let reason = `Status update ${OrderStatus[order.status]}`;
+                if (order.statusReason) {
+                    reason = reason.concat("/").concat(`Reason: ${order.statusReason}`)
+                }
                 const history: OrderStatusHistory = {
                     changeDate: new Date(),
                     prevStatus: prevStatus,
                     currStatus: order.status,
-                    reason: order.statusReason ? order.statusReason : `Order status update ${OrderStatus[order.status]}`
+                    reason: reason
                 }
                 order.statusHistory = [
                     ...existingOrder.statusHistory,
