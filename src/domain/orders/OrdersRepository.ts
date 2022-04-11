@@ -5,21 +5,18 @@ import {Order, OrdersModel, OrderStatus} from "./Orders";
 class OrdersRepository {
 
     async count() {
-        try {
-            return await OrdersModel.count({name:"name"});
-        } catch (error) {
-            logger.error("Error counting documents", error);
-            return new InternalServerErrorError("Error counting documents");
-        }
+        return await OrdersModel.count();
     }
 
-    async findAll() {
+    async findAll(skip: number, limit: number) {
         return await OrdersModel.find({}, {
             '__v': 0, 'password': 0,
-        }).sort({ orderDate: "desc", createdAt: "desc" });
+        }).skip(skip)
+          .limit(limit)
+          .sort({orderDate: "desc", createdAt: "desc"});
     }
 
-    async findByDateRange(startDate: Date, endDate: Date) {
+    async findByDateRange(startDate: Date, endDate: Date, skip: number, limit: number) {
         return await OrdersModel.find({
             orderDate: {
                 $gte: startDate,
@@ -27,11 +24,12 @@ class OrdersRepository {
             }
         }, {
             '__v': 0, 'password': 0,
-        });
+        }).skip(skip)
+          .limit(limit);
     }
 
     async findById(id: string) {
-        return await OrdersModel.findOne({ _id: id }, { '__v': 0,});
+        return await OrdersModel.findOne({_id: id}, {'__v': 0,});
     }
 
     async create(order: Order) {
@@ -53,7 +51,7 @@ class OrdersRepository {
 
     async delete(id: string) {
         try {
-            await OrdersModel.deleteOne({ _id: id });
+            await OrdersModel.deleteOne({_id: id});
         } catch (error) {
             logger.error("Error deleting Order", error);
             return new InternalServerErrorError("Error while deleting the Order");
@@ -62,14 +60,14 @@ class OrdersRepository {
 
     async update(id: string, order: Order) {
         try {
-            return await OrdersModel.findOneAndUpdate({ _id: id }, {
+            return await OrdersModel.findOneAndUpdate({_id: id}, {
                 userEmail: order.userEmail,
                 orderDate: order.orderDate,
                 status: order.status,
                 totalPrice: order.totalPrice,
                 items: order.items,
                 statusHistory: order.statusHistory
-            }, { returnOriginal: false  });
+            }, {returnOriginal: false});
         } catch (error) {
             logger.error("Error updating Order", error);
             return new InternalServerErrorError(error);

@@ -16,6 +16,10 @@ class ProductsService {
         return await productRepository.findAll();
     }
 
+    async listOrderByType() {
+        return await productRepository.findAllOrderByType();
+    }
+
     async listByType(type: string) {
         return await productRepository.findByType(type);
     }

@@ -14,18 +14,18 @@ class OrdersService {
         return await ordersRepository.count();
     }
 
-    async list(userEmail: string) {
-        return await filterOrdersByUser(await ordersRepository.findAll(), userEmail);
+    async list(userEmail: string, skip: number, limit: number) {
+        return await filterOrdersByUser(await ordersRepository.findAll(skip, limit), userEmail);
     }
 
-    async listByDateRange(startDate: string, endDate: string, userEmail: string) {
+    async listByDateRange(startDate: string, endDate: string, userEmail: string, skip: number, limit: number) {
         try {
             const start = new Date(startDate);
             const end = new Date(endDate);
             if (end < start) {
                 return new BadRequestError("End date must be after start date");
             }
-            return await filterOrdersByUser(await ordersRepository.findByDateRange(start, end), userEmail);
+            return await filterOrdersByUser(await ordersRepository.findByDateRange(start, end, skip, limit), userEmail);
         } catch (error) {
             return new BadRequestError("Start and/or End date(s) not valid");
         }

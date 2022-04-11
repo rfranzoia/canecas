@@ -3,6 +3,7 @@ import {ordersService} from "../../service/orders/OrdersService";
 import {Order} from "../../domain/orders/Orders";
 import {evaluateResult} from "../ControllerHelper";
 import {responseMessage} from "../ResponseData";
+import {paginationService} from "../../service/PaginationService";
 
 export class OrdersController {
 
@@ -12,13 +13,15 @@ export class OrdersController {
 
     async list(req, res) {
         const userEmail = req['user'].email;
-        return res.status(StatusCodes.OK).send(await ordersService.list(userEmail));
+        const {skip, limit} = await paginationService.getPagination(req.query);
+        return res.status(StatusCodes.OK).send(await ordersService.list(userEmail, skip, limit));
     }
 
     async listByDateRange(req, res) {
         const {start_date, end_date} = req.params;
         const userEmail = req['user'].email;
-        const orders = await ordersService.listByDateRange(start_date, end_date, userEmail);
+        const {skip, limit} = await paginationService.getPagination(req.query);
+        const orders = await ordersService.listByDateRange(start_date, end_date, userEmail, skip, limit);
         return evaluateResult(orders, res, StatusCodes.OK, () => orders);
     }
 

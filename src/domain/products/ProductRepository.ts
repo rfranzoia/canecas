@@ -14,6 +14,13 @@ class ProductRepository {
         });
     }
 
+    async findAllOrderByType() {
+        return await ProductModel.find({}, {
+            '__v': 0,
+        }).sort({ type: "asc", name: "asc" });
+    }
+
+
     async findByType(type: string) {
         return await ProductModel.find({ type: type }, {
             '__v': 0,

@@ -26,6 +26,10 @@ export class ProductsController {
         return res.status(StatusCodes.OK).send(await productService.list());
     }
 
+    async listOrderByType(req, res) {
+        return res.status(StatusCodes.OK).send(await productService.listOrderByType());
+    }
+
     async listByType(req, res) {
         const { type } = req.params;
         const products = await productService.listByType(type);
