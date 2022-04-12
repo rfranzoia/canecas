@@ -41,10 +41,22 @@ class OrdersService {
     }
 
     async create(order: Order) {
-        if (!await userRepository.findByEmail(order.userEmail)) {
+        if (order.userEmail.trim().length === 0) {
+            return new BadRequestError("User Email cannot be empty!");
+        } else if (!await userRepository.findByEmail(order.userEmail)) {
             return new BadRequestError("The provided user e-mail is not valid");
         } else if (!isValid(order.items)) {
             return new BadRequestError("One or more item is not valid for this order");
+        }
+
+        if (order.orderDate.toString().trim().length === 0) {
+            return new BadRequestError("Order date cannot be empty!");
+        }
+
+        const orderDate = new Date(order.orderDate);
+        const today = new Date();
+        if (orderDate.valueOf() > today.valueOf()) {
+            return new BadRequestError("Order date cannot be after today's date");
         }
         try {
             const totalPrice = order.items.reduce((acc, item) => {
@@ -132,6 +144,22 @@ class OrdersService {
                 order.totalPrice = order.items.reduce((acc, item) => {
                     return acc + (item.price * item.amount);
                 }, 0);
+            }
+
+            if (order.userEmail.trim().length === 0) {
+                return new BadRequestError("User Email cannot be empty!");
+            } else if (!await userRepository.findByEmail(order.userEmail)) {
+                return new BadRequestError("The provided user e-mail is not valid");
+            }
+
+            if (order.orderDate.toString().trim().length === 0) {
+                return new BadRequestError("Order date cannot be empty!");
+            }
+
+            const orderDate = new Date(order.orderDate);
+            const today = new Date();
+            if (orderDate.valueOf() > today.valueOf()) {
+                return new BadRequestError("Order date cannot be after today's date");
             }
 
             return await ordersRepository.update(id, order);

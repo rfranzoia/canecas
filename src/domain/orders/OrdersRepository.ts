@@ -13,7 +13,7 @@ class OrdersRepository {
             '__v': 0, 'password': 0,
         }).skip(skip)
           .limit(limit)
-          .sort({orderDate: "desc", createdAt: "desc"});
+          .sort({createdAt: "desc", orderDate: "desc"});
     }
 
     async findByDateRange(startDate: Date, endDate: Date, skip: number, limit: number) {
