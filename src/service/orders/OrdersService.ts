@@ -144,28 +144,28 @@ class OrdersService {
                 order.totalPrice = order.items.reduce((acc, item) => {
                     return acc + (item.price * item.amount);
                 }, 0);
-            }
 
-            if (order.userEmail.trim().length === 0) {
-                return new BadRequestError("User Email cannot be empty!");
-            } else if (!await userRepository.findByEmail(order.userEmail)) {
-                return new BadRequestError("The provided user e-mail is not valid");
-            }
+                if (order.userEmail.trim().length === 0) {
+                    return new BadRequestError("User Email cannot be empty!");
+                } else if (!await userRepository.findByEmail(order.userEmail)) {
+                    return new BadRequestError("The provided user e-mail is not valid");
+                }
 
-            if (order.orderDate.toString().trim().length === 0) {
-                return new BadRequestError("Order date cannot be empty!");
-            }
+                if (order.orderDate.toString().trim().length === 0) {
+                    return new BadRequestError("Order date cannot be empty!");
+                }
 
-            const orderDate = new Date(order.orderDate);
-            const today = new Date();
-            if (orderDate.valueOf() > today.valueOf()) {
-                return new BadRequestError("Order date cannot be after today's date");
+                const orderDate = new Date(order.orderDate);
+                const today = new Date();
+                if (orderDate.valueOf() > today.valueOf()) {
+                    return new BadRequestError("Order date cannot be after today's date");
+                }
             }
 
             return await ordersRepository.update(id, order);
         } catch (error) {
-            logger.error("Error while updating order", error.stack);
-            return new InternalServerErrorError("Error while updating order", error);
+            logger.error("Error while updating order", error);
+            return new InternalServerErrorError("Error while updating order", error.stack);
         }
     }
 }
