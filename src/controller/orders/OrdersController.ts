@@ -8,7 +8,8 @@ import {paginationService} from "../../service/PaginationService";
 export class OrdersController {
 
     async count(req, res) {
-        return res.status(StatusCodes.OK).send({ count: await ordersService.count() });
+        const userEmail = req['user'].email;
+        return res.status(StatusCodes.OK).send({ count: await ordersService.count(userEmail) });
     }
 
     async list(req, res) {

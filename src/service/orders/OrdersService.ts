@@ -10,8 +10,8 @@ import {Role} from "../../domain/Users/Users";
 
 class OrdersService {
 
-    async count() {
-        return await ordersRepository.count();
+    async count(userEmail: string) {
+        return await ordersRepository.count(userEmail);
     }
 
     async list(userEmail: string, skip: number, limit: number) {
