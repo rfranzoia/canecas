@@ -4,8 +4,8 @@ import {Order, OrdersModel, OrderStatus} from "./Orders";
 
 class OrdersRepository {
 
-    async count(userEmail: string) {
-        return await OrdersModel.count({userEmail: userEmail});
+    async count(filter: object) {
+        return await OrdersModel.count(filter);
     }
 
     async findAll(filter: object, skip: number, limit: number) {

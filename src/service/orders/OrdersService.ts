@@ -11,7 +11,13 @@ import {Role} from "../../domain/Users/Users";
 class OrdersService {
 
     async count(userEmail: string) {
-        return await ordersRepository.count(userEmail);
+        const user = await userRepository.findByEmail(userEmail);
+        if (user.role === Role.ADMIN) {
+            return await ordersRepository.count({});
+        } else {
+            return await ordersRepository.count({ userEmail: userEmail });
+        }
+
     }
 
     async list(userEmail: string, skip: number, limit: number) {
