@@ -9,6 +9,7 @@ import typeRouter from "./TypeRouter";
 import productRouter from "./ProductsRouter";
 import usersRouter from "./UsersRouter";
 import ordersRouter from "./OrdersRouter";
+import servicesRouter from "./ServicesRouter";
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.use(
 
 app.get('/', (req, res) => {
     res.send({
-        message: "Canecas-service API"
+        message: "Canecas-services API"
     });
 });
 
@@ -45,6 +46,7 @@ api.use("/users", usersRouter);
 api.use("/types", typeRouter);
 api.use("/products", productRouter);
 api.use("/orders", TokenService.getInstance().authenticateToken, ordersRouter);
+api.use("/services", TokenService.getInstance().authenticateToken, servicesRouter);
 
 app.use("/api", api);
 export default app;
