@@ -15,17 +15,35 @@ class OrdersService {
     }
 
     async list(userEmail: string, skip: number, limit: number) {
-        return await filterOrdersByUser(await ordersRepository.findAll(skip, limit), userEmail);
+        const user = await userRepository.findByEmail(userEmail);
+        if (user.role === Role.ADMIN) {
+            return await ordersRepository.findAll({}, skip, limit);
+        } else {
+            return await ordersRepository.findAll({userEmail: userEmail}, skip,limit);
+        }
     }
 
     async listByDateRange(startDate: string, endDate: string, userEmail: string, skip: number, limit: number) {
+        const user = await userRepository.findByEmail(userEmail);
         try {
             const start = new Date(startDate);
             const end = new Date(endDate);
             if (end < start) {
                 return new BadRequestError("End date must be after start date");
             }
-            return await filterOrdersByUser(await ordersRepository.findByDateRange(start, end, skip, limit), userEmail);
+            let filter: object = {
+                orderDate: {
+                    $gte: startDate,
+                    $lte: endDate
+                }
+            }
+            if (user.role !== Role.ADMIN) {
+                filter = {
+                    ...filter,
+                    userEmail: userEmail
+                }
+            }
+            return await ordersRepository.findByDateRange(filter, skip, limit);
         } catch (error) {
             return new BadRequestError("Start and/or End date(s) not valid");
         }
@@ -179,17 +197,6 @@ const isValid = (orderItems: OrderItem[]) => {
         }
     }
     return true;
-}
-
-const filterOrdersByUser = async (list, userEmail: string) => {
-    const user = await userRepository.findByEmail(userEmail);
-    return list.filter(order => {
-        if (user.role === Role.ADMIN) {
-            return order;
-        } else if (user.email === order.userEmail) {
-            return order;
-        }
-    });
 }
 
 export const ordersService = new OrdersService();

@@ -8,21 +8,16 @@ class OrdersRepository {
         return await OrdersModel.count({userEmail: userEmail});
     }
 
-    async findAll(skip: number, limit: number) {
-        return await OrdersModel.find({}, {
+    async findAll(filter: object, skip: number, limit: number) {
+        return await OrdersModel.find(filter, {
             '__v': 0, 'password': 0,
         }).skip(skip)
           .limit(limit)
           .sort({createdAt: "desc", orderDate: "desc"});
     }
 
-    async findByDateRange(startDate: Date, endDate: Date, skip: number, limit: number) {
-        return await OrdersModel.find({
-            orderDate: {
-                $gte: startDate,
-                $lte: endDate
-            }
-        }, {
+    async findByDateRange(filter, skip: number, limit: number) {
+        return await OrdersModel.find(filter, {
             '__v': 0, 'password': 0,
         }).skip(skip)
           .limit(limit);
