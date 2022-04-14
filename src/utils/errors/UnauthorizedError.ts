@@ -1,9 +1,11 @@
 import BaseError from "./BaseError";
 import {StatusCodes} from "http-status-codes";
+import logger from "../Logger";
 
 class UnauthorizedError extends BaseError {
-    constructor(name: string, statusCode: number = StatusCodes.BAD_REQUEST, description: string = "Invalid Request", isOperational: boolean = true) {
-        super(name, statusCode, isOperational, description);
+    constructor(message: string, error: Error = undefined, statusCode: number = StatusCodes.UNAUTHORIZED, name: string = "Invalid Request") {
+        super(message, statusCode, name, error);
+        logger.info(`Unauthorized: ${message}`);
     }
 }
 

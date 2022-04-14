@@ -1,27 +1,24 @@
-import {Entity, PrimaryGeneratedColumn, Column} from "typeorm";
+import mongoose from "mongoose";
 
-@Entity("users")
-export class Users {
+export enum Role { ADMIN = "ADMIN", USER = "USER", GUEST = "GUEST" }
 
-    @PrimaryGeneratedColumn()
-    id: number;
+const schema = new mongoose.Schema({
+    name: { type: String, required: true },
+    email: { type: String, required: true },
+    password: { type: String, required: true },
+    role: { type: String, required: true },
+    phone: { type: String},
+    address: { type: String }
+}, { timestamps: true });
 
-    @Column()
-    role: string;
+export const UserModel = mongoose.model("user", schema);
 
-    @Column()
-    name: string;
-
-    @Column()
-    email: string;
-
-    @Column()
-    password: string;
-
-    @Column()
-    phone: string;
-
-    @Column()
-    address: string;
-
+export interface User {
+    name?: string;
+    email?: string;
+    password?: string;
+    role?: string
+    phone?: string;
+    address?: string;
+    authToken?: string;
 }

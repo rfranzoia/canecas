@@ -1,46 +1,76 @@
 import supertest from "supertest";
 import app from "../api/api";
 import {StatusCodes} from "http-status-codes";
+import {Role} from "../domain/Users/Users";
 import {TestHelper} from "./TestHelper";
-import {ProductDTO} from "../controller/Products/ProductDTO";
-import {Role} from "../service/Users/UsersService";
-import {ConnectionHelper} from "../database/ConnectionHelper";
-import {UserDTO} from "../controller/Users/UserDTO";
+import {mongoConnect, mongoDisconnect} from "../database/mongo";
+import {productService} from "../service/products/ProductsService";
+import {Product} from "../domain/products/Product";
 
 describe("Products API test (requires jwt token for most)", () => {
-    let loggedUser: UserDTO;
-
-    const TEST_PRODUCT = {
-        name: "Test Product",
-        description: "Some dummy description for a test products that needs it",
-        image: "imagePath/imageName.png",
-        product_type_id: 1
-    };
+    let loggedUser;
 
     beforeAll(async () => {
-        await ConnectionHelper.create();
-        loggedUser = await TestHelper.createLoginUserAndAuthenticate(Role.ADMIN);
+        await mongoConnect();
+        loggedUser = await TestHelper.createTestUserAndAuthenticate(Role.ADMIN);
     });
 
     afterAll(async () => {
-        await TestHelper.deleteLoginTestUser(loggedUser.id);
-        await ConnectionHelper.close();
+        await TestHelper.deleteAllTestUsers();
+        await mongoDisconnect();
+    });
+
+    describe("given a product doesn't exists in the database", () => {
+        let createdProduct;
+
+        it("should be able to add the new product", async () => {
+            const response = await supertest(app)
+                .post("/api/products")
+                .set("Authorization", "Bearer " + loggedUser.authToken)
+                .send(getTestProduct());
+            expect(response.statusCode).toBe(StatusCodes.CREATED);
+            createdProduct = response.body;
+        });
+
+        it("and should be able to delete the recently created product", async () => {
+            const response = await supertest(app)
+                .delete(`/api/products/${createdProduct._id}`)
+                .set("Authorization", "Bearer " + loggedUser.authToken);
+            expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
+        });
     });
 
     describe("given a list of products exists in the database", () => {
+        let sampleProduct;
+
+        beforeAll(async () => {
+            const testProduct = getTestProduct();
+            const p: Product = {
+                name: testProduct.name,
+                description: testProduct.description,
+                price: testProduct.price,
+                type: testProduct.type
+            }
+            sampleProduct = await productService.create(p);
+        });
+
+        afterAll(async () => {
+            await productService.delete(sampleProduct._id);
+        });
+
         it("should be able to list all products", async () => {
             const response = await supertest(app)
                 .get("/api/products")
             expect(response.statusCode).toBe(StatusCodes.OK);
-            expect(response.body.data.length).toBeGreaterThan(0);
+            expect(response.body.length).toBeGreaterThan(0);
         });
 
-        it("and should be able to list all products by a given ProductType", async () => {
-            const productTypeId = 1;
+        it("and should be able to list all products by a given Type", async () => {
+            const type = "Caneca";
             const response = await supertest(app)
-                .get(`/api/products/productType/${productTypeId}`)
+                .get(`/api/products/type/${type}`)
             expect(response.statusCode).toBe(StatusCodes.OK);
-            expect(response.body.data.length).toBeGreaterThan(0);
+            expect(response.body.length).toBeGreaterThan(0);
         });
 
         it("and should be able to list all products by a given price range", async () => {
@@ -49,28 +79,17 @@ describe("Products API test (requires jwt token for most)", () => {
             const response = await supertest(app)
                 .get(`/api/products/price/${startPrice}/${endPrice}`)
             expect(response.statusCode).toBe(StatusCodes.OK);
-            expect(response.body.data.length).toBeGreaterThan(0);
-        });
-    });
-
-    describe("given a product doesn't exists in the database", () => {
-        let createdProduct: ProductDTO;
-
-        it("should be able to add the new product", async () => {
-            const response = await supertest(app)
-                .post("/api/products")
-                .set("Authorization", "Bearer " + loggedUser.authToken)
-                .send(TEST_PRODUCT);
-            expect(response.statusCode).toBe(StatusCodes.CREATED);
-            createdProduct = response.body.data;
-        });
-
-        it("and should be able to delete the recently created product", async () => {
-            const response = await supertest(app)
-                .delete(`/api/products/${createdProduct.id}`)
-                .set("Authorization", "Bearer " + loggedUser.authToken);
-            expect(response.statusCode).toBe(StatusCodes.NO_CONTENT);
+            expect(response.body.length).toBeGreaterThan(0);
         });
     });
 
 });
+
+const getTestProduct = () => {
+    return {
+        name: "Test Product",
+        description: "Some dummy description for a test products that needs it",
+        price: 10.9,
+        type: "Caneca"
+    };
+}

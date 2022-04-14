@@ -1,12 +1,9 @@
 import {NextFunction} from "express";
 import {StatusCodes} from "http-status-codes";
-import {UsersService} from "../service/Users/UsersService";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
-import {UserDTO} from "../controller/Users/UserDTO";
+import {userService} from "../service/users/UsersService";
 
 const basicAuth = async (req, res, next: NextFunction) => {
-
-    const userService = new UsersService();
 
     // make authenticate path public
     if (req.path === '/users/login') {
@@ -28,7 +25,7 @@ const basicAuth = async (req, res, next: NextFunction) => {
     }
 
     // attach user to request object
-    req.user = response as UserDTO;
+    req.user = response;
 
     next();
 }

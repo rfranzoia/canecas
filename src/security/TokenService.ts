@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import {NextFunction, Request, Response} from "express";
 import {StatusCodes} from "http-status-codes";
-import {ResponseData} from "../controller/ResponseData";
+import logger from "../utils/Logger";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
 
 export class TokenService {
     static instance: TokenService;
@@ -22,13 +23,13 @@ export class TokenService {
         const token = authHeader && authHeader.split(' ')[1]
 
         if (token == null) {
-            return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!"));
+            return res.status(StatusCodes.UNAUTHORIZED).send(new UnauthorizedError("Unauthorized access"));
         }
 
         jwt.verify(token, process.env.JWT_SECRET as string, async (err: any, user: any) => {
             if (err) {
-                console.error(err);
-                return res.status(StatusCodes.UNAUTHORIZED).send(new ResponseData(StatusCodes.UNAUTHORIZED, "Acesso não autorizado!", err));
+                logger.error("Token verification error:", err);
+                return res.status(StatusCodes.UNAUTHORIZED).send(new UnauthorizedError("Unauthorized access", err));
             }
 
             req["user"] = user;
@@ -36,6 +37,8 @@ export class TokenService {
         });
     }
 }
+
+export const tokenService = new TokenService();
 
 export interface Credentials {
     id: number;
