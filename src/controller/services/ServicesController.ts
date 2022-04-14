@@ -6,7 +6,7 @@ import {EmailService} from "../../domain/services/Service";
 export class ServicesController {
 
     async sendEmail(req, res) {
-        const { destination, subject, message } = req.body;
+        const {destination, subject, message} = req.body;
         const email: EmailService = {
             destination: destination,
             subject: subject,
@@ -17,8 +17,10 @@ export class ServicesController {
     }
 
     async uploadFile(req, res) {
-        await servicesService.uploadFile();
-        return res.status(StatusCodes.OK).send({ message: "file uploaded successfully!" })
+        const { name, data } = req.body;
+        const result = await servicesService.uploadFile(name, data);
+        return evaluateResult(result, res, StatusCodes.OK, () => result);
     }
 
 }
+
