@@ -40,7 +40,6 @@ app.use(
     swaggerUi.serve,
     swaggerUi.setup(swaggerDocument, options)
 );
->>>>>>> mongo-port
 
 app.get('/', (req, res) => {
     res.send({
