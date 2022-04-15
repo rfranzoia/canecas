@@ -15,7 +15,10 @@ export class TokenService {
     }
 
     generateToken = (credentials: Credentials) => {
-        return jwt.sign( {id: credentials.id, email: credentials.email, username: credentials.name}, process.env.JWT_SECRET, {expiresIn: "36000s"})
+        return jwt.sign( {id: credentials.id,
+            email: credentials.email,
+            username: credentials.name},
+            process.env.JWT_SECRET, {expiresIn: TOKEN_TIMEOUT})
     }
 
     authenticateToken = (req: Request, res: Response, next: NextFunction) => {
@@ -37,6 +40,8 @@ export class TokenService {
         });
     }
 }
+
+export const TOKEN_TIMEOUT = "14400s";
 
 export const tokenService = new TokenService();
 
