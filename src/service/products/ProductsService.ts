@@ -65,6 +65,10 @@ class ProductsService {
     }
 
     async delete(id: string) {
+        if (!id) {
+            return new BadRequestError("Invalid product ID")
+        }
+
         const product = await productRepository.findById(id);
         if (!product) {
             return new NotFoundError(`No product found with ID ${id}`);
@@ -76,6 +80,9 @@ class ProductsService {
     }
 
     async update(id: string, product: Product) {
+        if (!id) {
+            return new BadRequestError("Invalid product ID")
+        }
         const p = await productRepository.findById(id);
         if (!p) {
             return new NotFoundError(`No product found with ID ${id}`);
