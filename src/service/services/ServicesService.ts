@@ -49,7 +49,7 @@ class ServicesService {
 
         try {
             fs.writeFileSync(imagesPath + name, response.data, 'utf8');
-            return responseMessage(`${name} was uploaded successfully`);
+            return responseMessage(`${name} was uploaded successfully`, StatusCodes.OK);
         } catch (error) {
             logger.error("Upload Error", error);
             return new BadRequestError(error);
