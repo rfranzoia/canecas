@@ -5,7 +5,7 @@ import BadRequestError from "../../utils/errors/BadRequestError";
 import logger from "../../utils/Logger";
 import {EmailService} from "../../domain/services/Service";
 import fs from "fs";
-import {imagesPath} from "../../CanecasService";
+import {imagesPath} from "../../../CanecasServiceServer";
 
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || "";
 

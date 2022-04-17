@@ -14,8 +14,8 @@
   },
   "scripts": {
     "test": "jest",
-    "dev": "nodemon src/CanecasService.ts",
-    "start": "ts-node src/CanecasService.ts",
+    "dev": "nodemon CanecasServiceServer.ts",
+    "start": "ts-node CanecasServiceServer.ts",
     "cluster": "pm2-runtime start dist/src/app.js -i max"
   },
   "dependencies": {

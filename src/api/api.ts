@@ -20,7 +20,6 @@ app.use(express.urlencoded({limit: '25mb'}));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(express.static("public"));
 
 // parse application/json
 app.use(bodyParser.json());
@@ -34,7 +33,7 @@ const options = {
     customSiteTitle: "Canecas Service"
 };
 
-app.use('/api/images', express.static('images'));
+
 app.use(
     '/api-docs',
     swaggerUi.serve,
