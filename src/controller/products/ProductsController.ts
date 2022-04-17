@@ -58,7 +58,7 @@ export class ProductsController {
     async delete(req, res) {
         const { id } = req.params;
         const result = await productService.delete(id);
-        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Type deleted successfully"));
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Product deleted successfully"));
     }
 
     async update(req, res) {
