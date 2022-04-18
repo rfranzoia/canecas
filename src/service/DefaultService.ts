@@ -12,12 +12,12 @@ export class DefaultService<DefaultModel> {
         this.name = name;
     }
 
-    async count() {
-        return await this.repository.count({});
+    async count(filter) {
+        return await this.repository.count(filter);
     }
 
-    async list(skip: number, limit: number) {
-        return await this.repository.findAll({}, skip, limit);
+    async list(filter, skip: number, limit: number) {
+        return await this.repository.findAll(filter, skip, limit);
     }
 
     async get(id: string) {
