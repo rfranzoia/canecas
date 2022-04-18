@@ -47,10 +47,10 @@ export const TestHelper = {
     },
 
     async deleteAllTestUsers() {
-        const users = await userRepository.findAll();
+        const users = await userRepository.findAll({}, 0, 0);
         for (let i = 0; i < users.length; i++) {
             if (users[i].name === TEST_USER.name) {
-                await userRepository.delete(users[i]._id);
+                await userRepository.delete(users[i].id);
             }
         }
     }
