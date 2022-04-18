@@ -21,12 +21,19 @@ export class DefaultService<DefaultModel> {
     }
 
     async get(id: string) {
-        return await this.repository.findById(id);
+        if (!id) {
+            return new BadRequestError(`Invalid ID for ${this.name} on get`);
+        }
+        const result =   await this.repository.findById(id);
+        if (!result) {
+            return new NotFoundError(`${this.name} with ID ${id} doesn't exist`);
+        }
+        return
     }
 
     async delete(id: string) {
         if (!id) {
-            return new BadRequestError(`Invalid ID for ${this.name} while trying to delete`);
+            return new BadRequestError(`Invalid ID for ${this.name} on delete`);
         }
         if (!await this.repository.findById(id)) {
             return new NotFoundError(`${this.name} with ID ${id} doesn't exist`);
