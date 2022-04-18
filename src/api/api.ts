@@ -4,7 +4,6 @@ import express, {Router} from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./swagger.json";
 import {TokenService} from "../security/TokenService";
-import typeRouter from "./TypeRouter";
 import productRouter from "./ProductsRouter";
 import usersRouter from "./UsersRouter";
 import ordersRouter from "./OrdersRouter";
@@ -39,7 +38,6 @@ app.use(
 const api = Router();
 
 api.use("/users", usersRouter);
-api.use("/types", typeRouter);
 api.use("/products", productRouter);
 api.use("/productVariations", productVariationRouter);
 api.use("/orders", TokenService.getInstance().authenticateToken, ordersRouter);

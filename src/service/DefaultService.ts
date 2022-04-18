@@ -1,5 +1,6 @@
 import {DefaultRepository} from "../domain/DefaultRepository";
 import NotFoundError from "../utils/errors/NotFoundError";
+import BadRequestError from "../utils/errors/BadRequestError";
 
 export class DefaultService<DefaultModel> {
 
@@ -24,6 +25,9 @@ export class DefaultService<DefaultModel> {
     }
 
     async delete(id: string) {
+        if (!id) {
+            return new BadRequestError(`Invalid ID for ${this.name} while trying to delete`);
+        }
         if (!await this.repository.findById(id)) {
             return new NotFoundError(`${this.name} with ID ${id} doesn't exist`);
         }

@@ -3,50 +3,22 @@ import BadRequestError from "../../utils/errors/BadRequestError";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import {productRepository} from "../../domain/products/ProductRepository";
-import {typeRepository} from "../../domain/products/TypeRepository";
 import logger from "../../utils/Logger";
+import {DefaultService} from "../DefaultService";
 
-class ProductsService {
+class ProductsService extends DefaultService<Product> {
 
-    async count() {
-        return await productRepository.count();
-    }
-
-    async list() {
-        return await productRepository.findAll();
-    }
-
-    async listOrderByType() {
-        return await productRepository.findAllOrderByType();
-    }
-
-    async listByType(type: string) {
-        return await productRepository.findByType(type);
-    }
-
-    async listByPriceRange(startPrice: number, endPrice: number) {
-        startPrice = startPrice || 0;
-        endPrice = endPrice || 999999;
-        if (startPrice < 0 || endPrice < 0) {
-            return new BadRequestError("Start an End prices must be greater than zero");
-        }
-        return await productRepository.findByPriceRange(startPrice, endPrice);
-    }
-
-    async findById(id: string) {
-        const pt = await productRepository.findById(id);
-        if (!pt) {
-            return new NotFoundError(`No product found with ID ${id}`);
-        }
-        return pt;
+    constructor() {
+        super(productRepository, "Product");
     }
 
     async findByName(name: string) {
-        const pt = await productRepository.findByName(name)
-        if (!pt) {
-            return new NotFoundError(`No product found with name ${name}`);
+        if (!name) return;
+        const product = await productRepository.findByName(name)
+        if (!product) {
+            return new NotFoundError(`No ${this.name} found with name ${name}`);
         }
-        return pt;
+        return product;
     }
 
     async create(product: Product) {
@@ -54,8 +26,6 @@ class ProductsService {
             const p = await productRepository.findByName(product.name);
             if (p) {
                 return new BadRequestError("Product with same name already exists");
-            } else if (!await typeRepository.findByDescription(product.type)) {
-                return new BadRequestError("Product Type doesnt't exists");
             }
             return await productRepository.create(product);
         } catch (error) {
@@ -64,35 +34,19 @@ class ProductsService {
         }
     }
 
-    async delete(id: string) {
-        if (!id) {
-            return new BadRequestError("Invalid product ID")
-        }
-
-        const product = await productRepository.findById(id);
-        if (!product) {
-            return new NotFoundError(`No product found with ID ${id}`);
-        }
-        const result = await productRepository.delete(id);
-        if (result instanceof InternalServerErrorError) {
-            return result;
-        }
-    }
-
     async update(id: string, product: Product) {
         if (!id) {
-            return new BadRequestError("Invalid product ID")
+            return new BadRequestError("Invalid ID")
         }
         const p = await productRepository.findById(id);
         if (!p) {
             return new NotFoundError(`No product found with ID ${id}`);
         }
         const p2 = await productRepository.findByName(product.name);
-        if (!p2 || p2.id === id) {
-            return await productRepository.update(id, product);
+        if (p2 && p2.id !== id) {
+            return new BadRequestError("Product already exists");
         }
-        return new BadRequestError("Product already exists");
-
+        return await productRepository.update(id, product);
     }
 }
 

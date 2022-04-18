@@ -3,6 +3,7 @@ import {Product} from "../../domain/products/Product";
 import {productService} from "../../service/products/ProductsService";
 import {evaluateResult} from "../ControllerHelper";
 import {responseMessage} from "../ResponseData";
+import {paginationService} from "../../service/PaginationService";
 
 export class ProductsController {
 
@@ -12,7 +13,7 @@ export class ProductsController {
 
     async get(req, res) {
         const { id } = req.params;
-        const product = await productService.findById(id);
+        const product = await productService.get(id);
         return evaluateResult(product, res, StatusCodes.OK, async () => product);
     }
 
@@ -23,32 +24,16 @@ export class ProductsController {
     }
 
     async list(req, res) {
-        return res.status(StatusCodes.OK).send(await productService.list());
-    }
-
-    async listOrderByType(req, res) {
-        return res.status(StatusCodes.OK).send(await productService.listOrderByType());
-    }
-
-    async listByType(req, res) {
-        const { type } = req.params;
-        const products = await productService.listByType(type);
-        return evaluateResult(products, res, StatusCodes.OK, async () => products);
-    }
-
-    async listByPriceRange(req, res) {
-        const { startPrice, endPrice } = req.params;
-        const products = await productService.listByPriceRange(startPrice, endPrice);
-        return evaluateResult(products, res, StatusCodes.OK, async () => products);
+        const {skip, limit} = await paginationService.getPagination(req.query);
+        return res.status(StatusCodes.OK).send(await productService.list(skip, limit));
     }
 
     async create(req, res) {
-        const { name, description, price, type, image } = req.body;
+        const { name, description, price, image } = req.body;
         const p: Product = {
             name: name,
             description: description,
             price: price,
-            type: type,
             image: image
         }
         const product = await productService.create(p);
@@ -63,16 +48,15 @@ export class ProductsController {
 
     async update(req, res) {
         const { id } = req.params;
-        const { name, description, price, type, image } = req.body;
+        const { name, description, price, image } = req.body;
         const product: Product = {
             name: name,
             description: description,
             price: price,
-            type: type,
             image: image
         }
         const result = await productService.update(id, product);
-        return evaluateResult(result, res, StatusCodes.OK, async () => await productService.findById(id));
+        return evaluateResult(result, res, StatusCodes.OK, async () => await productService.get(id));
     }
 
 }
