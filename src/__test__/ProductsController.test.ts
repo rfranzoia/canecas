@@ -48,8 +48,7 @@ describe("Products API test (requires jwt token for most)", () => {
             const p: Product = {
                 name: testProduct.name,
                 description: testProduct.description,
-                price: testProduct.price,
-                type: testProduct.type
+                price: testProduct.price
             }
             sampleProduct = await productService.create(p);
         });
@@ -65,22 +64,6 @@ describe("Products API test (requires jwt token for most)", () => {
             expect(response.body.length).toBeGreaterThan(0);
         });
 
-        it("and should be able to list all products by a given Type", async () => {
-            const type = "Caneca";
-            const response = await supertest(app)
-                .get(`/api/products/type/${type}`)
-            expect(response.statusCode).toBe(StatusCodes.OK);
-            expect(response.body.length).toBeGreaterThan(0);
-        });
-
-        it("and should be able to list all products by a given price range", async () => {
-            const startPrice = 0;
-            const endPrice = 999;
-            const response = await supertest(app)
-                .get(`/api/products/price/${startPrice}/${endPrice}`)
-            expect(response.statusCode).toBe(StatusCodes.OK);
-            expect(response.body.length).toBeGreaterThan(0);
-        });
     });
 
 });
@@ -90,6 +73,6 @@ const getTestProduct = () => {
         name: "Test Product",
         description: "Some dummy description for a test products that needs it",
         price: 10.9,
-        type: "Caneca"
+        image: "some-image.jpg"
     };
 }
