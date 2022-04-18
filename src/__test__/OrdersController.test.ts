@@ -204,13 +204,17 @@ const getTestOrder = (createdUser) => {
         userEmail: createdUser.email,
         items: [
             {
-                product: "Caneca",
-                price: 10.9,
+                product: "Caneca com arte",
+                drawings: 1,
+                background: "empty",
+                price: 59.90,
                 amount: 2
             },
             {
                 product: "Arte",
-                price: 25.95,
+                drawings: 1,
+                background: "empty",
+                price: 35.90,
                 amount: 1
             }
         ]

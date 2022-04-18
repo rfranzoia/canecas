@@ -29,7 +29,7 @@ export class OrdersController {
     async get(req, res) {
         const { id } = req.params;
         const userEmail = req['user'].email;
-        const order = await ordersService.get(id, userEmail);
+        const order = await ordersService.getAsUser(id, userEmail);
         return evaluateResult(order, res, StatusCodes.OK, () => order);
     }
 
@@ -47,7 +47,7 @@ export class OrdersController {
     async delete(req, res) {
         const { id } = req.params;
         const userEmail = req['user'].email;
-        const result = await ordersService.delete(id, userEmail);
+        const result = await ordersService.deleteAsUser(id, userEmail);
         return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Order deleted successfully" ));
     }
 
@@ -64,7 +64,7 @@ export class OrdersController {
             items: items
         }
         const result = await ordersService.update(id, order, reqUserEmail);
-        return evaluateResult(result, res, StatusCodes.OK, async () => await ordersService.get(id, reqUserEmail));
+        return evaluateResult(result, res, StatusCodes.OK, async () => await ordersService.getAsUser(id, reqUserEmail));
     }
 }
 

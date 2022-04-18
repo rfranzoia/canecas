@@ -7,15 +7,20 @@ import {ordersRepository} from "../../domain/orders/OrdersRepository";
 import {userRepository} from "../../domain/Users/UsersRepository";
 import {productRepository} from "../../domain/products/ProductRepository";
 import {Role} from "../../domain/Users/Users";
+import {DefaultService} from "../DefaultService";
+import {BackgroundType} from "../../domain/products/ProductVariation";
 
-class OrdersService {
+class OrdersService extends DefaultService<Order> {
 
+    constructor() {
+        super(ordersRepository, "Order");
+    }
     async count(userEmail: string) {
         const user = await userRepository.findByEmail(userEmail);
         if (user.role === Role.ADMIN) {
-            return await ordersRepository.count({});
+            return await this.repository.count({});
         } else {
-            return await ordersRepository.count({ userEmail: userEmail });
+            return await this.repository.count({ userEmail: userEmail });
         }
 
     }
@@ -23,9 +28,9 @@ class OrdersService {
     async list(userEmail: string, skip: number, limit: number) {
         const user = await userRepository.findByEmail(userEmail);
         if (user.role === Role.ADMIN) {
-            return await ordersRepository.findAll({}, skip, limit);
+            return await this.repository.findAll({}, skip, limit);
         } else {
-            return await ordersRepository.findAll({userEmail: userEmail}, skip,limit);
+            return await this.repository.findAll({userEmail: userEmail}, skip,limit);
         }
     }
 
@@ -55,8 +60,8 @@ class OrdersService {
         }
     }
 
-    async get(id: string, userEmail: string) {
-        const order = await ordersRepository.findById(id);
+    async getAsUser(id: string, userEmail: string) {
+        const order = await this.repository.findById(id);
         const user = await userRepository.findByEmail(userEmail);
         if (!order || (user.role !== Role.ADMIN && order.userEmail !== userEmail)) {
             return new NotFoundError(`No Order found with ID ${id}`);
@@ -69,7 +74,7 @@ class OrdersService {
             return new BadRequestError("User Email cannot be empty!");
         } else if (!await userRepository.findByEmail(order.userEmail)) {
             return new BadRequestError("The provided user e-mail is not valid");
-        } else if (!isValid(order.items)) {
+        } else if (!areItemsValid(order.items)) {
             return new BadRequestError("One or more item is not valid for this order");
         }
 
@@ -97,7 +102,7 @@ class OrdersService {
         }
     }
 
-    async delete(id: string, userEmail) {
+    async deleteAsUser(id: string, userEmail: string) {
         const user = await userRepository.findByEmail(userEmail);
         const order = await ordersRepository.findById(id);
         if (!order || (user.role !== Role.ADMIN && order.userEmail !== userEmail)) {
@@ -164,18 +169,24 @@ class OrdersService {
                 // if this is an items
                 if (existingOrder.status !== OrderStatus.NEW) {
                     return new BadRequestError("Items change can only occur for NEW orders");
+
+                } else if (!areItemsValid(order.items)) {
+                    return new BadRequestError("One or more item is not valid for this order");
                 }
+
                 order.totalPrice = order.items.reduce((acc, item) => {
                     return acc + (item.price * item.amount);
                 }, 0);
 
-                if (order.userEmail.trim().length === 0) {
-                    return new BadRequestError("User Email cannot be empty!");
-                } else if (!await userRepository.findByEmail(order.userEmail)) {
-                    return new BadRequestError("The provided user e-mail is not valid");
+                if (order.userEmail) {
+                    if (order.userEmail.trim().length === 0) {
+                        return new BadRequestError("User Email cannot be empty!");
+                    } else if (!await userRepository.findByEmail(order.userEmail)) {
+                        return new BadRequestError("The provided user e-mail is not valid");
+                    }
                 }
 
-                if (order.orderDate.toString().trim().length === 0) {
+                if (order.orderDate && order.orderDate.toString().trim().length === 0) {
                     return new BadRequestError("Order date cannot be empty!");
                 }
 
@@ -188,17 +199,22 @@ class OrdersService {
 
             return await ordersRepository.update(id, order);
         } catch (error) {
+            console.error(error.stack);
             logger.error("Error while updating order", error);
             return new InternalServerErrorError("Error while updating order", error.stack);
         }
     }
 }
 
-const isValid = (orderItems: OrderItem[]) => {
+const areItemsValid = (orderItems: OrderItem[]) => {
     for (let i = 0; i < orderItems.length; i++) {
         if (!productRepository.findByName(orderItems[i].product)) {
             return false;
-        } else if (orderItems[i].price < 0 || orderItems[i].amount < 0) {
+
+        } else if (!(orderItems[i].background.toUpperCase() in BackgroundType)) {
+            return false;
+
+        }else if (orderItems[i].price < 0 || orderItems[i].amount < 0 || orderItems[i].drawings < 0) {
             return false;
         }
     }
