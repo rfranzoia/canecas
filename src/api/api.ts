@@ -10,6 +10,7 @@ import usersRouter from "./UsersRouter";
 import ordersRouter from "./OrdersRouter";
 import servicesRouter from "./ServicesRouter";
 import bodyParser from "body-parser";
+import productVariationRouter from "./ProductVariationRouter";
 
 const app = express();
 app.use(cors());
@@ -40,6 +41,7 @@ const api = Router();
 api.use("/users", usersRouter);
 api.use("/types", typeRouter);
 api.use("/products", productRouter);
+api.use("/productVariations", productVariationRouter);
 api.use("/orders", TokenService.getInstance().authenticateToken, ordersRouter);
 api.use("/services", TokenService.getInstance().authenticateToken, servicesRouter);
 
