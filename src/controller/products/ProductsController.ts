@@ -8,7 +8,7 @@ import {paginationService} from "../../service/PaginationService";
 export class ProductsController {
 
     async count(req, res) {
-        return res.status(StatusCodes.OK).send({ count: await productService.count() });
+        return res.status(StatusCodes.OK).send({ count: await productService.count({}) });
     }
 
     async get(req, res) {
@@ -25,7 +25,7 @@ export class ProductsController {
 
     async list(req, res) {
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await productService.list(skip, limit));
+        return res.status(StatusCodes.OK).send(await productService.list({}, skip, limit));
     }
 
     async create(req, res) {

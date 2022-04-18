@@ -9,7 +9,7 @@ import {paginationService} from "../../service/PaginationService";
 export class UsersController {
 
     async count(req, res) {
-        return res.status(StatusCodes.OK).send({ count: await userService.count() });
+        return res.status(StatusCodes.OK).send({ count: await userService.count({}) });
     }
 
     async get(req, res) {
@@ -26,7 +26,7 @@ export class UsersController {
 
     async list(req, res) {
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await userService.list(skip, limit));
+        return res.status(StatusCodes.OK).send(await userService.list({}, skip, limit));
     }
 
     async listByRole(req, res) {
