@@ -18,7 +18,7 @@ export class DefaultRepository<DefaultModel> {
 
     async findAll(filter: object, skip: number, limit: number) {
         return await this.model.find(filter, {
-            '__v': 0,
+            '__v': 0, 'password': 0,
         }).skip(skip)
             .limit(limit);
     }

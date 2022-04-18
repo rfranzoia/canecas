@@ -4,6 +4,7 @@ import {User} from "../../domain/Users/Users";
 import {userService} from "../../service/users/UsersService";
 import {evaluateResult} from "../ControllerHelper";
 import {responseMessage} from "../ResponseData";
+import {paginationService} from "../../service/PaginationService";
 
 export class UsersController {
 
@@ -24,7 +25,8 @@ export class UsersController {
     }
 
     async list(req, res) {
-        return res.status(StatusCodes.OK).send(await userService.list());
+        const {skip, limit} = await paginationService.getPagination(req.query);
+        return res.status(StatusCodes.OK).send(await userService.list(skip, limit));
     }
 
     async listByRole(req, res) {
@@ -80,7 +82,7 @@ export class UsersController {
             return res.status(StatusCodes.UNAUTHORIZED).send(result as UnauthorizedError);
         }
         const user = {
-            ...result._doc,
+            ...result,
             authToken: result.authToken
         }
         return res.status(StatusCodes.OK).send(user);

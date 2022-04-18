@@ -7,31 +7,12 @@ import {userRepository} from "../../domain/Users/UsersRepository";
 import logger from "../../utils/Logger";
 import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 import {tokenService} from "../../security/TokenService";
+import {DefaultService} from "../DefaultService";
 
-class UsersService {
+class UsersService extends DefaultService<User> {
 
-    async count() {
-        return await userRepository.count();
-    }
-
-    async list() {
-        return await userRepository.findAll();
-    }
-
-    async get(id: string) {
-        const user = await userRepository.findById(id);
-        if (!user) {
-            return new NotFoundError(`No user found with ID ${id}`);
-        }
-        return user;
-    }
-
-    async getByName(name: string) {
-        const user = await userRepository.findByName(name)
-        if (!user) {
-            return new NotFoundError(`No user found with name ${name}`);
-        }
-        return user;
+    constructor() {
+        super(userRepository, "User");
     }
 
     async getByEmail(email: string) {
@@ -66,17 +47,6 @@ class UsersService {
         } catch (error) {
             logger.error("Error while creating", error.stack);
             return new InternalServerErrorError("Error while creating the new User", error);
-        }
-    }
-
-    async delete(id: string) {
-        const user = await userRepository.findById(id);
-        if (!user) {
-            return new NotFoundError(`No user found with ID ${id}`);
-        }
-        const result = await userRepository.delete(id);
-        if (result instanceof InternalServerErrorError) {
-            return result;
         }
     }
 
@@ -116,21 +86,25 @@ class UsersService {
     async authenticate(email: string, password: string) {
         const user = await userRepository.findByEmail(email);
         if (!user) {
-            return new UnauthorizedError("Usuário/senha invalido(s)");
+            return new UnauthorizedError("Incorrect Email/Password");
         }
 
         try {
             if (!await bcrypt.compare(password, user.password)) {
-                return new UnauthorizedError("Usuário/senha invalido(s)");
+                return new UnauthorizedError("Incorrect Email/Password");
             }
 
-            const loggedUser = user;
-            loggedUser.authToken = tokenService.generateToken({ id: user.id, email: user.email, name: user.name });
+            const token = tokenService.generateToken({ id: user.id, email: user.email, name: user.name });
 
-            return loggedUser;
+            return {
+                email: email,
+                name: user.name,
+                role: user.role,
+                authToken: token
+            };
         } catch (error) {
             logger.error("Invalid username/password error", error);
-            return new UnauthorizedError("Usuário/senha invalido(s)");
+            return new UnauthorizedError("Incorrect Email/Password");
         }
     }
 }

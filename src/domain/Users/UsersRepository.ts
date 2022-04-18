@@ -1,40 +1,27 @@
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import {User, UserModel} from "./Users";
 import logger from "../../utils/Logger";
+import {DefaultRepository} from "../DefaultRepository";
 
-class UserRepository {
+class UserRepository extends DefaultRepository<User>{
 
-    async count() {
-        return await UserModel.count();
-    }
-
-    async findAll() {
-        return await UserModel.find({}, {
-            '__v': 0, 'password': 0,
-        });
-    }
-
-    async findById(id: string) {
-        return await UserModel.findOne({ _id: id }, { '__v': 0,});
-    }
-
-    async findByName(name: string) {
-        return await UserModel.findOne({ name: name }, { '__v': 0, 'password': 0,});
+    constructor() {
+        super(UserModel);
     }
 
     async findByEmail(email: string) {
-        return await UserModel.findOne({ email: email }, { '__v': 0,});
+        return await this.model.findOne({ email: email }, { '__v': 0,});
     }
 
     async findByRole(role: string) {
-        return await UserModel.find({ role: role }, {
+        return await this.model.find({ role: role }, {
             '__v': 0, 'password': 0,
         });
     }
 
     async create(user: User) {
         try {
-            const u = await UserModel.create({
+            const u = await this.model.create({
                 name: user.name,
                 email: user.email,
                 password: user.password,
@@ -50,18 +37,9 @@ class UserRepository {
         }
     }
 
-    async delete(id: string) {
-        try {
-            await UserModel.deleteOne({ _id: id });
-        } catch (error) {
-            logger.error("Error deleting User", error);
-            return new InternalServerErrorError("Error while deleting the User");
-        }
-    }
-
     async update(id: string, user: User) {
         try {
-            return await UserModel.findOneAndUpdate({ _id: id }, {
+            return await this.model.findOneAndUpdate({ _id: id }, {
                 role: user.role,
                 name: user.name,
                 email: user.email,
@@ -76,7 +54,7 @@ class UserRepository {
 
     async updatePassword(email: string, password: string) {
         try {
-            return await UserModel.findOneAndUpdate({ email: email }, {
+            return await this.model.findOneAndUpdate({ email: email }, {
                 password: password
             }, { returnOriginal: false  });
         } catch (error) {
