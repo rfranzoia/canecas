@@ -97,6 +97,7 @@ class UsersService extends DefaultService<User> {
             const token = tokenService.generateToken({ id: user.id, email: user.email, name: user.name });
 
             return {
+                _id: user.id,
                 email: email,
                 name: user.name,
                 role: user.role,

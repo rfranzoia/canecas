@@ -28,7 +28,7 @@ export class DefaultService<DefaultModel> {
         if (!result) {
             return new NotFoundError(`${this.name} with ID ${id} doesn't exist`);
         }
-        return
+        return result;
     }
 
     async delete(id: string) {
