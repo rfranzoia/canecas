@@ -12,13 +12,13 @@ export class ProductVariationController {
 
     async list(req, res) {
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await productVariationService.list({}, skip, limit));
+        return res.status(StatusCodes.OK).send(await productVariationService.list(skip, limit));
     }
 
-    async listByProductDrawingsBackground(req, res) {
-        const { product, drawings, background } = req.params;
+    async listByFilter(req, res) {
+        const { product, drawings, background } = req.query;
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await productVariationService.listByProductDrawingsBackground(product, drawings, background, skip, limit));
+        return res.status(StatusCodes.OK).send(await productVariationService.listByFilter(product, drawings, background, skip, limit));
     }
 
     async get(req, res) {
@@ -59,4 +59,5 @@ export class ProductVariationController {
         const result = await productVariationService.update(id, pv);
         return evaluateResult(result, res, StatusCodes.OK, () => result);
     }
+
 }

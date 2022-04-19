@@ -12,7 +12,11 @@ class ProductVariationService extends DefaultService<ProductVariation> {
         super(productVariationRepository, "Product Variation");
     }
 
-    async listByProductDrawingsBackground(product: string, drawings: number, background: BackgroundType, skip:number, limit:number) {
+    async list(skip: number, limit: number) {
+        return await super.list({}, skip, limit);
+    }
+
+    async listByFilter(product: string, drawings: number, background: BackgroundType, skip: number, limit: number) {
         const isValid = await areParametersValid(product, drawings, background);
         if (isValid instanceof BaseError) {
             return isValid;
@@ -40,10 +44,12 @@ class ProductVariationService extends DefaultService<ProductVariation> {
         if (isValid instanceof BaseError) {
             return isValid;
         }
+
+        /*
         let filter = getFilter(productVariation.product, productVariation.drawings, productVariation.background);
         filter = {
             ...filter,
-            _id: {
+            id: {
                 $ne: id
             }
         }
@@ -51,6 +57,7 @@ class ProductVariationService extends DefaultService<ProductVariation> {
         if (list && list.length > 0) {
             return new BadRequestError(`${this.name} already exist`);
         }
+         */
 
         return await productVariationRepository.update(id, productVariation);
     }
@@ -59,31 +66,16 @@ class ProductVariationService extends DefaultService<ProductVariation> {
 
 const getFilter = (product: string, drawings: number, background: BackgroundType) => {
 
-    let f = {};
-    if (product) {
-        f = {
-            ...f,
-            product: product
-        }
-    }
-    if (drawings) {
-        f = {
-            ...f,
-            drawings: drawings
-        }
-    }
-    if (background) {
-        f = {
-            ...f,
-            background: background
-        }
-    }
+    let filter = {};
+    if (product) filter = { product: product }
+    if (drawings) filter = { ...filter, drawings: drawings }
+    if (background) filter = { ...filter, background: background }
 
-    return f;
+    return filter;
 }
 
 const doesVariationExist = async (product: string, drawings: number, background: BackgroundType): Promise<Boolean | BadRequestError | NotFoundError> => {
-    const list = await productVariationService.listByProductDrawingsBackground(product, drawings, background, 0, 0);
+    const list = await productVariationService.listByFilter(product, drawings, background, 0, 0);
     if (list instanceof BaseError) {
         return list;
 

@@ -9,8 +9,8 @@ const tokenService = TokenService.getInstance();
 
 productVariationRouter.get("/", productVariationController.list);
 productVariationRouter.get("/count", productVariationController.count);
+productVariationRouter.get("/filterBy", productVariationController.listByFilter);
 productVariationRouter.get("/:id", productVariationController.get);
-productVariationRouter.get("/product/:product/drawings/:drawings/background/:background", productVariationController.listByProductDrawingsBackground);
 
 productVariationRouter.post("/", tokenService.authenticateToken, productVariationController.create);
 productVariationRouter.delete("/:id", tokenService.authenticateToken, productVariationController.delete);
