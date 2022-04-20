@@ -5,6 +5,7 @@ import {productService} from "./ProductsService";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import BaseError from "../../utils/errors/BaseError";
+import logger from "../../utils/Logger";
 
 class ProductVariationService extends DefaultService<ProductVariation> {
 
@@ -35,6 +36,10 @@ class ProductVariationService extends DefaultService<ProductVariation> {
     }
 
     async update(id: string, productVariation: ProductVariation) {
+        if (!id) {
+            logger.error("Invalid ID", id);
+            return new BadRequestError(`Provided ID for ${this.name} is not valid`);
+        }
         const pv = await this.repository.findById(id);
         if (!pv) {
             return new NotFoundError(`${this.name} doesn't exist`);
