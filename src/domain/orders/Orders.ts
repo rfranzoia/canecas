@@ -15,7 +15,9 @@ export interface Order {
 export interface OrderItem {
     product: string,
     drawings: number,
+    drawingsImages?: string,
     background: string,
+    backgroundImage?: string,
     price: number,
     amount: number
 }
@@ -30,7 +32,9 @@ export interface OrderStatusHistory {
 const orderItemSchema = new mongoose.Schema<OrderItem>({
     product: {type: String, required: true},
     drawings: {type: Number, required: true},
+    drawingsImages: {type: String, required: false},
     background: {type: String, required: true},
+    backgroundImage: {type: String, required: false},
     price: {type: Number, required: true},
     amount: {type: Number, required: true}
 });
