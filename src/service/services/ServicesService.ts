@@ -6,6 +6,7 @@ import logger from "../../utils/Logger";
 import {EmailService} from "../../domain/services/Service";
 import fs from "fs";
 import {imagesPath} from "../../../CanecasServiceServer";
+import path from "path";
 
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || "";
 
@@ -37,9 +38,8 @@ class ServicesService {
         }
     }
 
-    async uploadFile(name: string, data) {
-        let matches = data.match(/^data:([A-Za-z-+/]+);base64,(.+)$/),
-            response = { type: null, data: null};
+    async uploadFile(origin: string, name: string, data) {
+        let matches = data.match(/^data:([A-Za-z-+/]+);base64,(.+)$/), response = { type: null, data: null};
 
         if (matches.length !== 3) {
             return new BadRequestError("The data provided is not in valid Base64 format");
@@ -48,7 +48,7 @@ class ServicesService {
         response.data = new Buffer(matches[2], 'base64');
 
         try {
-            fs.writeFileSync(imagesPath + name, response.data, 'utf8');
+            fs.writeFileSync(path.join(imagesPath, origin, "/", name), response.data, 'utf8');
             return responseMessage(`${name} was uploaded successfully`, StatusCodes.OK);
         } catch (error) {
             logger.error("Upload Error", error);

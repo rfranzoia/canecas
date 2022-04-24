@@ -17,8 +17,8 @@ export class ServicesController {
     }
 
     async uploadFile(req, res) {
-        const { name, data } = req.body;
-        const result = await servicesService.uploadFile(name, data);
+        const { origin, name, data } = req.body;
+        const result = await servicesService.uploadFile(origin, name, data);
         return evaluateResult(result, res, StatusCodes.OK, () => result);
     }
 
