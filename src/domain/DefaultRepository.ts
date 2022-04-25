@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import logger from "../utils/Logger";
 import DatabaseError from "../utils/errors/DatabaseError";
+import NotFoundError from "../utils/errors/NotFoundError";
 
 export interface DefaultModel {}
 
@@ -24,12 +25,18 @@ export class DefaultRepository<DefaultModel> {
     }
 
     async findById(id: string) {
-        return await this.model.findOne({_id: id}, {'__v': 0,});
+        try {
+            return await this.model.findOne({_id: id}, {'__v': 0,});
+        } catch (error) {
+            logger.error("error searching for ID", error.stack)
+            return new NotFoundError(`Error searching for ID ${id}`, error)
+        }
+
     }
 
     async delete(id: string) {
         try {
-            await this.model.deleteOne({_id: id});
+            return await this.model.deleteOne({_id: id});
         } catch (error) {
             logger.error("Error deleting", error);
             return new DatabaseError("Error while deleting");
