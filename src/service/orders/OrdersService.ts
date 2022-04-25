@@ -77,6 +77,9 @@ class OrdersService extends DefaultService<Order> {
 
     async getAsUser(id: string, userEmail: string) {
         const order = await this.repository.findById(id);
+        if (order instanceof NotFoundError) {
+            return order as NotFoundError;
+        }
         const user = await userRepository.findByEmail(userEmail);
         if (!order || (user.role !== Role.ADMIN && order.userEmail !== userEmail)) {
             return new NotFoundError(`No Order found with ID ${id}`);
@@ -120,6 +123,9 @@ class OrdersService extends DefaultService<Order> {
     async deleteAsUser(id: string, userEmail: string) {
         const user = await userRepository.findByEmail(userEmail);
         const order = await ordersRepository.findById(id);
+        if (order instanceof NotFoundError) {
+            return order as NotFoundError;
+        }
         if (!order || (user.role !== Role.ADMIN && order.userEmail !== userEmail)) {
             return new NotFoundError(`No order found with ID ${id}`);
         }
@@ -133,6 +139,10 @@ class OrdersService extends DefaultService<Order> {
         try {
             const user = await userRepository.findByEmail(reqUserEmail);
             const existingOrder = await ordersRepository.findById(id);
+
+            if (existingOrder instanceof NotFoundError) {
+                return existingOrder as NotFoundError;
+            }
 
             // validate if the order exists at all
             if (!existingOrder) {
@@ -214,8 +224,7 @@ class OrdersService extends DefaultService<Order> {
 
             return await ordersRepository.update(id, order);
         } catch (error) {
-            console.error(error.stack);
-            logger.error("Error while updating order", error);
+            logger.error("Error while updating order", error.stack);
             return new InternalServerErrorError("Error while updating order", error.stack);
         }
     }
