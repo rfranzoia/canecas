@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import {StatusCodes} from "http-status-codes";
-import {responseMessage} from "../../controller/ResponseData";
+import {responseMessage} from "../../controller/DefaultResponseMessage";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import logger from "../../utils/Logger";
 import {EmailService} from "../../domain/services/Service";

@@ -2,6 +2,8 @@ import {StatusCodes} from "http-status-codes";
 import NotFoundError from "../utils/errors/NotFoundError";
 import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
 import BadRequestError from "../utils/errors/BadRequestError";
+import {responseMessage} from "./DefaultResponseMessage";
+import BaseError from "../utils/errors/BaseError";
 
 export const evaluateResult = async (result, res, status, callback) => {
     if (result instanceof NotFoundError) {
@@ -14,7 +16,11 @@ export const evaluateResult = async (result, res, status, callback) => {
     } else if (result instanceof BadRequestError) {
         const error = result as BadRequestError;
         return res.status(StatusCodes.BAD_REQUEST).send(error);
+
+    } else if (result instanceof BaseError) {
+        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(result);
     }
+
     const data = await callback();
-    return res.status(status).send(data);
+    return res.status(status).send(responseMessage("", status, data));
 }
