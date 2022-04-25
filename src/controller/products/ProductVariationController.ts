@@ -7,18 +7,21 @@ import {ProductVariation} from "../../domain/products/ProductVariation";
 export class ProductVariationController {
 
     async count(req, res) {
-        return res.status(StatusCodes.OK).send({ count: await productVariationService.count({}) });
+        const count = await productVariationService.count({});
+        return evaluateResult(count, res, StatusCodes.OK, () => ({count: count}));
     }
 
     async list(req, res) {
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await productVariationService.list(skip, limit));
+        const variations = await productVariationService.list(skip, limit);
+        return evaluateResult(variations, res, StatusCodes.OK, () => variations);
     }
 
     async listByFilter(req, res) {
         const { product, drawings, background } = req.query;
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await productVariationService.listByFilter(product, drawings, background, skip, limit));
+        const variations = await productVariationService.listByFilter(product, drawings, background, skip, limit);
+        return evaluateResult(variations, res, StatusCodes.OK, () => variations);
     }
 
     async get(req, res) {

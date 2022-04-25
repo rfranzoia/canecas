@@ -2,13 +2,14 @@ import {StatusCodes} from "http-status-codes";
 import {Product} from "../../domain/products/Product";
 import {productService} from "../../service/products/ProductsService";
 import {evaluateResult} from "../ControllerHelper";
-import {responseMessage} from "../ResponseData";
+import {responseMessage} from "../DefaultResponseMessage";
 import {paginationService} from "../../service/PaginationService";
 
 export class ProductsController {
 
     async count(req, res) {
-        return res.status(StatusCodes.OK).send({ count: await productService.count({}) });
+        const count = await productService.count({});
+        return evaluateResult(count, res, StatusCodes.OK, async () => ({ count: count }));
     }
 
     async get(req, res) {
@@ -25,7 +26,8 @@ export class ProductsController {
 
     async list(req, res) {
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await productService.list({}, skip, limit));
+        const products = await productService.list({}, skip, limit);
+        return evaluateResult(products, res, StatusCodes.OK, async () => products);
     }
 
     async create(req, res) {

@@ -2,20 +2,22 @@ import {StatusCodes} from "http-status-codes";
 import {ordersService} from "../../service/orders/OrdersService";
 import {Order} from "../../domain/orders/Orders";
 import {evaluateResult} from "../ControllerHelper";
-import {responseMessage} from "../ResponseData";
+import {responseMessage} from "../DefaultResponseMessage";
 import {paginationService} from "../../service/PaginationService";
 
 export class OrdersController {
 
     async count(req, res) {
         const userEmail = req['user'].email;
-        return res.status(StatusCodes.OK).send({ count: await ordersService.count(userEmail) });
+        const count = await ordersService.count(userEmail);
+        return evaluateResult(count, res, StatusCodes.OK, () => ({count: count}));
     }
 
     async list(req, res) {
         const userEmail = req['user'].email;
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await ordersService.list(userEmail, skip, limit));
+        const orders = await ordersService.list(userEmail, skip, limit);
+        return evaluateResult(orders, res, StatusCodes.OK, () => orders);
     }
 
     async listByFilter(req, res) {

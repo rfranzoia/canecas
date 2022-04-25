@@ -3,13 +3,14 @@ import UnauthorizedError from "../../utils/errors/UnauthorizedError";
 import {User} from "../../domain/Users/Users";
 import {userService} from "../../service/users/UsersService";
 import {evaluateResult} from "../ControllerHelper";
-import {responseMessage} from "../ResponseData";
+import {responseMessage} from "../DefaultResponseMessage";
 import {paginationService} from "../../service/PaginationService";
 
 export class UsersController {
 
     async count(req, res) {
-        return res.status(StatusCodes.OK).send({ count: await userService.count({}) });
+        const count = await userService.count({});
+        return evaluateResult(count, res, StatusCodes.OK, async () => ({ count: count }));
     }
 
     async get(req, res) {
@@ -26,7 +27,8 @@ export class UsersController {
 
     async list(req, res) {
         const {skip, limit} = await paginationService.getPagination(req.query);
-        return res.status(StatusCodes.OK).send(await userService.list({}, skip, limit));
+        const users = await userService.list({}, skip, limit);
+        return evaluateResult(users, res, StatusCodes.OK, async () => users);
     }
 
     async listByRole(req, res) {
@@ -79,13 +81,13 @@ export class UsersController {
         const {email, password} = req.body;
         const result = await userService.authenticate(email, password);
         if (result instanceof UnauthorizedError) {
-            return res.status(StatusCodes.UNAUTHORIZED).send(result as UnauthorizedError);
+            return res.status(StatusCodes.UNAUTHORIZED).send(responseMessage("User not Authorized", StatusCodes.UNAUTHORIZED, result as UnauthorizedError));
         }
         const user = {
             ...result,
             authToken: result.authToken
         }
-        return res.status(StatusCodes.OK).send(user);
+        return res.status(StatusCodes.OK).send(responseMessage("User not Authorized", StatusCodes.UNAUTHORIZED, user));
     }
 
 }
