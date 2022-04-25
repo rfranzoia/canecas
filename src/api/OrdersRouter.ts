@@ -6,8 +6,8 @@ const ordersRouter = Router();
 
 ordersRouter.get("/", ordersController.list);
 ordersRouter.get("/count", ordersController.count);
+ordersRouter.get("/filterBy", ordersController.listByFilter);
 ordersRouter.get("/:id", ordersController.get);
-ordersRouter.get("/from/:start_date/to/:end_date", ordersController.listByDateRange);
 
 ordersRouter.post("/", ordersController.create);
 ordersRouter.put("/:id", ordersController.update);

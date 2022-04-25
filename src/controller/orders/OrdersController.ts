@@ -18,11 +18,11 @@ export class OrdersController {
         return res.status(StatusCodes.OK).send(await ordersService.list(userEmail, skip, limit));
     }
 
-    async listByDateRange(req, res) {
-        const {start_date, end_date} = req.params;
-        const userEmail = req['user'].email;
+    async listByFilter(req, res) {
+        const requestUserEmail = req['user'].email;
+        const {startDate, endDate, orderStatus, userEmail} = req.query;
         const {skip, limit} = await paginationService.getPagination(req.query);
-        const orders = await ordersService.listByDateRange(start_date, end_date, userEmail, skip, limit);
+        const orders = await ordersService.listByFilter(startDate, endDate, orderStatus, userEmail, requestUserEmail, skip, limit);
         return evaluateResult(orders, res, StatusCodes.OK, () => orders);
     }
 

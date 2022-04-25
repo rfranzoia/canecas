@@ -22,41 +22,56 @@ class OrdersService extends DefaultService<Order> {
         } else {
             return await this.repository.count({ userEmail: userEmail });
         }
-
     }
 
     async list(userEmail: string, skip: number, limit: number) {
         const user = await userRepository.findByEmail(userEmail);
         if (user.role === Role.ADMIN) {
-            return await this.repository.findAll({}, skip, limit);
+            return await ordersRepository.findByFilter({}, skip, limit);
         } else {
-            return await this.repository.findAll({userEmail: userEmail}, skip,limit);
+            return await ordersRepository.findByFilter({userEmail: userEmail}, skip, limit);
         }
     }
 
-    async listByDateRange(startDate: string, endDate: string, userEmail: string, skip: number, limit: number) {
-        const user = await userRepository.findByEmail(userEmail);
+    async listByFilter(startDate: string, endDate: string, orderStatus:string, userEmail: string, requestUser:string, skip: number, limit: number) {
+        const user = await userRepository.findByEmail(requestUser);
         try {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            if (end < start) {
-                return new BadRequestError("End date must be after start date");
+            let filter = {};
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                if (end < start) {
+                    return new BadRequestError("End date must be after start date");
+                }
+                filter = {
+                    orderDate: {
+                        $gte: startDate,
+                        $lte: endDate
+                    },
+                }
             }
-            let filter: object = {
-                orderDate: {
-                    $gte: startDate,
-                    $lte: endDate
+            if (orderStatus) {
+                filter = {
+                    ...filter,
+                    status: +orderStatus,
+                }
+            }
+            if (userEmail) {
+                filter = {
+                    ...filter,
+                    userEmail: userEmail,
                 }
             }
             if (user.role !== Role.ADMIN) {
                 filter = {
                     ...filter,
-                    userEmail: userEmail
+                    userEmail: userEmail,
                 }
             }
-            return await ordersRepository.findByDateRange(filter, skip, limit);
+            return await ordersRepository.findByFilter(filter, skip, limit);
         } catch (error) {
-            return new BadRequestError("Start and/or End date(s) not valid");
+            logger.error(error.stack);
+            return new BadRequestError("There was a problem while loading the orders", error.stack);
         }
     }
 
