@@ -11,9 +11,6 @@ import servicesRouter from "./ServicesRouter";
 import bodyParser from "body-parser";
 import productVariationRouter from "./ProductVariationRouter";
 import errorRouter from "./ErrorRouter";
-import logger from "../utils/Logger";
-import {StatusCodes} from "http-status-codes";
-import {responseMessage} from "../controller/DefaultResponseMessage";
 
 const app = express();
 app.use(cors());
@@ -49,19 +46,5 @@ api.use("/orders", TokenService.getInstance().authenticateToken, ordersRouter);
 api.use("/services", TokenService.getInstance().authenticateToken, servicesRouter);
 
 app.use("/api", api);
-
-app.all("*", (req, res) => {
-    return res.status(StatusCodes.NOT_FOUND)
-        .send(responseMessage("The url you're looking for doesn't exist",
-            StatusCodes.NOT_FOUND));
-});
-
-app.use((err, req, res, next) => {
-    logger.error("Error", err.stack);
-    return res.status(StatusCodes.INTERNAL_SERVER_ERROR)
-        .send(responseMessage("Something went terribly wrong here",
-            StatusCodes.INTERNAL_SERVER_ERROR,
-            { error: err, details: err.stack }));
-})
 
 export default app;

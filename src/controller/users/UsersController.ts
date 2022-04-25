@@ -87,7 +87,7 @@ export class UsersController {
             ...result,
             authToken: result.authToken
         }
-        return res.status(StatusCodes.OK).send(responseMessage("User not Authorized", StatusCodes.UNAUTHORIZED, user));
+        return res.status(StatusCodes.OK).send(responseMessage("", StatusCodes.OK, user));
     }
 
 }
