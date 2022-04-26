@@ -2,7 +2,7 @@ import logger from "../../utils/Logger";
 import NotFoundError from "../../utils/errors/NotFoundError";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {Order, OrderItem, OrderStatus, OrderStatusHistory} from "../../domain/orders/Orders";
+import {Order, OrderFilter, OrderItem, OrderStatus, OrderStatusHistory} from "../../domain/orders/Orders";
 import {ordersRepository} from "../../domain/orders/OrdersRepository";
 import {userRepository} from "../../domain/Users/UsersRepository";
 import {productRepository} from "../../domain/products/ProductRepository";
@@ -15,13 +15,10 @@ class OrdersService extends DefaultService<Order> {
     constructor() {
         super(ordersRepository, "Order");
     }
-    async count(userEmail: string) {
-        const user = await userRepository.findByEmail(userEmail);
-        if (user.role === Role.ADMIN) {
-            return await this.repository.count({});
-        } else {
-            return await this.repository.count({ userEmail: userEmail });
-        }
+
+    async count(orderFilter: OrderFilter) {
+        const filter = await createFilter(orderFilter, orderFilter.requestUserEmail);
+        return await this.repository.count(filter);
     }
 
     async list(userEmail: string, skip: number, limit: number) {
@@ -34,40 +31,8 @@ class OrdersService extends DefaultService<Order> {
     }
 
     async listByFilter(startDate: string, endDate: string, orderStatus:string, userEmail: string, requestUser:string, skip: number, limit: number) {
-        const user = await userRepository.findByEmail(requestUser);
         try {
-            let filter = {};
-            if (startDate && endDate) {
-                const start = new Date(startDate);
-                const end = new Date(endDate);
-                if (end < start) {
-                    return new BadRequestError("End date must be after start date");
-                }
-                filter = {
-                    orderDate: {
-                        $gte: startDate,
-                        $lte: endDate
-                    },
-                }
-            }
-            if (orderStatus) {
-                filter = {
-                    ...filter,
-                    status: +orderStatus,
-                }
-            }
-            if (userEmail) {
-                filter = {
-                    ...filter,
-                    userEmail: userEmail,
-                }
-            }
-            if (user.role !== Role.ADMIN) {
-                filter = {
-                    ...filter,
-                    userEmail: userEmail,
-                }
-            }
+            const filter = await createFilter({startDate, endDate, orderStatus, userEmail}, requestUser);
             return await ordersRepository.findByFilter(filter, skip, limit);
         } catch (error) {
             logger.error(error.stack);
@@ -228,6 +193,44 @@ class OrdersService extends DefaultService<Order> {
             return new InternalServerErrorError("Error while updating order", error.stack);
         }
     }
+}
+
+const createFilter = async (orderFilter: OrderFilter, requestUserEmail: string) => {
+    const {startDate, endDate, orderStatus, userEmail} = orderFilter;
+    const user = await userRepository.findByEmail(requestUserEmail);
+    let filter = {};
+    if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (end < start) {
+            return new BadRequestError("End date must be after start date");
+        }
+        filter = {
+            orderDate: {
+                $gte: startDate,
+                $lte: endDate
+            },
+        }
+    }
+    if (orderStatus) {
+        filter = {
+            ...filter,
+            status: +orderStatus,
+        }
+    }
+    if (userEmail) {
+        filter = {
+            ...filter,
+            userEmail: userEmail,
+        }
+    }
+    if (user.role !== Role.ADMIN) {
+        filter = {
+            ...filter,
+            userEmail: userEmail,
+        }
+    }
+    return filter;
 }
 
 const areItemsValid = (orderItems: OrderItem[]) => {

@@ -8,8 +8,9 @@ import {paginationService} from "../../service/PaginationService";
 export class OrdersController {
 
     async count(req, res) {
-        const userEmail = req['user'].email;
-        const count = await ordersService.count(userEmail);
+        const requestUserEmail = req['user'].email;
+        const {startDate, endDate, orderStatus, userEmail} = req.query;
+        const count = await ordersService.count({startDate, endDate, orderStatus, userEmail, requestUserEmail});
         return evaluateResult(count, res, StatusCodes.OK, () => ({count: count}));
     }
 
