@@ -9,6 +9,21 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
         super(ProductVariationModel);
     }
 
+    async findAllSorted(filter:object, skip: number, limit: number) {
+        try {
+            return await this.model.find(filter, {
+                '__v': 0, 'password': 0,
+            }).sort({
+                product: "asc",
+                drawings: "asc",
+                background: "asc",
+            }).skip(skip)
+                .limit(limit);
+        } catch (error) {
+            logger.error("Error while loading variations");
+            return new DatabaseError(error);
+        }
+    }
     async create(pv: ProductVariation) {
         try {
             const productVariation = await this.model.create({

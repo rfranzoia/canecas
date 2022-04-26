@@ -14,7 +14,11 @@ class ProductVariationService extends DefaultService<ProductVariation> {
     }
 
     async list(skip: number, limit: number) {
-        return await super.list({}, skip, limit);
+        try {
+            return await productVariationRepository.findAllSorted({}, skip, limit);
+        } catch (error) {
+            return error;
+        }
     }
 
     async listByFilter(product: string, drawings: number, background: BackgroundType, skip: number, limit: number) {
@@ -23,7 +27,7 @@ class ProductVariationService extends DefaultService<ProductVariation> {
             return isValid;
         }
         const filter = getFilter(product, drawings, background);
-        return await this.repository.findAll(filter, skip, limit);
+        return await productVariationRepository.findAllSorted(filter, skip, limit);
     }
 
     async create(productVariation: ProductVariation) {
