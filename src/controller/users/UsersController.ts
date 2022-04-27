@@ -5,6 +5,7 @@ import {userService} from "../../service/users/UsersService";
 import {evaluateResult} from "../ControllerHelper";
 import {responseMessage} from "../DefaultResponseMessage";
 import {paginationService} from "../../service/PaginationService";
+import {tokenService} from "../../security/TokenService";
 
 export class UsersController {
 
@@ -81,13 +82,19 @@ export class UsersController {
         const {email, password} = req.body;
         const result = await userService.authenticate(email, password);
         if (result instanceof UnauthorizedError) {
-            return res.status(StatusCodes.UNAUTHORIZED).send(responseMessage("User not Authorized", StatusCodes.UNAUTHORIZED, result as UnauthorizedError));
+            return res.status(StatusCodes.UNAUTHORIZED).send(result as UnauthorizedError);
         }
         const user = {
             ...result,
             authToken: result.authToken
         }
         return res.status(StatusCodes.OK).send(responseMessage("", StatusCodes.OK, user));
+    }
+
+    async validateToken(req, res) {
+        const {token} = req.body;
+        const result = await tokenService.validateToken(token);
+        return evaluateResult(result, res, StatusCodes.OK, () => result);
     }
 
 }

@@ -15,6 +15,7 @@ usersRouter.delete("/:id", tokenService.authenticateToken, usersController.delet
 usersRouter.put("/:id", tokenService.authenticateToken, usersController.update);
 
 usersRouter.post("/password", tokenService.authenticateToken, usersController.updatePassword);
+usersRouter.post("/validateToken", usersController.validateToken);
 
 usersRouter.post("/", usersController.create);
 usersRouter.post("/login", usersController.login);
