@@ -3,6 +3,8 @@ import {NextFunction, Request, Response} from "express";
 import {StatusCodes} from "http-status-codes";
 import logger from "../utils/Logger";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import BadRequestError from "../utils/errors/BadRequestError";
+import {responseMessage} from "../controller/DefaultResponseMessage";
 
 export class TokenService {
     static instance: TokenService;
@@ -38,6 +40,21 @@ export class TokenService {
             req["user"] = user;
             next()
         });
+    }
+
+    validateToken = async (token: string) => {
+        if (!token) {
+            return new BadRequestError("Invalid token provided");
+        }
+
+        try {
+            const result = jwt.verify(token, process.env.JWT_SECRET as string);
+            return responseMessage("Token is valid", StatusCodes.OK, { token: result });
+        } catch (error) {
+            logger.error("Token verification error:", error);
+            return new UnauthorizedError("Unauthorized access", error);
+        }
+
     }
 }
 
