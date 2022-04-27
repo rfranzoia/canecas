@@ -3,7 +3,7 @@ import NotFoundError from "../utils/errors/NotFoundError";
 import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
 import BadRequestError from "../utils/errors/BadRequestError";
 import {responseMessage} from "./DefaultResponseMessage";
-import BaseError from "../utils/errors/BaseError";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
 
 export const evaluateResult = async (result, res, status, callback) => {
     if (result instanceof NotFoundError) {
@@ -17,8 +17,9 @@ export const evaluateResult = async (result, res, status, callback) => {
         const error = result as BadRequestError;
         return res.status(StatusCodes.BAD_REQUEST).send(error);
 
-    } else if (result instanceof BaseError) {
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).send(result);
+    } else if (result instanceof UnauthorizedError) {
+        const error = result as UnauthorizedError;
+        return res.status(StatusCodes.UNAUTHORIZED).send(error);
     }
 
     const data = await callback();
