@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
 import logger from "../utils/Logger";
 
 dotenv.config({ path: "./.env" });
@@ -15,7 +15,7 @@ mongoose.connection.on('error', (err) => {
 });
 
 const mongoConnect = async () => {
-    await mongoose.connect( MONGO_URL );
+    await mongoose.connect(MONGO_URL);
 }
 
 const mongoDisconnect = async () => {

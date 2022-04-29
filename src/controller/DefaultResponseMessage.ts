@@ -1,4 +1,4 @@
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
 
 class DefaultResponseMessage {
     statusCode: number;
@@ -6,7 +6,7 @@ class DefaultResponseMessage {
     data: any;
 
     constructor(message: string, statusCode?: number, data?: any) {
-        this.statusCode = statusCode?statusCode: StatusCodes.BAD_REQUEST;
+        this.statusCode = statusCode ? statusCode : StatusCodes.BAD_REQUEST;
         this.message = message;
         this.data = data;
     }

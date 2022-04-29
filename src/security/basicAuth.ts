@@ -1,7 +1,7 @@
-import {NextFunction} from "express";
-import {StatusCodes} from "http-status-codes";
+import { NextFunction } from "express";
+import { StatusCodes } from "http-status-codes";
+import { userService } from "../service/users/UsersService";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
-import {userService} from "../service/users/UsersService";
 
 const basicAuth = async (req, res, next: NextFunction) => {
 
@@ -16,7 +16,7 @@ const basicAuth = async (req, res, next: NextFunction) => {
     }
 
     // verify auth credentials
-    const base64Credentials =  req.headers.authorization.split(' ')[1];
+    const base64Credentials = req.headers.authorization.split(' ')[1];
     const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
     const [username, password] = credentials.split(':');
     const response = await userService.authenticate(username, password);

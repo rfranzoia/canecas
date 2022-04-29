@@ -1,16 +1,16 @@
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {User, UserModel} from "./Users";
 import logger from "../../utils/Logger";
-import {DefaultRepository} from "../DefaultRepository";
+import { DefaultRepository } from "../DefaultRepository";
+import { User, UserModel } from "./Users";
 
-class UserRepository extends DefaultRepository<User>{
+class UserRepository extends DefaultRepository<User> {
 
     constructor() {
         super(UserModel);
     }
 
     async findByEmail(email: string) {
-        return await this.model.findOne({ email: email }, { '__v': 0,});
+        return await this.model.findOne({ email: email }, { '__v': 0, });
     }
 
     async findByRole(role: string) {
@@ -45,7 +45,7 @@ class UserRepository extends DefaultRepository<User>{
                 email: user.email,
                 phone: user.phone,
                 address: user.address
-            }, { returnOriginal: false  });
+            }, { returnOriginal: false });
         } catch (error) {
             logger.error("Error updating User", error);
             return new InternalServerErrorError(error);
@@ -56,7 +56,7 @@ class UserRepository extends DefaultRepository<User>{
         try {
             return await this.model.findOneAndUpdate({ email: email }, {
                 password: password
-            }, { returnOriginal: false  });
+            }, { returnOriginal: false });
         } catch (error) {
             logger.error("Error updating password", error);
             return new InternalServerErrorError(error);

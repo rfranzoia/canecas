@@ -1,7 +1,7 @@
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
 import logger from "../../utils/Logger";
-import {Order, OrdersModel, OrderStatus} from "./Orders";
-import {DefaultRepository} from "../DefaultRepository";
+import { DefaultRepository } from "../DefaultRepository";
+import { Order, OrdersModel, OrderStatus } from "./Orders";
 
 class OrdersRepository extends DefaultRepository<Order> {
 
@@ -15,7 +15,7 @@ class OrdersRepository extends DefaultRepository<Order> {
                 '__v': 0, 'password': 0,
             }).skip(skip)
                 .limit(limit)
-                .sort({createdAt: "desc", orderDate: "desc"});
+                .sort({ createdAt: "desc", orderDate: "desc" });
         } catch (error) {
             logger.error(error);
         }
@@ -40,14 +40,14 @@ class OrdersRepository extends DefaultRepository<Order> {
 
     async update(id: string, order: Order) {
         try {
-            return await OrdersModel.findOneAndUpdate({_id: id}, {
+            return await OrdersModel.findOneAndUpdate({ _id: id }, {
                 userEmail: order.userEmail,
                 orderDate: order.orderDate,
                 status: order.status,
                 totalPrice: order.totalPrice,
                 items: order.items,
                 statusHistory: order.statusHistory
-            }, {returnOriginal: false});
+            }, { returnOriginal: false });
         } catch (error) {
             logger.error("Error updating Order", error);
             return new InternalServerErrorError(error);

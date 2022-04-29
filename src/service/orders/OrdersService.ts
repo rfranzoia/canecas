@@ -1,14 +1,14 @@
-import logger from "../../utils/Logger";
-import NotFoundError from "../../utils/errors/NotFoundError";
+import { Order, OrderFilter, OrderItem, OrderStatus, OrderStatusHistory } from "../../domain/orders/Orders";
+import { ordersRepository } from "../../domain/orders/OrdersRepository";
+import { productRepository } from "../../domain/products/ProductRepository";
+import { BackgroundType } from "../../domain/products/ProductVariation";
+import { Role } from "../../domain/Users/Users";
+import { userRepository } from "../../domain/Users/UsersRepository";
 import BadRequestError from "../../utils/errors/BadRequestError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {Order, OrderFilter, OrderItem, OrderStatus, OrderStatusHistory} from "../../domain/orders/Orders";
-import {ordersRepository} from "../../domain/orders/OrdersRepository";
-import {userRepository} from "../../domain/Users/UsersRepository";
-import {productRepository} from "../../domain/products/ProductRepository";
-import {Role} from "../../domain/Users/Users";
-import {DefaultService} from "../DefaultService";
-import {BackgroundType} from "../../domain/products/ProductVariation";
+import NotFoundError from "../../utils/errors/NotFoundError";
+import logger from "../../utils/Logger";
+import { DefaultService } from "../DefaultService";
 
 class OrdersService extends DefaultService<Order> {
 
@@ -26,13 +26,13 @@ class OrdersService extends DefaultService<Order> {
         if (user.role === Role.ADMIN) {
             return await ordersRepository.findByFilter({}, skip, limit);
         } else {
-            return await ordersRepository.findByFilter({userEmail: userEmail}, skip, limit);
+            return await ordersRepository.findByFilter({ userEmail: userEmail }, skip, limit);
         }
     }
 
-    async listByFilter(startDate: string, endDate: string, orderStatus:string, userEmail: string, requestUser:string, skip: number, limit: number) {
+    async listByFilter(startDate: string, endDate: string, orderStatus: string, userEmail: string, requestUser: string, skip: number, limit: number) {
         try {
-            const filter = await createFilter({startDate, endDate, orderStatus, userEmail}, requestUser);
+            const filter = await createFilter({ startDate, endDate, orderStatus, userEmail }, requestUser);
             return await ordersRepository.findByFilter(filter, skip, limit);
         } catch (error) {
             logger.error(error.stack);
@@ -196,7 +196,7 @@ class OrdersService extends DefaultService<Order> {
 }
 
 const createFilter = async (orderFilter: OrderFilter, requestUserEmail: string) => {
-    const {startDate, endDate, orderStatus, userEmail} = orderFilter;
+    const { startDate, endDate, orderStatus, userEmail } = orderFilter;
     const user = await userRepository.findByEmail(requestUserEmail);
     let filter = {};
     if (startDate && endDate) {
@@ -241,7 +241,7 @@ const areItemsValid = (orderItems: OrderItem[]) => {
         } else if (!(orderItems[i].background.toUpperCase() in BackgroundType)) {
             return false;
 
-        }else if (orderItems[i].price < 0 || orderItems[i].amount < 0 || orderItems[i].drawings < 0) {
+        } else if (orderItems[i].price < 0 || orderItems[i].amount < 0 || orderItems[i].drawings < 0) {
             return false;
         }
     }

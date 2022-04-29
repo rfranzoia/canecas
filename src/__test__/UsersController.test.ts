@@ -1,13 +1,13 @@
+import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
-import {Role} from "../domain/Users/Users";
-import {StatusCodes} from "http-status-codes";
-import {TEST_USER, TestHelper} from "./TestHelper";
-import {mongoConnect, mongoDisconnect} from "../database/mongo";
+import { mongoConnect, mongoDisconnect } from "../database/mongo";
+import { Role } from "../domain/Users/Users";
+import { TEST_USER, TestHelper } from "./TestHelper";
 
 describe("Users API test (some require jwt token)", () => {
     let loggedUser;
-    
+
     beforeAll(async () => {
         await mongoConnect();
     });

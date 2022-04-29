@@ -1,9 +1,9 @@
-import {StatusCodes} from "http-status-codes";
-import {Product} from "../../domain/products/Product";
-import {productService} from "../../service/products/ProductsService";
-import {evaluateResult} from "../ControllerHelper";
-import {responseMessage} from "../DefaultResponseMessage";
-import {paginationService} from "../../service/PaginationService";
+import { StatusCodes } from "http-status-codes";
+import { Product } from "../../domain/products/Product";
+import { paginationService } from "../../service/PaginationService";
+import { productService } from "../../service/products/ProductsService";
+import { evaluateResult } from "../ControllerHelper";
+import { responseMessage } from "../DefaultResponseMessage";
 
 export class ProductsController {
 
@@ -25,7 +25,7 @@ export class ProductsController {
     }
 
     async list(req, res) {
-        const {skip, limit} = await paginationService.getPagination(req.query);
+        const { skip, limit } = await paginationService.getPagination(req.query);
         const products = await productService.list({}, skip, limit);
         return evaluateResult(products, res, StatusCodes.OK, async () => products);
     }

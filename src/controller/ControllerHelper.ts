@@ -1,9 +1,9 @@
-import {StatusCodes} from "http-status-codes";
-import NotFoundError from "../utils/errors/NotFoundError";
-import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import { StatusCodes } from "http-status-codes";
 import BadRequestError from "../utils/errors/BadRequestError";
-import {responseMessage} from "./DefaultResponseMessage";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import NotFoundError from "../utils/errors/NotFoundError";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import { responseMessage } from "./DefaultResponseMessage";
 
 export const evaluateResult = async (result, res, status, callback) => {
     if (result instanceof NotFoundError) {

@@ -1,11 +1,11 @@
-import {Router} from "express";
-import {StatusCodes} from "http-status-codes";
+import { Router } from "express";
+import { StatusCodes } from "http-status-codes";
+import { responseMessage } from "../controller/DefaultResponseMessage";
 import BadRequestError from "../utils/errors/BadRequestError";
+import DatabaseError from "../utils/errors/DatabaseError";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
 import NotFoundError from "../utils/errors/NotFoundError";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
-import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
-import DatabaseError from "../utils/errors/DatabaseError";
-import {responseMessage} from "../controller/DefaultResponseMessage";
 
 const errorRouter = Router();
 
@@ -30,7 +30,10 @@ errorRouter.get("/databaseError", (req, res) => {
 });
 
 errorRouter.get("/noError", (req, res) => {
-    return res.status(StatusCodes.OK).send(responseMessage("No error message", StatusCodes.OK, { id: 0, data: "data string"}));
+    return res.status(StatusCodes.OK).send(responseMessage("No error message", StatusCodes.OK, {
+        id: 0,
+        data: "data string"
+    }));
 });
 
 export default errorRouter;

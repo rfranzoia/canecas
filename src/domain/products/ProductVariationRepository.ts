@@ -1,7 +1,7 @@
-import {DefaultRepository} from "../DefaultRepository";
-import {ProductVariation, ProductVariationModel} from "./ProductVariation";
-import logger from "../../utils/Logger";
 import DatabaseError from "../../utils/errors/DatabaseError";
+import logger from "../../utils/Logger";
+import { DefaultRepository } from "../DefaultRepository";
+import { ProductVariation, ProductVariationModel } from "./ProductVariation";
 
 class ProductVariationRepository extends DefaultRepository<ProductVariation> {
 
@@ -9,7 +9,7 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
         super(ProductVariationModel);
     }
 
-    async findAllSorted(filter:object, skip: number, limit: number) {
+    async findAllSorted(filter: object, skip: number, limit: number) {
         try {
             return await this.model.find(filter, {
                 '__v': 0, 'password': 0,
@@ -24,6 +24,7 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
             return new DatabaseError(error);
         }
     }
+
     async create(pv: ProductVariation) {
         try {
             const productVariation = await this.model.create({
@@ -49,7 +50,7 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
                 background: pv.background,
                 price: pv.price,
                 image: pv.image
-            }, { returnOriginal: false  });
+            }, { returnOriginal: false });
         } catch (error) {
             logger.error("Error updating Product Variation", error);
             return new DatabaseError(error);

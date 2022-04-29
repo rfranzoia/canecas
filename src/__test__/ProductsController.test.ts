@@ -1,11 +1,11 @@
+import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
-import {StatusCodes} from "http-status-codes";
-import {Role} from "../domain/Users/Users";
-import {TestHelper} from "./TestHelper";
-import {mongoConnect, mongoDisconnect} from "../database/mongo";
-import {productService} from "../service/products/ProductsService";
-import {Product} from "../domain/products/Product";
+import { mongoConnect, mongoDisconnect } from "../database/mongo";
+import { Product } from "../domain/products/Product";
+import { Role } from "../domain/Users/Users";
+import { productService } from "../service/products/ProductsService";
+import { TestHelper } from "./TestHelper";
 
 describe("Products API test (requires jwt token for most)", () => {
     let loggedUser;

@@ -38,29 +38,29 @@ export interface OrderStatusHistory {
 }
 
 const orderItemSchema = new mongoose.Schema<OrderItem>({
-    product: {type: String, required: true},
-    drawings: {type: Number, required: true},
-    drawingsImages: {type: String, required: false},
-    background: {type: String, required: true},
-    backgroundImage: {type: String, required: false},
-    price: {type: Number, required: true},
-    amount: {type: Number, required: true}
+    product: { type: String, required: true },
+    drawings: { type: Number, required: true },
+    drawingsImages: { type: String, required: false },
+    background: { type: String, required: true },
+    backgroundImage: { type: String, required: false },
+    price: { type: Number, required: true },
+    amount: { type: Number, required: true }
 });
 
 const orderStatusHistorySchema = new mongoose.Schema<OrderStatusHistory>({
-    changeDate: {type: Date, required: true},
-    prevStatus: {type: Number, required: true},
-    currStatus: {type: Number, required: true},
-    reason: {type: String},
+    changeDate: { type: Date, required: true },
+    prevStatus: { type: Number, required: true },
+    currStatus: { type: Number, required: true },
+    reason: { type: String },
 });
 
 const orderSchema = new mongoose.Schema<Order>({
-    orderDate: {type: Date, required: true},
-    userEmail: {type: String, required: true},
-    status: {type: Number, required: true},
-    totalPrice: {type: Number, required: true},
-    items: [ orderItemSchema ],
-    statusHistory: [ orderStatusHistorySchema ]
+    orderDate: { type: Date, required: true },
+    userEmail: { type: String, required: true },
+    status: { type: Number, required: true },
+    totalPrice: { type: Number, required: true },
+    items: [orderItemSchema],
+    statusHistory: [orderStatusHistorySchema]
 }, { timestamps: true });
 
 export const OrdersModel = mongoose.model("order", orderSchema);

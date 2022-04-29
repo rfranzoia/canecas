@@ -1,13 +1,13 @@
+import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
-import {StatusCodes} from "http-status-codes";
-import {TestHelper} from "./TestHelper";
-import {Role} from "../domain/Users/Users";
-import {ordersRepository} from "../domain/orders/OrdersRepository";
-import {Order, OrderStatus} from "../domain/orders/Orders";
-import {mongoConnect, mongoDisconnect} from "../database/mongo";
-import {userRepository} from "../domain/Users/UsersRepository";
-import {ordersService} from "../service/orders/OrdersService";
+import { mongoConnect, mongoDisconnect } from "../database/mongo";
+import { Order, OrderStatus } from "../domain/orders/Orders";
+import { ordersRepository } from "../domain/orders/OrdersRepository";
+import { Role } from "../domain/Users/Users";
+import { userRepository } from "../domain/Users/UsersRepository";
+import { ordersService } from "../service/orders/OrdersService";
+import { TestHelper } from "./TestHelper";
 
 describe("Orders API test (requires jwt token)", () => {
 

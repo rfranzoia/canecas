@@ -1,30 +1,30 @@
-import {StatusCodes} from "http-status-codes";
-import {ordersService} from "../../service/orders/OrdersService";
-import {Order} from "../../domain/orders/Orders";
-import {evaluateResult} from "../ControllerHelper";
-import {responseMessage} from "../DefaultResponseMessage";
-import {paginationService} from "../../service/PaginationService";
+import { StatusCodes } from "http-status-codes";
+import { Order } from "../../domain/orders/Orders";
+import { ordersService } from "../../service/orders/OrdersService";
+import { paginationService } from "../../service/PaginationService";
+import { evaluateResult } from "../ControllerHelper";
+import { responseMessage } from "../DefaultResponseMessage";
 
 export class OrdersController {
 
     async count(req, res) {
         const requestUserEmail = req['user'].email;
-        const {startDate, endDate, orderStatus, userEmail} = req.query;
-        const count = await ordersService.count({startDate, endDate, orderStatus, userEmail, requestUserEmail});
-        return evaluateResult(count, res, StatusCodes.OK, () => ({count: count}));
+        const { startDate, endDate, orderStatus, userEmail } = req.query;
+        const count = await ordersService.count({ startDate, endDate, orderStatus, userEmail, requestUserEmail });
+        return evaluateResult(count, res, StatusCodes.OK, () => ({ count: count }));
     }
 
     async list(req, res) {
         const userEmail = req['user'].email;
-        const {skip, limit} = await paginationService.getPagination(req.query);
+        const { skip, limit } = await paginationService.getPagination(req.query);
         const orders = await ordersService.list(userEmail, skip, limit);
         return evaluateResult(orders, res, StatusCodes.OK, () => orders);
     }
 
     async listByFilter(req, res) {
         const requestUserEmail = req['user'].email;
-        const {startDate, endDate, orderStatus, userEmail} = req.query;
-        const {skip, limit} = await paginationService.getPagination(req.query);
+        const { startDate, endDate, orderStatus, userEmail } = req.query;
+        const { skip, limit } = await paginationService.getPagination(req.query);
         const orders = await ordersService.listByFilter(startDate, endDate, orderStatus, userEmail, requestUserEmail, skip, limit);
         return evaluateResult(orders, res, StatusCodes.OK, () => orders);
     }
@@ -51,7 +51,7 @@ export class OrdersController {
         const { id } = req.params;
         const userEmail = req['user'].email;
         const result = await ordersService.deleteAsUser(id, userEmail);
-        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Order deleted successfully" ));
+        return evaluateResult(result, res, StatusCodes.NO_CONTENT, async () => responseMessage("Order deleted successfully"));
     }
 
     async update(req, res) {

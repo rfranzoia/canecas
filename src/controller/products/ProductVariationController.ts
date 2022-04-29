@@ -1,25 +1,25 @@
-import {StatusCodes} from "http-status-codes";
-import {productVariationService} from "../../service/products/ProductVariationService";
-import {paginationService} from "../../service/PaginationService";
-import {evaluateResult} from "../ControllerHelper";
-import {ProductVariation} from "../../domain/products/ProductVariation";
+import { StatusCodes } from "http-status-codes";
+import { ProductVariation } from "../../domain/products/ProductVariation";
+import { paginationService } from "../../service/PaginationService";
+import { productVariationService } from "../../service/products/ProductVariationService";
+import { evaluateResult } from "../ControllerHelper";
 
 export class ProductVariationController {
 
     async count(req, res) {
         const count = await productVariationService.count({});
-        return evaluateResult(count, res, StatusCodes.OK, () => ({count: count}));
+        return evaluateResult(count, res, StatusCodes.OK, () => ({ count: count }));
     }
 
     async list(req, res) {
-        const {skip, limit} = await paginationService.getPagination(req.query);
+        const { skip, limit } = await paginationService.getPagination(req.query);
         const variations = await productVariationService.list(skip, limit);
         return evaluateResult(variations, res, StatusCodes.OK, () => variations);
     }
 
     async listByFilter(req, res) {
         const { product, drawings, background } = req.query;
-        const {skip, limit} = await paginationService.getPagination(req.query);
+        const { skip, limit } = await paginationService.getPagination(req.query);
         const variations = await productVariationService.listByFilter(product, drawings, background, skip, limit);
         return evaluateResult(variations, res, StatusCodes.OK, () => variations);
     }

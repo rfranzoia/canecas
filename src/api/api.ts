@@ -1,22 +1,22 @@
-import cors from "cors";
-import morgan from 'morgan';
-import express, {Router} from "express";
-import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "./swagger.json";
-import {TokenService} from "../security/TokenService";
-import productRouter from "./ProductsRouter";
-import usersRouter from "./UsersRouter";
-import ordersRouter from "./OrdersRouter";
-import servicesRouter from "./ServicesRouter";
 import bodyParser from "body-parser";
-import productVariationRouter from "./ProductVariationRouter";
+import cors from "cors";
+import express, { Router } from "express";
+import morgan from 'morgan';
+import swaggerUi from "swagger-ui-express";
+import { TokenService } from "../security/TokenService";
 import errorRouter from "./ErrorRouter";
+import ordersRouter from "./OrdersRouter";
+import productRouter from "./ProductsRouter";
+import productVariationRouter from "./ProductVariationRouter";
+import servicesRouter from "./ServicesRouter";
+import swaggerDocument from "./swagger.json";
+import usersRouter from "./UsersRouter";
 
 const app = express();
 app.use(cors());
 
-app.use(express.json({limit: '25mb'}));
-app.use(express.urlencoded({limit: '25mb'}));
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb' }));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 

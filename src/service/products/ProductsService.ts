@@ -1,10 +1,10 @@
-import {Product} from "../../domain/products/Product";
+import { Product } from "../../domain/products/Product";
+import { productRepository } from "../../domain/products/ProductRepository";
 import BadRequestError from "../../utils/errors/BadRequestError";
-import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {productRepository} from "../../domain/products/ProductRepository";
+import NotFoundError from "../../utils/errors/NotFoundError";
 import logger from "../../utils/Logger";
-import {DefaultService} from "../DefaultService";
+import { DefaultService } from "../DefaultService";
 
 class ProductsService extends DefaultService<Product> {
 

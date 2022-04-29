@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
+import { Role, User } from "../../domain/Users/Users";
+import { userRepository } from "../../domain/Users/UsersRepository";
+import { tokenService } from "../../security/TokenService";
 import BadRequestError from "../../utils/errors/BadRequestError";
-import NotFoundError from "../../utils/errors/NotFoundError";
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {Role, User} from "../../domain/Users/Users";
-import {userRepository} from "../../domain/Users/UsersRepository";
-import logger from "../../utils/Logger";
+import NotFoundError from "../../utils/errors/NotFoundError";
 import UnauthorizedError from "../../utils/errors/UnauthorizedError";
-import {tokenService} from "../../security/TokenService";
-import {DefaultService} from "../DefaultService";
+import logger from "../../utils/Logger";
+import { DefaultService } from "../DefaultService";
 
 class UsersService extends DefaultService<User> {
 
@@ -38,7 +38,7 @@ class UsersService extends DefaultService<User> {
         }
         try {
             const hashedPassword = await bcrypt.hash(user.password, 10);
-            if (!await bcrypt.compare(user.password, hashedPassword))  logger.info("not the same");
+            if (!await bcrypt.compare(user.password, hashedPassword)) logger.info("not the same");
             user = {
                 ...user,
                 password: hashedPassword

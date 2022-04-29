@@ -1,6 +1,6 @@
-import {DefaultRepository} from "../domain/DefaultRepository";
-import NotFoundError from "../utils/errors/NotFoundError";
+import { DefaultRepository } from "../domain/DefaultRepository";
 import BadRequestError from "../utils/errors/BadRequestError";
+import NotFoundError from "../utils/errors/NotFoundError";
 
 export class DefaultService<DefaultModel> {
 
@@ -24,7 +24,7 @@ export class DefaultService<DefaultModel> {
         if (!id) {
             return new BadRequestError(`Invalid ID for ${this.name} on get`);
         }
-        const result =   await this.repository.findById(id);
+        const result = await this.repository.findById(id);
         if (!result) {
             return new NotFoundError(`${this.name} with ID ${id} doesn't exist`);
         }

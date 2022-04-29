@@ -1,10 +1,10 @@
+import { NextFunction, Request, Response } from "express";
+import { StatusCodes } from "http-status-codes";
 import jwt from "jsonwebtoken";
-import {NextFunction, Request, Response} from "express";
-import {StatusCodes} from "http-status-codes";
-import logger from "../utils/Logger";
-import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import { responseMessage } from "../controller/DefaultResponseMessage";
 import BadRequestError from "../utils/errors/BadRequestError";
-import {responseMessage} from "../controller/DefaultResponseMessage";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import logger from "../utils/Logger";
 
 export class TokenService {
     static instance: TokenService;
@@ -17,10 +17,12 @@ export class TokenService {
     }
 
     generateToken = (credentials: Credentials) => {
-        return jwt.sign( {id: credentials.id,
-            email: credentials.email,
-            username: credentials.name},
-            process.env.JWT_SECRET, {expiresIn: TOKEN_TIMEOUT})
+        return jwt.sign({
+                id: credentials.id,
+                email: credentials.email,
+                username: credentials.name
+            },
+            process.env.JWT_SECRET, { expiresIn: TOKEN_TIMEOUT })
     }
 
     authenticateToken = (req: Request, res: Response, next: NextFunction) => {

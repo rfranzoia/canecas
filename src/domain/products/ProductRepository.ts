@@ -1,16 +1,16 @@
 import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import {Product, ProductModel} from "./Product";
 import logger from "../../utils/Logger";
-import {DefaultRepository} from "../DefaultRepository";
+import { DefaultRepository } from "../DefaultRepository";
+import { Product, ProductModel } from "./Product";
 
-class ProductRepository extends DefaultRepository<Product>{
+class ProductRepository extends DefaultRepository<Product> {
 
     constructor() {
         super(ProductModel);
     }
 
     async findByName(name: string) {
-        return await this.model.findOne({ name: name }, { '__v': 0,});
+        return await this.model.findOne({ name: name }, { '__v': 0, });
     }
 
     async create(product: Product) {
@@ -36,7 +36,7 @@ class ProductRepository extends DefaultRepository<Product>{
                 description: product.description,
                 price: product.price,
                 image: product.image
-            }, { returnOriginal: false  });
+            }, { returnOriginal: false });
         } catch (error) {
             logger.error("Error updating Product", error);
             return new InternalServerErrorError(error);

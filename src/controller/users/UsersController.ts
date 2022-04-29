@@ -1,11 +1,11 @@
-import {StatusCodes} from "http-status-codes";
+import { StatusCodes } from "http-status-codes";
+import { User } from "../../domain/Users/Users";
+import { tokenService } from "../../security/TokenService";
+import { paginationService } from "../../service/PaginationService";
+import { userService } from "../../service/users/UsersService";
 import UnauthorizedError from "../../utils/errors/UnauthorizedError";
-import {User} from "../../domain/Users/Users";
-import {userService} from "../../service/users/UsersService";
-import {evaluateResult} from "../ControllerHelper";
-import {responseMessage} from "../DefaultResponseMessage";
-import {paginationService} from "../../service/PaginationService";
-import {tokenService} from "../../security/TokenService";
+import { evaluateResult } from "../ControllerHelper";
+import { responseMessage } from "../DefaultResponseMessage";
 
 export class UsersController {
 
@@ -27,7 +27,7 @@ export class UsersController {
     }
 
     async list(req, res) {
-        const {skip, limit} = await paginationService.getPagination(req.query);
+        const { skip, limit } = await paginationService.getPagination(req.query);
         const users = await userService.list({}, skip, limit);
         return evaluateResult(users, res, StatusCodes.OK, async () => users);
     }
@@ -79,7 +79,7 @@ export class UsersController {
     }
 
     async login(req, res) {
-        const {email, password} = req.body;
+        const { email, password } = req.body;
         const result = await userService.authenticate(email, password);
         if (result instanceof UnauthorizedError) {
             return res.status(StatusCodes.UNAUTHORIZED).send(result as UnauthorizedError);
@@ -92,7 +92,7 @@ export class UsersController {
     }
 
     async validateToken(req, res) {
-        const {token} = req.body;
+        const { token } = req.body;
         const result = await tokenService.validateToken(token);
         return evaluateResult(result, res, StatusCodes.OK, () => result);
     }
