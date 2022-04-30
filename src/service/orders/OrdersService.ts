@@ -227,7 +227,7 @@ const createFilter = async (orderFilter: OrderFilter, requestUserEmail: string) 
     if (user.role !== Role.ADMIN) {
         filter = {
             ...filter,
-            userEmail: userEmail,
+            userEmail: requestUserEmail,
         }
     }
     return filter;
