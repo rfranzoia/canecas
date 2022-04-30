@@ -119,7 +119,7 @@ class OrdersService extends DefaultService<Order> {
                 if (existingOrder.userEmail !== user.email) {
                     return new NotFoundError(`No Order found with ID ${id}`);
 
-                } else if (order.status && order.status !== OrderStatus.CONFIRMED && order.status !== OrderStatus.CANCELED) {
+                } else if (order.status && order.status !== OrderStatus.CONFIRMED_ORDER && order.status !== OrderStatus.CANCELED) {
                     return new BadRequestError("Customers can only confirm or cancel orders");
                 }
             }
@@ -157,7 +157,7 @@ class OrdersService extends DefaultService<Order> {
                 ]
             } else if (order.items) {
                 // if this is an items
-                if (existingOrder.status !== OrderStatus.NEW) {
+                if (existingOrder.status !== OrderStatus.QUOTE_REQUEST) {
                     return new BadRequestError("Items change can only occur for NEW orders");
 
                 } else if (!areItemsValid(order.items)) {

@@ -26,7 +26,7 @@ class OrdersRepository extends DefaultRepository<Order> {
             const o = await OrdersModel.create({
                 orderDate: order.orderDate,
                 userEmail: order.userEmail,
-                status: OrderStatus.NEW,
+                status: OrderStatus.QUOTE_REQUEST,
                 totalPrice: order.totalPrice,
                 items: order.items
             });

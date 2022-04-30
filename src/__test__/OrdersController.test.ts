@@ -149,12 +149,12 @@ describe("Orders API test (requires jwt token)", () => {
                 expect(response.statusCode).toBe(StatusCodes.BAD_REQUEST);
             });
 
-            it("should be able to move status to OrderStatus.CREATED", async () => {
+            it("should be able to move status to OrderStatus.CONFIRMED_ORDER", async () => {
                 const response = await supertest(app)
                     .put(`/api/orders/${createdOrder._id}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                     .send({
-                        status: OrderStatus.CONFIRMED,
+                        status: OrderStatus.CONFIRMED_ORDER,
                     });
                 expect(response.statusCode).toBe(StatusCodes.OK);
             });
