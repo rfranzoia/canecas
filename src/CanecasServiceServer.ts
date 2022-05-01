@@ -13,7 +13,7 @@ const start = async () => {
     await mongoConnect();
 
     // setup client path
-    app.use("/", express.static(__dirname));
+    app.use("/", express.static(path.join(__dirname, "..")));
     app.use(express.static(__dirname + "/public/"));
 
     app.get('/', (req, res) => {
