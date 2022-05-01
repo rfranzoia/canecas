@@ -1,4 +1,4 @@
-import { DefaultRepository } from "../domain/DefaultRepository";
+import { DefaultRepository } from "../repository/DefaultRepository";
 import BadRequestError from "../utils/errors/BadRequestError";
 import NotFoundError from "../utils/errors/NotFoundError";
 

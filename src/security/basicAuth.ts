@@ -1,6 +1,6 @@
 import { NextFunction } from "express";
 import { StatusCodes } from "http-status-codes";
-import { userService } from "../service/users/UsersService";
+import { userService } from "../service/UsersService";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
 
 const basicAuth = async (req, res, next: NextFunction) => {

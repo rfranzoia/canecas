@@ -1,11 +1,11 @@
 import { StatusCodes } from "http-status-codes";
-import { User } from "../../domain/Users/Users";
-import { tokenService } from "../../security/TokenService";
-import { paginationService } from "../../service/PaginationService";
-import { userService } from "../../service/users/UsersService";
-import UnauthorizedError from "../../utils/errors/UnauthorizedError";
-import { evaluateResult } from "../ControllerHelper";
-import { responseMessage } from "../DefaultResponseMessage";
+import { User } from "../domain/Users";
+import { tokenService } from "../security/TokenService";
+import { paginationService } from "../service/PaginationService";
+import { userService } from "../service/UsersService";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import { evaluateResult } from "./ControllerHelper";
+import { responseMessage } from "./DefaultResponseMessage";
 
 export class UsersController {
 

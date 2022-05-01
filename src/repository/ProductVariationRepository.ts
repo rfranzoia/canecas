@@ -1,7 +1,7 @@
-import DatabaseError from "../../utils/errors/DatabaseError";
-import logger from "../../utils/Logger";
-import { DefaultRepository } from "../DefaultRepository";
-import { ProductVariation, ProductVariationModel } from "./ProductVariation";
+import { ProductVariation, ProductVariationModel } from "../domain/ProductVariation";
+import DatabaseError from "../utils/errors/DatabaseError";
+import logger from "../utils/Logger";
+import { DefaultRepository } from "./DefaultRepository";
 
 class ProductVariationRepository extends DefaultRepository<ProductVariation> {
 

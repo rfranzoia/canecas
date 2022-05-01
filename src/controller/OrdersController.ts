@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
-import { Order } from "../../domain/orders/Orders";
-import { ordersService } from "../../service/orders/OrdersService";
-import { paginationService } from "../../service/PaginationService";
-import { evaluateResult } from "../ControllerHelper";
-import { responseMessage } from "../DefaultResponseMessage";
+import { Order } from "../domain/Orders";
+import { ordersService } from "../service/OrdersService";
+import { paginationService } from "../service/PaginationService";
+import { evaluateResult } from "./ControllerHelper";
+import { responseMessage } from "./DefaultResponseMessage";
 
 export class OrdersController {
 

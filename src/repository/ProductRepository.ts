@@ -1,7 +1,7 @@
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import logger from "../../utils/Logger";
-import { DefaultRepository } from "../DefaultRepository";
-import { Product, ProductModel } from "./Product";
+import { Product, ProductModel } from "../domain/Product";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import logger from "../utils/Logger";
+import { DefaultRepository } from "./DefaultRepository";
 
 class ProductRepository extends DefaultRepository<Product> {
 

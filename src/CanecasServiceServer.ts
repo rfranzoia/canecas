@@ -1,10 +1,10 @@
-import {mongoConnect} from "./src/database/mongo";
-import logger from "./src/utils/Logger";
-import app from "./src/api/api";
 import express from "express";
+import { StatusCodes } from "http-status-codes";
 import path from "path";
-import {StatusCodes} from "http-status-codes";
-import {responseMessage} from "./src/controller/DefaultResponseMessage";
+import app from "./api/api";
+import { responseMessage } from "./controller/DefaultResponseMessage";
+import { mongoConnect } from "./database/mongo";
+import logger from "./utils/Logger";
 
 const PORT = process.env.SERVER_PORT || 3500;
 export const imagesPath = __dirname + "/images/";
@@ -31,7 +31,7 @@ const start = async () => {
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR)
             .send(responseMessage("Something went terribly wrong here",
                 StatusCodes.INTERNAL_SERVER_ERROR,
-                {error: err, details: err.stack}));
+                { error: err, details: err.stack }));
     })
 
     app.listen(PORT, () => {

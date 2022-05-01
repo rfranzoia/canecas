@@ -2,7 +2,7 @@ import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
 import { mongoConnect, mongoDisconnect } from "../database/mongo";
-import { Role } from "../domain/Users/Users";
+import { Role } from "../domain/Users";
 import { TEST_USER, TestHelper } from "./TestHelper";
 
 describe("Users API test (some require jwt token)", () => {

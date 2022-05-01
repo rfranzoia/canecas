@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
-import { EmailService } from "../../domain/services/Service";
-import { servicesService } from "../../service/services/ServicesService";
-import { evaluateResult } from "../ControllerHelper";
+import { EmailService } from "../domain/Service";
+import { servicesService } from "../service/ServicesService";
+import { evaluateResult } from "./ControllerHelper";
 
 export class ServicesController {
 

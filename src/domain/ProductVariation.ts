@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { DefaultModel } from "../DefaultRepository";
+import { DefaultModel } from "../repository/DefaultRepository";
 
 export enum BackgroundType { EMPTY = "empty", PERSONALIZED = "personalized" }
 

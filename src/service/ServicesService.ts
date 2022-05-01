@@ -2,11 +2,11 @@ import fs from "fs";
 import { StatusCodes } from "http-status-codes";
 import nodemailer from "nodemailer";
 import path from "path";
-import { imagesPath } from "../../../CanecasServiceServer";
-import { responseMessage } from "../../controller/DefaultResponseMessage";
-import { EmailService } from "../../domain/services/Service";
-import BadRequestError from "../../utils/errors/BadRequestError";
-import logger from "../../utils/Logger";
+import { imagesPath } from "../CanecasServiceServer";
+import { responseMessage } from "../controller/DefaultResponseMessage";
+import { EmailService } from "../domain/Service";
+import BadRequestError from "../utils/errors/BadRequestError";
+import logger from "../utils/Logger";
 
 const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD || "";
 

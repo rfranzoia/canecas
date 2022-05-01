@@ -1,13 +1,13 @@
 import bcrypt from "bcrypt";
-import { Role, User } from "../../domain/Users/Users";
-import { userRepository } from "../../domain/Users/UsersRepository";
-import { tokenService } from "../../security/TokenService";
-import BadRequestError from "../../utils/errors/BadRequestError";
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import NotFoundError from "../../utils/errors/NotFoundError";
-import UnauthorizedError from "../../utils/errors/UnauthorizedError";
-import logger from "../../utils/Logger";
-import { DefaultService } from "../DefaultService";
+import { Role, User } from "../domain/Users";
+import { userRepository } from "../repository/UsersRepository";
+import { tokenService } from "../security/TokenService";
+import BadRequestError from "../utils/errors/BadRequestError";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import NotFoundError from "../utils/errors/NotFoundError";
+import UnauthorizedError from "../utils/errors/UnauthorizedError";
+import logger from "../utils/Logger";
+import { DefaultService } from "./DefaultService";
 
 class UsersService extends DefaultService<User> {
 

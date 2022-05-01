@@ -1,7 +1,7 @@
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import logger from "../../utils/Logger";
-import { DefaultRepository } from "../DefaultRepository";
-import { Order, OrdersModel, OrderStatus } from "./Orders";
+import { Order, OrdersModel, OrderStatus } from "../domain/Orders";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import logger from "../utils/Logger";
+import { DefaultRepository } from "./DefaultRepository";
 
 class OrdersRepository extends DefaultRepository<Order> {
 

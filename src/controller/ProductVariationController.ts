@@ -1,8 +1,8 @@
 import { StatusCodes } from "http-status-codes";
-import { ProductVariation } from "../../domain/products/ProductVariation";
-import { paginationService } from "../../service/PaginationService";
-import { productVariationService } from "../../service/products/ProductVariationService";
-import { evaluateResult } from "../ControllerHelper";
+import { ProductVariation } from "../domain/ProductVariation";
+import { paginationService } from "../service/PaginationService";
+import { productVariationService } from "../service/ProductVariationService";
+import { evaluateResult } from "./ControllerHelper";
 
 export class ProductVariationController {
 

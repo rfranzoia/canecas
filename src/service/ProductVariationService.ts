@@ -1,10 +1,10 @@
-import { BackgroundType, ProductVariation } from "../../domain/products/ProductVariation";
-import { productVariationRepository } from "../../domain/products/ProductVariationRepository";
-import BadRequestError from "../../utils/errors/BadRequestError";
-import BaseError from "../../utils/errors/BaseError";
-import NotFoundError from "../../utils/errors/NotFoundError";
-import logger from "../../utils/Logger";
-import { DefaultService } from "../DefaultService";
+import { BackgroundType, ProductVariation } from "../domain/ProductVariation";
+import { productVariationRepository } from "../repository/ProductVariationRepository";
+import BadRequestError from "../utils/errors/BadRequestError";
+import BaseError from "../utils/errors/BaseError";
+import NotFoundError from "../utils/errors/NotFoundError";
+import logger from "../utils/Logger";
+import { DefaultService } from "./DefaultService";
 import { productService } from "./ProductsService";
 
 class ProductVariationService extends DefaultService<ProductVariation> {

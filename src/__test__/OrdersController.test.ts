@@ -2,11 +2,11 @@ import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
 import { mongoConnect, mongoDisconnect } from "../database/mongo";
-import { Order, OrderStatus } from "../domain/orders/Orders";
-import { ordersRepository } from "../domain/orders/OrdersRepository";
-import { Role } from "../domain/Users/Users";
-import { userRepository } from "../domain/Users/UsersRepository";
-import { ordersService } from "../service/orders/OrdersService";
+import { Order, OrderStatus } from "../domain/Orders";
+import { Role } from "../domain/Users";
+import { ordersRepository } from "../repository/OrdersRepository";
+import { userRepository } from "../repository/UsersRepository";
+import { ordersService } from "../service/OrdersService";
 import { TestHelper } from "./TestHelper";
 
 describe("Orders API test (requires jwt token)", () => {

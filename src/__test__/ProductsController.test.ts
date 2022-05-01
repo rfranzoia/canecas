@@ -2,9 +2,9 @@ import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
 import { mongoConnect, mongoDisconnect } from "../database/mongo";
-import { Product } from "../domain/products/Product";
-import { Role } from "../domain/Users/Users";
-import { productService } from "../service/products/ProductsService";
+import { Product } from "../domain/Product";
+import { Role } from "../domain/Users";
+import { productService } from "../service/ProductsService";
 import { TestHelper } from "./TestHelper";
 
 describe("Products API test (requires jwt token for most)", () => {

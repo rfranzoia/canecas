@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { ProductVariationController } from "../controller/products/ProductVariationController";
+import { ProductVariationController } from "../controller/ProductVariationController";
 import { TokenService } from "../security/TokenService";
 
 const productVariationController = new ProductVariationController();

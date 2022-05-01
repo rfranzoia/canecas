@@ -1,7 +1,7 @@
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import logger from "../../utils/Logger";
-import { DefaultRepository } from "../DefaultRepository";
-import { User, UserModel } from "./Users";
+import { User, UserModel } from "../domain/Users";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import logger from "../utils/Logger";
+import { DefaultRepository } from "./DefaultRepository";
 
 class UserRepository extends DefaultRepository<User> {
 

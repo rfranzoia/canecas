@@ -1,9 +1,9 @@
 import { StatusCodes } from "http-status-codes";
-import { Product } from "../../domain/products/Product";
-import { paginationService } from "../../service/PaginationService";
-import { productService } from "../../service/products/ProductsService";
-import { evaluateResult } from "../ControllerHelper";
-import { responseMessage } from "../DefaultResponseMessage";
+import { Product } from "../domain/Product";
+import { paginationService } from "../service/PaginationService";
+import { productService } from "../service/ProductsService";
+import { evaluateResult } from "./ControllerHelper";
+import { responseMessage } from "./DefaultResponseMessage";
 
 export class ProductsController {
 

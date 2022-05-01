@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { DefaultModel } from "../DefaultRepository";
+import { DefaultModel } from "../repository/DefaultRepository";
 
 export interface Product extends DefaultModel {
     name?: string;

@@ -1,14 +1,14 @@
-import { Order, OrderFilter, OrderItem, OrderStatus, OrderStatusHistory } from "../../domain/orders/Orders";
-import { ordersRepository } from "../../domain/orders/OrdersRepository";
-import { productRepository } from "../../domain/products/ProductRepository";
-import { BackgroundType } from "../../domain/products/ProductVariation";
-import { Role } from "../../domain/Users/Users";
-import { userRepository } from "../../domain/Users/UsersRepository";
-import BadRequestError from "../../utils/errors/BadRequestError";
-import InternalServerErrorError from "../../utils/errors/InternalServerErrorError";
-import NotFoundError from "../../utils/errors/NotFoundError";
-import logger from "../../utils/Logger";
-import { DefaultService } from "../DefaultService";
+import { Order, OrderFilter, OrderItem, OrderStatus, OrderStatusHistory } from "../domain/Orders";
+import { BackgroundType } from "../domain/ProductVariation";
+import { Role } from "../domain/Users";
+import { ordersRepository } from "../repository/OrdersRepository";
+import { productRepository } from "../repository/ProductRepository";
+import { userRepository } from "../repository/UsersRepository";
+import BadRequestError from "../utils/errors/BadRequestError";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
+import NotFoundError from "../utils/errors/NotFoundError";
+import logger from "../utils/Logger";
+import { DefaultService } from "./DefaultService";
 
 class OrdersService extends DefaultService<Order> {
 

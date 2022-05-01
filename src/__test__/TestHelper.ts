@@ -1,6 +1,6 @@
 import randomEmail from "random-email";
-import { userRepository } from "../domain/Users/UsersRepository";
-import { userService } from "../service/users/UsersService";
+import { userRepository } from "../repository/UsersRepository";
+import { userService } from "../service/UsersService";
 import UnauthorizedError from "../utils/errors/UnauthorizedError";
 import logger from "../utils/Logger";
 
