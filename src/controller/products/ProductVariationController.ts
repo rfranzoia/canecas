@@ -18,9 +18,9 @@ export class ProductVariationController {
     }
 
     async listByFilter(req, res) {
-        const { product, drawings, background } = req.query;
+        const { product, caricatures, background } = req.query;
         const { skip, limit } = await paginationService.getPagination(req.query);
-        const variations = await productVariationService.listByFilter(product, drawings, background, skip, limit);
+        const variations = await productVariationService.listByFilter(product, caricatures, background, skip, limit);
         return evaluateResult(variations, res, StatusCodes.OK, () => variations);
     }
 
@@ -37,10 +37,10 @@ export class ProductVariationController {
     }
 
     async create(req, res) {
-        const { product, drawings, background, price, image } = req.body;
+        const { product, caricatures, background, price, image } = req.body;
         const pv: ProductVariation = {
             product,
-            drawings,
+            caricatures: caricatures,
             background,
             price,
             image
@@ -51,10 +51,10 @@ export class ProductVariationController {
 
     async update(req, res) {
         const { id } = req.params;
-        const { product, drawings, background, price, image } = req.body;
+        const { product, caricatures, background, price, image } = req.body;
         const pv: ProductVariation = {
             product,
-            drawings,
+            caricatures: caricatures,
             background,
             price,
             image

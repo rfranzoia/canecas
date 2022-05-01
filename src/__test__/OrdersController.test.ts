@@ -205,14 +205,14 @@ const getTestOrder = (createdUser) => {
         items: [
             {
                 product: "Caneca com arte",
-                drawings: 1,
+                caricatures: 1,
                 background: "empty",
                 price: 59.90,
                 amount: 2
             },
             {
                 product: "Arte",
-                drawings: 1,
+                caricatures: 1,
                 background: "empty",
                 price: 35.90,
                 amount: 1

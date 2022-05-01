@@ -241,7 +241,7 @@ const areItemsValid = (orderItems: OrderItem[]) => {
         } else if (!(orderItems[i].background.toUpperCase() in BackgroundType)) {
             return false;
 
-        } else if (orderItems[i].price < 0 || orderItems[i].amount < 0 || orderItems[i].drawings < 0) {
+        } else if (orderItems[i].price < 0 || orderItems[i].amount < 0 || orderItems[i].caricatures < 0) {
             return false;
         }
     }

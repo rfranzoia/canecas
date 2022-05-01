@@ -5,7 +5,7 @@ export enum BackgroundType { EMPTY = "empty", PERSONALIZED = "personalized" }
 
 export interface ProductVariation extends DefaultModel {
     product?: string,
-    drawings?: number,
+    caricatures?: number,
     background?: BackgroundType,
     price?: number,
     image?: string
@@ -13,7 +13,7 @@ export interface ProductVariation extends DefaultModel {
 
 const schema = new mongoose.Schema<ProductVariation>({
     product: { type: String, required: true },
-    drawings: { type: Number, required: true },
+    caricatures: { type: Number, required: true },
     background: { type: String, required: true },
     price: { type: Number, required: true },
     image: { type: String, required: true }

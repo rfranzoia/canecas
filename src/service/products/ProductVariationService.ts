@@ -21,17 +21,17 @@ class ProductVariationService extends DefaultService<ProductVariation> {
         }
     }
 
-    async listByFilter(product: string, drawings: number, background: BackgroundType, skip: number, limit: number) {
-        const isValid = await areParametersValid(product, drawings, background);
+    async listByFilter(product: string, caricatures: number, background: BackgroundType, skip: number, limit: number) {
+        const isValid = await areParametersValid(product, caricatures, background);
         if (isValid instanceof BaseError) {
             return isValid;
         }
-        const filter = getFilter(product, drawings, background);
+        const filter = getFilter(product, caricatures, background);
         return await productVariationRepository.findAllSorted(filter, skip, limit);
     }
 
     async create(productVariation: ProductVariation) {
-        const similar = await doesVariationExist(productVariation.product, productVariation.drawings, productVariation.background);
+        const similar = await doesVariationExist(productVariation.product, productVariation.caricatures, productVariation.background);
         if (similar) {
             return similar;
         }
@@ -49,13 +49,13 @@ class ProductVariationService extends DefaultService<ProductVariation> {
             return new NotFoundError(`${this.name} doesn't exist`);
 
         }
-        const isValid = await areParametersValid(productVariation.product, productVariation.drawings, productVariation.background);
+        const isValid = await areParametersValid(productVariation.product, productVariation.caricatures, productVariation.background);
         if (isValid instanceof BaseError) {
             return isValid;
         }
 
         /*
-        let filter = getFilter(productVariation.product, productVariation.drawings, productVariation.background);
+        let filter = getFilter(productVariation.product, productVariation.caricatures, productVariation.background);
         filter = {
             ...filter,
             id: {
@@ -73,18 +73,18 @@ class ProductVariationService extends DefaultService<ProductVariation> {
 
 }
 
-const getFilter = (product: string, drawings: number, background: BackgroundType) => {
+const getFilter = (product: string, caricatures: number, background: BackgroundType) => {
 
     let filter = {};
     if (product) filter = { product: product }
-    if (drawings) filter = { ...filter, drawings: drawings }
+    if (caricatures) filter = { ...filter, caricatures: caricatures }
     if (background) filter = { ...filter, background: background }
 
     return filter;
 }
 
-const doesVariationExist = async (product: string, drawings: number, background: BackgroundType): Promise<Boolean | BadRequestError | NotFoundError> => {
-    const list = await productVariationService.listByFilter(product, drawings, background, 0, 0);
+const doesVariationExist = async (product: string, caricatures: number, background: BackgroundType): Promise<Boolean | BadRequestError | NotFoundError> => {
+    const list = await productVariationService.listByFilter(product, caricatures, background, 0, 0);
     if (list instanceof BaseError) {
         return list;
 
@@ -95,7 +95,7 @@ const doesVariationExist = async (product: string, drawings: number, background:
     return false;
 }
 
-const areParametersValid = async (product: string, drawings: number, background: BackgroundType): Promise<Boolean | BadRequestError | NotFoundError> => {
+const areParametersValid = async (product: string, caricatures: number, background: BackgroundType): Promise<Boolean | BadRequestError | NotFoundError> => {
     if (product) {
         const p = await productService.findByName(product);
         if (!p || p instanceof NotFoundError) {
@@ -103,8 +103,8 @@ const areParametersValid = async (product: string, drawings: number, background:
         }
     }
 
-    if (drawings && drawings < 0) {
-        return new BadRequestError(("Number of drawings cannot be negative"));
+    if (caricatures && caricatures < 0) {
+        return new BadRequestError(("Number of caricatures cannot be negative"));
 
     } else if (background && !(background.toUpperCase() in BackgroundType)) {
         return new BadRequestError("Background type is incorrect.");

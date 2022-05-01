@@ -15,7 +15,7 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
                 '__v': 0, 'password': 0,
             }).sort({
                 product: "asc",
-                drawings: "asc",
+                caricatures: "asc",
                 background: "asc",
             }).skip(skip)
                 .limit(limit);
@@ -29,7 +29,7 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
         try {
             const productVariation = await this.model.create({
                 product: pv.product,
-                drawings: pv.drawings,
+                caricatures: pv.caricatures,
                 background: pv.background,
                 price: pv.price,
                 image: pv.image
@@ -46,7 +46,7 @@ class ProductVariationRepository extends DefaultRepository<ProductVariation> {
         try {
             return await this.model.findOneAndUpdate({ _id: id }, {
                 product: pv.product,
-                drawings: pv.drawings,
+                caricatures: pv.caricatures,
                 background: pv.background,
                 price: pv.price,
                 image: pv.image
