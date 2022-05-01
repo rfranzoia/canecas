@@ -7,7 +7,7 @@ import { mongoConnect } from "./database/mongo";
 import logger from "./utils/Logger";
 
 const PORT = process.env.SERVER_PORT || 3500;
-export const imagesPath = __dirname + "/images/";
+export const imagesPath = __dirname + "/../images/";
 
 const start = async () => {
     await mongoConnect();
