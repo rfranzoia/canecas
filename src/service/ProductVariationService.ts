@@ -106,7 +106,7 @@ const areParametersValid = async (product: string, caricatures: number, backgrou
     if (caricatures && caricatures < 0) {
         return new BadRequestError(("Number of caricatures cannot be negative"));
 
-    } else if (background && !(background.toUpperCase() in BackgroundType)) {
+    } else if (background && !(background in BackgroundType)) {
         return new BadRequestError("Background type is incorrect.");
     }
 
