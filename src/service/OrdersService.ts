@@ -76,6 +76,7 @@ class OrdersService extends DefaultService<Order> {
             }, 0);
             order = {
                 ...order,
+                status: OrderStatus.QUOTE_REQUEST,
                 totalPrice: totalPrice
             };
             return await ordersRepository.create(order);
@@ -156,7 +157,7 @@ class OrdersService extends DefaultService<Order> {
                     history
                 ]
             } else if (order.items) {
-                // if this is an items
+                // if this is an items update
                 if (existingOrder.status !== OrderStatus.QUOTE_REQUEST) {
                     return new BadRequestError("Items change can only occur for NEW orders");
 

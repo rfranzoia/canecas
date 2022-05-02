@@ -19,39 +19,6 @@ class UserRepository extends DefaultRepository<User> {
         });
     }
 
-    async create(user: User) {
-        try {
-            const u = await this.model.create({
-                name: user.name,
-                email: user.email,
-                password: user.password,
-                role: user.role,
-                phone: user.phone,
-                address: user.address
-            });
-            await u.save();
-            return u;
-        } catch (error) {
-            logger.error("Error creating User", error);
-            return new InternalServerErrorError("Error while creating the User");
-        }
-    }
-
-    async update(id: string, user: User) {
-        try {
-            return await this.model.findOneAndUpdate({ _id: id }, {
-                role: user.role,
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                address: user.address
-            }, { returnOriginal: false });
-        } catch (error) {
-            logger.error("Error updating User", error);
-            return new InternalServerErrorError(error);
-        }
-    }
-
     async updatePassword(email: string, password: string) {
         try {
             return await this.model.findOneAndUpdate({ email: email }, {

@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
+import { ProductModel } from "../domain/Product";
 import DatabaseError from "../utils/errors/DatabaseError";
+import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
 import NotFoundError from "../utils/errors/NotFoundError";
 import logger from "../utils/Logger";
+
 
 export interface DefaultModel {
 }
@@ -25,7 +28,7 @@ export class DefaultRepository<DefaultModel> {
             .limit(limit);
     }
 
-    async findById(id: string) {
+    async findById<ID>(id: ID) {
         try {
             return await this.model.findOne({ _id: id }, { '__v': 0, });
         } catch (error) {
@@ -35,7 +38,27 @@ export class DefaultRepository<DefaultModel> {
 
     }
 
-    async delete(id: string) {
+    async create<T>(model: T) {
+        try {
+            const m = await this.model.create(model);
+            await m.save();
+            return m;
+        } catch (error) {
+            logger.error("Error creating", error);
+            return new InternalServerErrorError(error);
+        }
+    }
+
+    async update<ID, T>(id: ID, model: T) {
+        try {
+            return await ProductModel.findOneAndUpdate({ _id: id }, model, { returnOriginal: false });
+        } catch (error) {
+            logger.error("Error updating", error);
+            return new InternalServerErrorError(error);
+        }
+    }
+
+    async delete<ID>(id: ID) {
         try {
             return await this.model.deleteOne({ _id: id });
         } catch (error) {
