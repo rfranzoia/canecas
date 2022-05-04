@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { ProductModel } from "../domain/Product";
 import DatabaseError from "../utils/errors/DatabaseError";
 import InternalServerErrorError from "../utils/errors/InternalServerErrorError";
 import NotFoundError from "../utils/errors/NotFoundError";
@@ -51,7 +50,7 @@ export class DefaultRepository<DefaultModel> {
 
     async update<ID, T>(id: ID, model: T) {
         try {
-            return await ProductModel.findOneAndUpdate({ _id: id }, model, { returnOriginal: false });
+            return await this.model.findOneAndUpdate({ _id: id }, model, { returnOriginal: false });
         } catch (error) {
             logger.error("Error updating", error);
             return new InternalServerErrorError(error);
