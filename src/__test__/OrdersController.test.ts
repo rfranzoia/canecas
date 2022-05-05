@@ -36,7 +36,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                     .send(getTestOrder(loggedUser));
                 expect(response.statusCode).toBe(StatusCodes.CREATED);
-                order = response.body;
+                order = response.body.data;
 
             });
 
@@ -80,7 +80,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .set("Authorization", "Bearer " + loggedUser.authToken);
                 expect(response.statusCode).toBe(StatusCodes.OK);
                 expect(response.body.length).toBeGreaterThan(0);
-                orders = [...response.body];
+                orders = [...response.body.data];
             });
 
             it("should be able to list all orders by a date range", async () => {
@@ -90,7 +90,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .get(`/api/orders/from/${startDate}/to/${endDate}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken);
                 expect(response.statusCode).toBe(StatusCodes.OK);
-                expect(response.body.length).toBeGreaterThan(0);
+                expect(response.body.data.length).toBeGreaterThan(0);
             });
 
             it("should be able to retrieve an order by its ID", async () => {
@@ -99,7 +99,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .get(`/api/orders/${orderId}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken);
                 expect(response.statusCode).toBe(StatusCodes.OK);
-                expect(response.body._id).toEqual(orderId);
+                expect(response.body.data._id).toEqual(orderId);
             });
         });
 
@@ -135,7 +135,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .post("/api/orders")
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                     .send(getTestOrder(loggedUser));
-                createdOrder = response.body;
+                createdOrder = response.body.data;
             });
 
             it("should NOT be able to change status by sa customer when new status not 1 or 9", async () => {
@@ -164,7 +164,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .get(`/api/orders/${createdOrder._id}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                 expect(response.statusCode).toBe(StatusCodes.OK);
-                expect(response.body.statusHistory.length).toBeGreaterThan(0);
+                expect(response.body.data.statusHistory.length).toBeGreaterThan(0);
             });
         });
 
@@ -190,7 +190,7 @@ describe("Orders API test (requires jwt token)", () => {
                     .get(`/api/orders/${createdOrder._id}`)
                     .set("Authorization", "Bearer " + loggedUser.authToken)
                 expect(response.statusCode).toBe(StatusCodes.OK);
-                expect(response.body.statusHistory.length).toBeGreaterThan(1);
+                expect(response.body.data.statusHistory.length).toBeGreaterThan(1);
             });
         });
     });
@@ -204,8 +204,9 @@ const getTestOrder = (createdUser) => {
         userEmail: createdUser.email,
         items: [
             {
-                product: "Caneca com arte",
+                product: "Camisa",
                 caricatures: 1,
+                caricatureImages: "camisa-branca.jpg",
                 background: "empty",
                 price: 59.90,
                 amount: 2
@@ -213,6 +214,7 @@ const getTestOrder = (createdUser) => {
             {
                 product: "Arte",
                 caricatures: 1,
+                caricatureImages: "caricatura-arquivo.jpg",
                 background: "empty",
                 price: 35.90,
                 amount: 1

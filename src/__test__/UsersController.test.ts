@@ -29,7 +29,7 @@ describe("Users API test (some require jwt token)", () => {
                 .send(testUser);
             expect(response.statusCode).toBe(StatusCodes.CREATED);
             expect(response.body.email).toEqual(testUser.email);
-            createdUser = response.body;
+            createdUser = response.body.data;
         });
 
         it("should not be able to login with invalid credentials", async () => {
@@ -56,7 +56,7 @@ describe("Users API test (some require jwt token)", () => {
                 });
             expect(response.statusCode).toBe(StatusCodes.OK);
             expect(response.body.authToken).toBeDefined();
-            loggedUser = response.body;
+            loggedUser = response.body.data;
         });
 
         it("and should be able to delete an existing user if there's an user logged in", async () => {

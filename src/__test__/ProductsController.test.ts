@@ -2,7 +2,6 @@ import { StatusCodes } from "http-status-codes";
 import supertest from "supertest";
 import app from "../api/api";
 import { mongoConnect, mongoDisconnect } from "../database/mongo";
-import { Product } from "../domain/Product";
 import { Role } from "../domain/Users";
 import { productService } from "../service/ProductsService";
 import { TestHelper } from "./TestHelper";
@@ -29,7 +28,7 @@ describe("Products API test (requires jwt token for most)", () => {
                 .set("Authorization", "Bearer " + loggedUser.authToken)
                 .send(getTestProduct());
             expect(response.statusCode).toBe(StatusCodes.CREATED);
-            createdProduct = response.body;
+            createdProduct = response.body.data;
         });
 
         it("and should be able to delete the recently created product", async () => {
@@ -45,12 +44,7 @@ describe("Products API test (requires jwt token for most)", () => {
 
         beforeAll(async () => {
             const testProduct = getTestProduct();
-            const p: Product = {
-                name: testProduct.name,
-                description: testProduct.description,
-                price: testProduct.price
-            }
-            sampleProduct = await productService.create(p);
+            sampleProduct = await productService.create(testProduct);
         });
 
         afterAll(async () => {
@@ -61,7 +55,7 @@ describe("Products API test (requires jwt token for most)", () => {
             const response = await supertest(app)
                 .get("/api/products")
             expect(response.statusCode).toBe(StatusCodes.OK);
-            expect(response.body.length).toBeGreaterThan(0);
+            expect(response.body.data.length).toBeGreaterThan(0);
         });
 
     });
@@ -69,8 +63,9 @@ describe("Products API test (requires jwt token for most)", () => {
 });
 
 const getTestProduct = () => {
+    const id = new Date(Date.now()).toISOString();
     return {
-        name: "Test Product",
+        name: "Test Product ".concat(id),
         description: "Some dummy description for a test products that needs it",
         price: 10.9,
         image: "some-image.jpg"
